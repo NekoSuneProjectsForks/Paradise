@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2024 Team FESTIVAL
+ * Copyright (C) 2017, 2021-2025 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,3 +18,4 @@
 export { default as Color } from './Color';
 export { default as Quaternion } from './Quaternion';
 export { default as Vector3 } from './Vector3';
+

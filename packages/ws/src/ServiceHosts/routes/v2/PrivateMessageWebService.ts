@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2024 Team FESTIVAL
+ * Copyright (C) 2017, 2021-2025 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,12 +20,12 @@ import { ApiVersion } from '@/utils/enums';
 import { PrivateMessage, PublicProfile } from '@festivaldev/paradise-models';
 import { MessageThreadView, PrivateMessageView } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
 import {
-  BooleanProxy,
-  Int32Proxy,
-  ListProxy,
-  MessageThreadViewProxy,
-  PrivateMessageViewProxy,
-  StringProxy,
+    BooleanProxy,
+    Int32Proxy,
+    ListProxy,
+    MessageThreadViewProxy,
+    PrivateMessageViewProxy,
+    StringProxy,
 } from '@festivaldev/uberstrike-js/UberStrike/Core/Serialization';
 import { Op } from 'sequelize';
 import BaseWebService from '../BaseWebService';

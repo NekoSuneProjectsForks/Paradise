@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2024 Team FESTIVAL
+ * Copyright (C) 2017, 2021-2025 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,14 +19,14 @@
 import { default as ServiceSettings } from '@/ParadiseServiceSettings';
 import { Log } from '@/utils';
 import models, {
-  type ApplicationConfiguration,
-  type Map,
-  type PhotonServer,
-  type PublicProfile,
-  type ShopFunctionalItem,
-  type ShopGearItem,
-  type ShopQuickItem,
-  type ShopWeaponItem,
+    type ApplicationConfiguration,
+    type Map,
+    type PhotonServer,
+    type PublicProfile,
+    type ShopFunctionalItem,
+    type ShopGearItem,
+    type ShopQuickItem,
+    type ShopWeaponItem,
 } from '@festivaldev/paradise-models';
 import { type Dialect, Sequelize } from 'sequelize';
 

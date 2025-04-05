@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2024 Team FESTIVAL
+ * Copyright (C) 2017, 2021-2025 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,47 +20,47 @@ import { ProfanityFilter } from '@/ProfanityFilter';
 import { Log } from '@/utils';
 import { ApiVersion, ModerationFlag, UberstrikeInventoryItem } from '@/utils/enums';
 import {
-  Clan,
-  ClanMember,
-  CurrencyDeposit,
-  ItemTransaction,
-  MemberWallet,
-  ModerationAction,
-  PlayerInventoryItem,
-  PlayerLoadout,
-  PlayerStatistics,
-  PublicProfile,
-  UserAccount,
+    Clan,
+    ClanMember,
+    CurrencyDeposit,
+    ItemTransaction,
+    MemberWallet,
+    ModerationAction,
+    PlayerInventoryItem,
+    PlayerLoadout,
+    PlayerStatistics,
+    PublicProfile,
+    UserAccount,
 } from '@festivaldev/paradise-models';
 import {
-  AccountCompletionResult,
-  BuyingDurationType,
-  ChannelType,
-  EmailAddressStatus,
-  MemberAuthenticationResult,
-  MemberRegistrationResult,
-  MemberView,
-  MemberWalletView,
-  PublicProfileView,
-  WeeklySpecialView,
+    AccountCompletionResult,
+    BuyingDurationType,
+    ChannelType,
+    EmailAddressStatus,
+    MemberAuthenticationResult,
+    MemberRegistrationResult,
+    MemberView,
+    MemberWalletView,
+    PublicProfileView,
+    WeeklySpecialView,
 } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
 import {
-  DateTimeProxy,
-  EnumProxy,
-  Int32Proxy,
-  StringProxy,
+    DateTimeProxy,
+    EnumProxy,
+    Int32Proxy,
+    StringProxy,
 } from '@festivaldev/uberstrike-js/UberStrike/Core/Serialization';
 import {
-  AccountCompletionResultViewProxy,
-  MemberAuthenticationResultViewProxy,
+    AccountCompletionResultViewProxy,
+    MemberAuthenticationResultViewProxy,
 } from '@festivaldev/uberstrike-js/UberStrike/Core/Serialization/Legacy';
 import { TutorialStepType } from '@festivaldev/uberstrike-js/UberStrike/Core/Types';
 import { MemberAuthenticationResultView } from '@festivaldev/uberstrike-js/UberStrike/Core/ViewModel';
 import {
-  AccountCompletionResultView,
-  PlayerPersonalRecordStatisticsView,
-  PlayerStatisticsView,
-  PlayerWeaponStatisticsView,
+    AccountCompletionResultView,
+    PlayerPersonalRecordStatisticsView,
+    PlayerStatisticsView,
+    PlayerWeaponStatisticsView,
 } from '@festivaldev/uberstrike-js/UberStrike/DataCenter/Common/Entities';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';

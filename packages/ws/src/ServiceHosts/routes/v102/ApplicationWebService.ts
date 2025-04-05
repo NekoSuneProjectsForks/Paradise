@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2024 Team FESTIVAL
+ * Copyright (C) 2017, 2021-2025 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,16 +19,16 @@ import { ApiVersion } from '@/utils/enums';
 import { Map, MapSettings, PhotonServer, UserAccount } from '@festivaldev/paradise-models';
 import { BuildType, ChannelType, PhotonUsageType } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
 import {
-  EnumProxy,
-  Int32Proxy,
-  ListProxy,
-  StringProxy,
+    EnumProxy,
+    Int32Proxy,
+    ListProxy,
+    StringProxy,
 } from '@festivaldev/uberstrike-js/UberStrike/Core/Serialization';
 import {
-  ApplicationViewProxy,
-  AuthenticateApplicationViewProxy,
-  BugViewProxy,
-  MapViewProxy,
+    ApplicationViewProxy,
+    AuthenticateApplicationViewProxy,
+    BugViewProxy,
+    MapViewProxy,
 } from '@festivaldev/uberstrike-js/UberStrike/Core/Serialization/Legacy';
 import { DefinitionType, LocaleType, TutorialStepType } from '@festivaldev/uberstrike-js/UberStrike/Core/Types';
 import { AuthenticateApplicationView } from '@festivaldev/uberstrike-js/UberStrike/DataCenter/Common/Entities';

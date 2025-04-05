@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2024 Team FESTIVAL
+ * Copyright (C) 2017, 2021-2025 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,11 +16,11 @@
  */
 
 import {
-  UberStrikeItemFunctionalView,
-  UberStrikeItemGearView,
-  UberStrikeItemQuickView,
-  UberStrikeItemShopClientView,
-  UberStrikeItemWeaponView,
+    UberStrikeItemFunctionalView,
+    UberStrikeItemGearView,
+    UberStrikeItemQuickView,
+    UberStrikeItemShopClientView,
+    UberStrikeItemWeaponView,
 } from '@/UberStrike/Core/Models/Views';
 import Int32Proxy from './Int32Proxy';
 import ListProxy from './ListProxy';

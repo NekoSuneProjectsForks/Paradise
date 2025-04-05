@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2024 Team FESTIVAL
+ * Copyright (C) 2017, 2021-2025 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,3 +24,4 @@ export { default as RijndaelCryptographyPolicy } from './RijndaelCryptographyPol
 export { default as SOAPResponse } from './SOAPResponse';
 export * from './UpdateGenerator';
 export { default as XpPointsUtil } from './XpPointsUtil';
+

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2024 Team FESTIVAL
+ * Copyright (C) 2017, 2021-2025 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,20 +18,20 @@
 import ParadiseService from '@/ParadiseService';
 import { ApiVersion } from '@/utils/enums';
 import {
-  ItemTransaction,
-  Map,
-  MapSettings,
-  MemberWallet,
-  PlayerInventoryItem,
-  PublicProfile,
+    ItemTransaction,
+    Map,
+    MapSettings,
+    MemberWallet,
+    PlayerInventoryItem,
+    PublicProfile,
 } from '@festivaldev/paradise-models';
 import { BuyItemResult, ChannelType } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
 import {
-  EnumProxy,
-  Int32Proxy,
-  ListProxy,
-  ParadiseMapViewProxy,
-  StringProxy,
+    EnumProxy,
+    Int32Proxy,
+    ListProxy,
+    ParadiseMapViewProxy,
+    StringProxy,
 } from '@festivaldev/uberstrike-js/UberStrike/Core/Serialization';
 import BaseWebService from '../BaseWebService';
 import ApplicationWebService from './ApplicationWebService';

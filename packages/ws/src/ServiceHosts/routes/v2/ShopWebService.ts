@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2024 Team FESTIVAL
+ * Copyright (C) 2017, 2021-2025 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,47 +19,47 @@ import ParadiseService from '@/ParadiseService';
 import { XpPointsUtil } from '@/utils';
 import { ApiVersion } from '@/utils/enums';
 import {
-  CurrencyDeposit,
-  ItemTransaction,
-  MemberWallet,
-  PlayerInventoryItem,
-  PlayerStatistics,
-  PublicProfile,
-  ShopBundle,
-  ShopBundleItem,
-  ShopFunctionalItem,
-  ShopGearItem,
-  ShopItemPrice,
-  ShopQuickItem,
-  ShopWeaponItem,
+    CurrencyDeposit,
+    ItemTransaction,
+    MemberWallet,
+    PlayerInventoryItem,
+    PlayerStatistics,
+    PublicProfile,
+    ShopBundle,
+    ShopBundleItem,
+    ShopFunctionalItem,
+    ShopGearItem,
+    ShopItemPrice,
+    ShopQuickItem,
+    ShopWeaponItem,
 } from '@festivaldev/paradise-models';
 import {
-  BundleCategoryType,
-  BundleView,
-  BuyItemResult,
-  BuyingDurationType,
-  BuyingLocationType,
-  BuyingRecommendationType,
-  ChannelType,
-  PackType,
-  PaymentProviderType,
-  UberStrikeCurrencyType,
+    BundleCategoryType,
+    BundleView,
+    BuyItemResult,
+    BuyingDurationType,
+    BuyingLocationType,
+    BuyingRecommendationType,
+    ChannelType,
+    PackType,
+    PaymentProviderType,
+    UberStrikeCurrencyType,
 } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
 import {
-  UberStrikeItemShopClientView,
-  type UberStrikeItemFunctionalView,
-  type UberStrikeItemGearView,
-  type UberStrikeItemQuickView,
-  type UberStrikeItemWeaponView,
+    UberStrikeItemShopClientView,
+    type UberStrikeItemFunctionalView,
+    type UberStrikeItemGearView,
+    type UberStrikeItemQuickView,
+    type UberStrikeItemWeaponView,
 } from '@festivaldev/uberstrike-js/UberStrike/Core/Models/Views';
 import {
-  BooleanProxy,
-  BundleViewProxy,
-  EnumProxy,
-  Int32Proxy,
-  ListProxy,
-  StringProxy,
-  UberStrikeItemShopClientViewProxy,
+    BooleanProxy,
+    BundleViewProxy,
+    EnumProxy,
+    Int32Proxy,
+    ListProxy,
+    StringProxy,
+    UberStrikeItemShopClientViewProxy,
 } from '@festivaldev/uberstrike-js/UberStrike/Core/Serialization';
 import { UberstrikeItemType } from '@festivaldev/uberstrike-js/UberStrike/Core/Types';
 import crypto from 'crypto';

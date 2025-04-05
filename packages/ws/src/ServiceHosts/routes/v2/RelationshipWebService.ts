@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2024 Team FESTIVAL
+ * Copyright (C) 2017, 2021-2025 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,21 +19,21 @@ import ParadiseService from '@/ParadiseService';
 import { ApiVersion } from '@/utils/enums';
 import { ContactRequest, PublicProfile } from '@festivaldev/paradise-models';
 import {
-  ContactGroupView,
-  ContactRequestStatus,
-  ContactRequestView,
-  MemberOperationResult,
-  PublicProfileView,
+    ContactGroupView,
+    ContactRequestStatus,
+    ContactRequestView,
+    MemberOperationResult,
+    PublicProfileView,
 } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
 import {
-  BooleanProxy,
-  ContactGroupViewProxy,
-  ContactRequestViewProxy,
-  EnumProxy,
-  Int32Proxy,
-  ListProxy,
-  PublicProfileViewProxy,
-  StringProxy,
+    BooleanProxy,
+    ContactGroupViewProxy,
+    ContactRequestViewProxy,
+    EnumProxy,
+    Int32Proxy,
+    ListProxy,
+    PublicProfileViewProxy,
+    StringProxy,
 } from '@festivaldev/uberstrike-js/UberStrike/Core/Serialization';
 import { Op } from 'sequelize';
 import BaseWebService from '../BaseWebService';

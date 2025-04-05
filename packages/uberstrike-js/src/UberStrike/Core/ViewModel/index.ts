@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2024 Team FESTIVAL
+ * Copyright (C) 2017, 2021-2025 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,3 +27,4 @@ export { default as RegisterClientApplicationViewModel } from './RegisterClientA
 export { default as ServerConnectionView } from './ServerConnectionView';
 export { default as UberstrikeLevelViewModel } from './UberstrikeLevelViewModel';
 export { default as UberstrikeUserViewModel } from './UberstrikeUserViewModel';
+

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2024 Team FESTIVAL
+ * Copyright (C) 2017, 2021-2025 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,3 +22,4 @@ export { default as WebSocketPacketType } from './PacketType';
 export { default as WebSocketPayload } from './Payload';
 export { default as RijndaelCryptoProvider } from './RijndaelCryptoProvider';
 export * from './WebSocket';
+

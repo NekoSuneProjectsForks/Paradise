@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2024 Team FESTIVAL
+ * Copyright (C) 2017, 2021-2025 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,50 +18,50 @@
 import { XpPointsUtil } from '@/utils';
 import { ApiVersion } from '@/utils/enums';
 import {
-  ItemTransaction,
-  Map,
-  MemberWallet,
-  PlayerInventoryItem,
-  PlayerStatistics,
-  PublicProfile,
-  ShopBundle,
-  ShopBundleItem,
-  ShopFunctionalItem,
-  ShopGearItem,
-  ShopItemPrice,
-  ShopQuickItem,
-  ShopWeaponItem,
-  UserAccount,
+    ItemTransaction,
+    Map,
+    MemberWallet,
+    PlayerInventoryItem,
+    PlayerStatistics,
+    PublicProfile,
+    ShopBundle,
+    ShopBundleItem,
+    ShopFunctionalItem,
+    ShopGearItem,
+    ShopItemPrice,
+    ShopQuickItem,
+    ShopWeaponItem,
+    UserAccount,
 } from '@festivaldev/paradise-models';
 import {
-  BundleCategoryType,
-  BundleView,
-  BuyItemResult,
-  BuyingDurationType,
-  BuyingLocationType,
-  BuyingRecommendationType,
-  ChannelType,
-  PackType,
-  UberStrikeCurrencyType,
+    BundleCategoryType,
+    BundleView,
+    BuyItemResult,
+    BuyingDurationType,
+    BuyingLocationType,
+    BuyingRecommendationType,
+    ChannelType,
+    PackType,
+    UberStrikeCurrencyType,
 } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
 import {
-  UberStrikeItemShopClientView,
-  type UberStrikeItemFunctionalView,
-  type UberStrikeItemGearView,
-  type UberStrikeItemQuickView,
-  type UberStrikeItemWeaponView,
+    UberStrikeItemShopClientView,
+    type UberStrikeItemFunctionalView,
+    type UberStrikeItemGearView,
+    type UberStrikeItemQuickView,
+    type UberStrikeItemWeaponView,
 } from '@festivaldev/uberstrike-js/UberStrike/Core/Models/Views';
 import {
-  EnumProxy,
-  Int32Proxy,
-  ListProxy,
-  StringProxy,
+    EnumProxy,
+    Int32Proxy,
+    ListProxy,
+    StringProxy,
 } from '@festivaldev/uberstrike-js/UberStrike/Core/Serialization';
 import {
-  BundleViewProxy,
-  LuckyDrawUnityViewProxy,
-  MysteryBoxUnityViewProxy,
-  UberStrikeItemShopClientViewProxy,
+    BundleViewProxy,
+    LuckyDrawUnityViewProxy,
+    MysteryBoxUnityViewProxy,
+    UberStrikeItemShopClientViewProxy,
 } from '@festivaldev/uberstrike-js/UberStrike/Core/Serialization/Legacy';
 import { UberstrikeItemType } from '@festivaldev/uberstrike-js/UberStrike/Core/Types';
 import moment from 'moment';

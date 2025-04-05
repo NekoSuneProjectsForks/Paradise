@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2024 Team FESTIVAL
+ * Copyright (C) 2017, 2021-2025 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,11 +23,11 @@ import EventEmitter from 'events';
 import httpStatus from 'http-status';
 import WebSocketConnection from './Connection';
 import {
-  WebSocketConnectedEventArgs,
-  WebSocketConnectionRejectedEventArgs,
-  WebSocketDataReceivedEventArgs,
-  WebSocketDisconnectedEventArgs,
-  WebSocketPacketReceivedEventArgs,
+    WebSocketConnectedEventArgs,
+    WebSocketConnectionRejectedEventArgs,
+    WebSocketDataReceivedEventArgs,
+    WebSocketDisconnectedEventArgs,
+    WebSocketPacketReceivedEventArgs,
 } from './EventArgs';
 import PacketType from './PacketType';
 import WebSocketPayload from './Payload';

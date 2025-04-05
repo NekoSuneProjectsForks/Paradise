@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2024 Team FESTIVAL
+ * Copyright (C) 2017, 2021-2025 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,18 +19,18 @@ import ParadiseService from '@/ParadiseService';
 import { ApiVersion, type ModerationFlag } from '@/utils/enums';
 import { Clan, ClanMember, ModerationAction, PublicProfile } from '@festivaldev/paradise-models';
 import {
-  ChannelType,
-  MemberAccessLevel,
-  MemberOperationResult,
+    ChannelType,
+    MemberAccessLevel,
+    MemberOperationResult,
 } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
 import { CommActorInfo } from '@festivaldev/uberstrike-js/UberStrike/Core/Models';
 import {
-  CommActorInfoProxy,
-  DateTimeProxy,
-  EnumProxy,
-  Int32Proxy,
-  ListProxy,
-  StringProxy,
+    CommActorInfoProxy,
+    DateTimeProxy,
+    EnumProxy,
+    Int32Proxy,
+    ListProxy,
+    StringProxy,
 } from '@festivaldev/uberstrike-js/UberStrike/Core/Serialization';
 import { Op } from 'sequelize';
 import BaseWebService from '../BaseWebService';

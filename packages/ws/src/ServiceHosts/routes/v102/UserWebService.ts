@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2024 Team FESTIVAL
+ * Copyright (C) 2017, 2021-2025 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,50 +18,50 @@
 import { LoadoutFilter } from '@/utils';
 import { ApiVersion, UberstrikeInventoryItem } from '@/utils/enums';
 import {
-  CurrencyDeposit,
-  ItemTransaction,
-  MemberWallet,
-  PlayerInventoryItem,
-  PlayerLoadout,
-  PlayerStatistics,
-  PointDeposit,
-  PublicProfile,
-  UserAccount,
+    CurrencyDeposit,
+    ItemTransaction,
+    MemberWallet,
+    PlayerInventoryItem,
+    PlayerLoadout,
+    PlayerStatistics,
+    PointDeposit,
+    PublicProfile,
+    UserAccount,
 } from '@festivaldev/paradise-models';
 import {
-  ItemInventoryView,
-  MemberOperationResult,
-  MemberView,
-  type MemberWalletView,
-  type PublicProfileView,
+    ItemInventoryView,
+    MemberOperationResult,
+    MemberView,
+    type MemberWalletView,
+    type PublicProfileView,
 } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
 import {
-  BooleanProxy,
-  EnumProxy,
-  Int32Proxy,
-  ListProxy,
-  StringProxy,
+    BooleanProxy,
+    EnumProxy,
+    Int32Proxy,
+    ListProxy,
+    StringProxy,
 } from '@festivaldev/uberstrike-js/UberStrike/Core/Serialization';
 import {
-  CurrencyDepositsViewModelProxy,
-  ItemInventoryViewProxy,
-  ItemTransactionsViewModelProxy,
-  LoadoutViewProxy,
-  PlayerLevelCapViewProxy,
-  PointDepositsViewModelProxy,
-  UberstrikeUserViewModelProxy,
+    CurrencyDepositsViewModelProxy,
+    ItemInventoryViewProxy,
+    ItemTransactionsViewModelProxy,
+    LoadoutViewProxy,
+    PlayerLevelCapViewProxy,
+    PointDepositsViewModelProxy,
+    UberstrikeUserViewModelProxy,
 } from '@festivaldev/uberstrike-js/UberStrike/Core/Serialization/Legacy';
 import {
-  CurrencyDepositsViewModel,
-  ItemTransactionsViewModel,
-  PointDepositsViewModel,
-  UberstrikeUserViewModel,
+    CurrencyDepositsViewModel,
+    ItemTransactionsViewModel,
+    PointDepositsViewModel,
+    UberstrikeUserViewModel,
 } from '@festivaldev/uberstrike-js/UberStrike/Core/ViewModel';
 import {
-  LoadoutView,
-  PlayerLevelCapView,
-  UberstrikeMemberView,
-  type PlayerStatisticsView,
+    LoadoutView,
+    PlayerLevelCapView,
+    UberstrikeMemberView,
+    type PlayerStatisticsView,
 } from '@festivaldev/uberstrike-js/UberStrike/DataCenter/Common/Entities';
 import { Op } from 'sequelize';
 import BaseWebService from '../BaseWebService';

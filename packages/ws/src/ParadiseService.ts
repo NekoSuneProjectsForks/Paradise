@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2024 Team FESTIVAL
+ * Copyright (C) 2017, 2021-2025 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,15 +25,15 @@ import DiscordClient from './discord/DiscordClient';
 import { ParadiseServiceSettings } from './ParadiseServiceSettings';
 import { FileServerHost, WebServiceHost } from './ServiceHosts';
 import {
-  ServerType,
-  WebSocketHost,
-  WebSocketPacketType,
-  type WebSocketCommand,
-  type WebSocketConnectedEventArgs,
-  type WebSocketConnectionRejectedEventArgs,
-  type WebSocketDataReceivedEventArgs,
-  type WebSocketDisconnectedEventArgs,
-  type WebSocketPacketReceivedEventArgs,
+    ServerType,
+    WebSocketHost,
+    WebSocketPacketType,
+    type WebSocketCommand,
+    type WebSocketConnectedEventArgs,
+    type WebSocketConnectionRejectedEventArgs,
+    type WebSocketDataReceivedEventArgs,
+    type WebSocketDisconnectedEventArgs,
+    type WebSocketPacketReceivedEventArgs,
 } from './ServiceHosts/WebSocket';
 import { GameSessionManager, Log, XpPointsUtil } from './utils';
 

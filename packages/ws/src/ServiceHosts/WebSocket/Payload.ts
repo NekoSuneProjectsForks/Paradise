@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2024 Team FESTIVAL
+ * Copyright (C) 2017, 2021-2025 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,16 +17,16 @@
 
 import { Log } from '@/utils';
 import {
-  ArrayProxy,
-  ByteProxy,
-  CommActorInfoProxy,
-  DictionaryProxy,
-  EndOfMatchDataProxy,
-  EnumProxy,
-  GameActorInfoProxy,
-  GameRoomDataProxy,
-  Int32Proxy,
-  StringProxy,
+    ArrayProxy,
+    ByteProxy,
+    CommActorInfoProxy,
+    DictionaryProxy,
+    EndOfMatchDataProxy,
+    EnumProxy,
+    GameActorInfoProxy,
+    GameRoomDataProxy,
+    Int32Proxy,
+    StringProxy,
 } from '@festivaldev/uberstrike-js/UberStrike/Core/Serialization';
 import type { ChannelType } from 'discord.js';
 import WebSocketPacketType from './PacketType';

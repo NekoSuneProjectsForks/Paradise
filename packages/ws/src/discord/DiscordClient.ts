@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2024 Team FESTIVAL
+ * Copyright (C) 2017, 2021-2025 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,26 +24,26 @@ import * as models from '@festivaldev/paradise-models';
 import { DiscordUser } from '@festivaldev/paradise-models';
 import { MemberAccessLevel, PhotonUsageType } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
 import {
-  CommActorInfo,
-  EndOfMatchData,
-  GameActorInfo,
-  GameRoomData,
+    CommActorInfo,
+    EndOfMatchData,
+    GameActorInfo,
+    GameRoomData,
 } from '@festivaldev/uberstrike-js/UberStrike/Core/Models';
 import { GameModeType } from '@festivaldev/uberstrike-js/UberStrike/Core/Types';
 import crypto from 'crypto';
 import {
-  ActivityType,
-  CategoryChannel,
-  ChannelType,
-  Client,
-  Colors,
-  EmbedBuilder,
-  Events,
-  GatewayIntentBits,
-  Message,
-  Partials,
-  TextChannel,
-  WebhookClient,
+    ActivityType,
+    CategoryChannel,
+    ChannelType,
+    Client,
+    Colors,
+    EmbedBuilder,
+    Events,
+    GatewayIntentBits,
+    Message,
+    Partials,
+    TextChannel,
+    WebhookClient,
 } from 'discord.js';
 import { Op } from 'sequelize';
 import type DiscordSettings from './DiscordSettings';

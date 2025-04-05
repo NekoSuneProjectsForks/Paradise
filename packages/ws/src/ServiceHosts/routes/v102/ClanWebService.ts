@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2024 Team FESTIVAL
+ * Copyright (C) 2017, 2021-2025 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,15 +19,15 @@ import { ApiVersion } from '@/utils/enums';
 import { Clan, ClanMember, GroupInvitation, UserAccount } from '@festivaldev/paradise-models';
 import { GroupInvitationView } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
 import {
-  BooleanProxy,
-  Int32Proxy,
-  ListProxy,
-  StringProxy,
+    BooleanProxy,
+    Int32Proxy,
+    ListProxy,
+    StringProxy,
 } from '@festivaldev/uberstrike-js/UberStrike/Core/Serialization';
 import {
-  GroupCreationViewProxy,
-  GroupInvitationViewProxy,
-  MemberPositionUpdateViewProxy,
+    GroupCreationViewProxy,
+    GroupInvitationViewProxy,
+    MemberPositionUpdateViewProxy,
 } from '@festivaldev/uberstrike-js/UberStrike/Core/Serialization/Legacy';
 import BaseWebService from '../BaseWebService';
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2024 Team FESTIVAL
+ * Copyright (C) 2017, 2021-2025 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,37 +20,37 @@ import { ProfanityFilter } from '@/ProfanityFilter';
 import { XpPointsUtil } from '@/utils';
 import { ApiVersion, UberstrikeInventoryItem } from '@/utils/enums';
 import {
-  Clan,
-  ClanMember,
-  ContactRequest,
-  GroupInvitation,
-  PlayerInventoryItem,
-  PlayerStatistics,
-  PublicProfile,
+    Clan,
+    ClanMember,
+    ContactRequest,
+    GroupInvitation,
+    PlayerInventoryItem,
+    PlayerStatistics,
+    PublicProfile,
 } from '@festivaldev/paradise-models';
 import {
-  ClanCreationReturnView,
-  ClanRequestAcceptView,
-  ClanRequestDeclineView,
-  ClanView,
-  ContactRequestStatus,
-  GroupInvitationView,
-  GroupPosition,
-  GroupType,
-  MemberAccessLevel,
-  type ClanMemberView,
+    ClanCreationReturnView,
+    ClanRequestAcceptView,
+    ClanRequestDeclineView,
+    ClanView,
+    ContactRequestStatus,
+    GroupInvitationView,
+    GroupPosition,
+    GroupType,
+    MemberAccessLevel,
+    type ClanMemberView,
 } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
 import {
-  ClanCreationReturnViewProxy,
-  ClanRequestAcceptViewProxy,
-  ClanRequestDeclineViewProxy,
-  ClanViewProxy,
-  GroupCreationViewProxy,
-  GroupInvitationViewProxy,
-  Int32Proxy,
-  ListProxy,
-  MemberPositionUpdateViewProxy,
-  StringProxy,
+    ClanCreationReturnViewProxy,
+    ClanRequestAcceptViewProxy,
+    ClanRequestDeclineViewProxy,
+    ClanViewProxy,
+    GroupCreationViewProxy,
+    GroupInvitationViewProxy,
+    Int32Proxy,
+    ListProxy,
+    MemberPositionUpdateViewProxy,
+    StringProxy,
 } from '@festivaldev/uberstrike-js/UberStrike/Core/Serialization';
 import { Op } from 'sequelize';
 import BaseWebService from '../BaseWebService';
