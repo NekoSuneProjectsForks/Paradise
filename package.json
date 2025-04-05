@@ -31,6 +31,6 @@
     "bundle:server:all": "bun run bundle:server:win-x64 && bun run bundle:server:darwin-x64 && bun run bundle:server:darwin-arm64 && bun run bundle:server:linux-x64 && bun run bundle:server:linux-arm64"
   },
   "devDependencies": {
-    "@prettier/plugin-xml": "^3.4.1"
+    "@prettier/plugin-xml": "^3"
   }
 }
