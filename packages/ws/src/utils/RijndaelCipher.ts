@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ const passwordDeriveBytes = (
   salt: Buffer,
   iterations: number,
   len: number,
-  hashAlgorithm: string,
+  hashAlgorithm: string
 ) => {
   let baseValue = Buffer.concat([Buffer.from(password, 'utf8'), salt]);
   baseValue = crypto.createHash(hashAlgorithm).update(baseValue).digest();
@@ -80,7 +80,7 @@ export default class RijndaelCipher {
     keySize: number = -1,
     hashAlgorithm: string | null = null,
     saltValue: string | null = null,
-    passwordIterations: number = 1,
+    passwordIterations: number = 1
   ) {
     if (minSaltLen < RijndaelCipher.MIN_ALLOWED_SALT_LEN) {
       this.minSaltLen = RijndaelCipher.DEFAULT_MIN_SALT_LEN;
@@ -112,7 +112,7 @@ export default class RijndaelCipher {
     } else {
       array2 = Buffer.from(saltValue, 'ascii');
     }
-    const bytes = passwordDeriveBytes(passPhrase, array2, 1, 32, 'sha1');
+    const bytes = passwordDeriveBytes(passPhrase, array2, passwordIterations, 32, 'sha1');
     this.encryptor = crypto.createCipheriv(array.length ? 'aes-256-cbc' : 'aes-256-ecb', bytes, array);
     this.decryptor = crypto.createDecipheriv(array.length ? 'aes-256-cbc' : 'aes-256-ecb', bytes, array);
   }
@@ -187,17 +187,17 @@ export default class RijndaelCipher {
         : this.GenerateRandomNumber(this.minSaltLen, this.maxSaltLen);
     const array = crypto.randomBytes(num);
 
-    array[0] = (array[0] & 252) | (num & 3);
-    array[1] = (array[1] & 243) | (num & 12);
-    array[2] = (array[2] & 207) | (num & 48);
-    array[3] = (array[3] & 63) | (num & 192);
+    array[0] = (array[0]! & 252) | (num & 3);
+    array[1] = (array[1]! & 243) | (num & 12);
+    array[2] = (array[2]! & 207) | (num & 48);
+    array[3] = (array[3]! & 63) | (num & 192);
 
     return array;
   }
 
   private GenerateRandomNumber(minValue: number, maxValue: number): number {
     const array = crypto.randomBytes(4);
-    const seed = ((array[0] & 127) << 24) | (array[1] << 16) | (array[2] << 8) | array[3];
+    const seed = ((array[0]! & 127) << 24) | (array[1]! << 16) | (array[2]! << 8) | array[3]!;
     const random = seedrandom(String(seed));
     return Math.floor(random() * (maxValue - minValue + 1) + minValue);
   }

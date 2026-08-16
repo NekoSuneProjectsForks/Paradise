@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,9 +16,17 @@
  */
 
 export enum ApiVersion {
-  Current = '2.0',
-  Legacy101 = '1.0.1',
-  Legacy102 = '1.0.2',
+  OldLegacy = '1.0.1',
+  Legacy = '1.0.2',
+  Current = '2.0'
+}
+
+enum GAME_FLAGS {
+  None = 0x0,
+  LowGravity = 0x1,
+  NoArmor = 0x2,
+  QuickSwitch = 0x4,
+  MeleeOnly = 0x8
 }
 
 export enum ModerationFlag {
@@ -27,10 +35,11 @@ export enum ModerationFlag {
   Banned = 0x4,
   Speed = 0x8,
   Spamming = 0x10,
-  CrudeLanguage = 0x20,
+  CrudeLanguage = 0x20
 }
 
 export enum UberstrikeInventoryItem {
+  None = 0,
   ClanLicense = 1234,
   NameChange = 1294,
   LutzDefaultGearHead = 1084,
@@ -340,9 +349,10 @@ export enum UberstrikeInventoryItem {
   Vampire_UB = 10299,
   WhiteSkull_WhiteSkull = 10300,
   SpringGrenade_x8 = 2001,
-  SpringGrenade_x4 = 2002,
-  SpringGrenade_x2 = 2003,
+  SpringGrenade_x5 = 2002,
+  SpringGrenade_x3 = 2003,
   SpringGrenade_Admin = 2004,
+  SpringGrenade = 2005,
   TheSplatbat = 1000,
   MachineGun = 1002,
   ShotGun = 1003,
@@ -486,5 +496,5 @@ export enum UberstrikeInventoryItem {
   Wrecker = 20133,
   WreckerYellow = 20134,
   ZombieAxe = 20135,
-  Cannon_RocketJumpDay = 20143,
+  Cannon_RocketJumpDay = 20143
 }

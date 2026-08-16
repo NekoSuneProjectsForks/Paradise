@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,80 +15,73 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { ChannelType, PaymentProviderType } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
-import { DataTypes, Model, type Sequelize } from 'sequelize';
+import { PaymentProviderType, type ChannelType } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
+import {
+  BaseEntity,
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+  type Relation
+} from 'typeorm';
+import { PublicProfile } from './PublicProfile';
+import { ShopBundle } from './ShopBundle';
 
-interface CurrencyDepositAttributes {
-  CreditsDepositId?: number;
-  DepositDate?: Date;
-  Credits?: number;
-  Points?: number;
-  Cash?: number;
-  CurrencyLabel?: string;
-  Cmid?: number;
-  IsAdminAction?: boolean;
-  PaymentProviderId?: PaymentProviderType;
-  TransactionKey?: string;
-  ApplicationId?: number;
-  ChannelId?: ChannelType;
-  UsdAmount?: number;
-  BundleId?: number;
-  BundleName?: string;
-}
+@Entity('CurrencyDeposits')
+export class CurrencyDeposit extends BaseEntity {
+  @PrimaryColumn('int')
+  CreditsDepositId: number;
 
-export default class CurrencyDeposit extends Model<CurrencyDepositAttributes> {
-  declare CreditsDepositId: number;
-  declare DepositDate: Date;
-  declare Credits: number;
-  declare Points: number;
-  declare Cash: number;
-  declare CurrencyLabel: string;
-  declare Cmid: number;
-  declare IsAdminAction: boolean;
-  declare PaymentProviderId: PaymentProviderType;
-  declare TransactionKey: string;
-  declare ApplicationId: number;
-  declare ChannelId: ChannelType;
-  declare UsdAmount: number;
-  declare BundleId: number;
-  declare BundleName: string;
+  @CreateDateColumn()
+  DepositDate: Date;
 
-  static initialize(sequelize: Sequelize) {
-    CurrencyDeposit.init(
-      {
-        CreditsDepositId: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-        },
-        DepositDate: DataTypes.DATE,
-        Credits: DataTypes.INTEGER,
-        Points: DataTypes.INTEGER,
-        Cash: DataTypes.DECIMAL,
-        CurrencyLabel: DataTypes.STRING,
-        Cmid: DataTypes.INTEGER,
-        IsAdminAction: DataTypes.BOOLEAN,
-        PaymentProviderId: DataTypes.INTEGER,
-        TransactionKey: DataTypes.STRING,
-        ApplicationId: DataTypes.INTEGER,
-        ChannelId: DataTypes.INTEGER,
-        UsdAmount: DataTypes.DECIMAL,
-        BundleId: DataTypes.INTEGER,
-        BundleName: DataTypes.STRING,
-      },
-      {
-        sequelize,
-        tableName: 'CurrencyDeposits',
-        timestamps: false,
-      },
-    );
+  @Column('int', { default: 0 })
+  Credits: number;
+
+  @Column('int', { default: 0 })
+  Points: number;
+
+  @Column('decimal', { default: 0 })
+  Cash: number;
+
+  @Column('varchar', { nullable: true })
+  CurrencyLabel: string | null;
+
+  @Column('int')
+  Cmid: number;
+
+  @Column('tinyint', { default: false })
+  IsAdminAction: boolean;
+
+  @Column('int', { default: PaymentProviderType.Unknown })
+  PaymentProviderId: PaymentProviderType;
+
+  @Column('varchar')
+  TransactionKey: string;
+
+  @Column('int')
+  ApplicationId: number;
+
+  @Column('int')
+  ChannelId: ChannelType;
+
+  @Column('decimal', { default: 0 })
+  UsdAmount: number;
+
+  @Column('int', { nullable: true })
+  BundleId: number | null;
+
+  @ManyToOne(() => ShopBundle, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'BundleId', referencedColumnName: 'Id' })
+  Bundle: Relation<ShopBundle | null>;
+
+  get BundleName(): string {
+    return this.Bundle?.Name ?? 'Unknown';
   }
 
-  static associate({ PublicProfile }: any) {
-    CurrencyDeposit.belongsTo(PublicProfile, {
-      foreignKey: 'Cmid',
-      targetKey: 'Cmid',
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
-    });
-  }
+  @ManyToOne(() => PublicProfile, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid' })
+  PublicProfile: Relation<PublicProfile>;
 }

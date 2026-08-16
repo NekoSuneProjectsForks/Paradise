@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,22 +15,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import ConsoleCommand from '../ConsoleCommand';
 import ConsoleHelper from '../ConsoleHelper';
-import ParadiseCommand from '../ParadiseCommand';
 
-export default class ClearCommand extends ParadiseCommand {
-  static override Command: string = 'clear';
-  static override Aliases: string[] = [];
+export default class ClearCommand extends ConsoleCommand {
+  static override command: string = 'clear';
+  static override aliases: string[] = ['c'];
+  static override description: string = 'Clears the console, obviously.';
 
-  override Description: string = 'Clears the console, obviously.';
-  override HelpString: string = `${ClearCommand.Command}\t\t${this.Description}`;
-
-  override UsageText: string[] = [];
-
-  override async Run(args: string[]): Promise<any> {
+  override async run() {
     process.stdout.write('\x1bc');
 
-    ConsoleHelper.PrintConsoleHeader();
-    ConsoleHelper.PrintConsoleHeaderSubtitle();
+    ConsoleHelper.printConsoleHeader();
+    ConsoleHelper.printConsoleHeaderSubtitle();
+
+    return 0;
   }
 }

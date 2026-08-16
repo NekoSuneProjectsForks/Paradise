@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,65 +15,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import moment from 'moment';
-import { DataTypes, Model, type Sequelize } from 'sequelize';
-import PublicProfile from './PublicProfile';
-import SteamMember from './SteamMember';
+import type { ChannelType } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
+import { add } from 'date-fns';
+import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, type Relation } from 'typeorm';
+import { PublicProfile } from './PublicProfile';
+import { SteamMember } from './SteamMember';
 
-const SESSION_EXPIRE_HOURS = 12;
+export const SESSION_EXPIRE_HOURS: number = 12;
 
-interface GameSessionAttributes {
-  SessionId?: string;
-  Cmid?: number;
-  MachineId?: string;
-  ExpireTime?: Date;
-}
+@Entity('GameSessions')
+export class GameSession extends BaseEntity {
+  @PrimaryColumn('varchar')
+  SessionId: string;
 
-export default class GameSession extends Model<GameSessionAttributes> {
-  declare SessionId: string;
-  declare Cmid: number;
-  declare MachineId: string;
-  declare ExpireTime: Date;
+  @Column('int')
+  Cmid: number;
 
-  static initialize(sequelize: Sequelize) {
-    GameSession.init(
-      {
-        SessionId: {
-          type: DataTypes.STRING,
-          primaryKey: true,
-        },
-        Cmid: DataTypes.INTEGER,
-        MachineId: DataTypes.STRING,
-        ExpireTime: {
-          type: DataTypes.DATE,
-          // defaultValue: function() {
-          //   var date = new Date();
-          //   date.setHours(date.getHours() + SESSION_EXPIRE_HOURS);
+  @Column('int')
+  Channel: ChannelType;
 
-          //   return date;
-          // }
-        },
-      },
-      {
-        sequelize,
-        tableName: 'GameSessions',
-        timestamps: false,
-      },
-    );
-  }
+  @Column('varchar', { nullable: true })
+  MachineId: string | null;
 
-  static associate({ PublicProfile }: any) {
-    GameSession.belongsTo(PublicProfile, {
-      foreignKey: 'Cmid',
-      targetKey: 'Cmid',
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
-    });
-  }
+  @Column('datetime', { nullable: true })
+  ExpireTime: Date | null;
+
+  @ManyToOne(() => PublicProfile, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid' })
+  PublicProfile: Relation<PublicProfile>;
 
   extendExpireTime(): void {
-    this.update({
-      ExpireTime: moment(new Date()).add(SESSION_EXPIRE_HOURS, 'hours').toDate(),
+    GameSession.update(this.SessionId, {
+      ExpireTime: add(new Date(), { hours: SESSION_EXPIRE_HOURS })
     });
   }
 
@@ -90,8 +63,8 @@ export default class GameSession extends Model<GameSessionAttributes> {
     return Buffer.from([...Buffer.from(sessionId, 'base64')].slice(0, 4)).readInt32LE();
   }
 
-  static getSteamIdFromSessionId(sessionId: string): bigint {
-    if (!sessionId.trim().length) return -1n;
-    return Buffer.from([...Buffer.from(sessionId, 'base64')].slice(4, 8)).readBigUInt64LE();
+  static getSteamIdFromSessionId(sessionId: string): string {
+    if (!sessionId.trim().length) return String(-1n);
+    return String(Buffer.from([...Buffer.from(sessionId, 'base64')].slice(4, 8)).readBigUint64LE());
   }
 }

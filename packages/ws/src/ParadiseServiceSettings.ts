@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,43 +15,73 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { ServerType } from '@/ServiceHosts/WebSocket';
-import DiscordSettings from '@/discord/DiscordSettings';
-import { Log } from '@/utils';
+import type { PhotonServer } from '@festivaldev/paradise-models';
+import { YAML } from 'bun';
 import fs from 'fs';
 import path from 'path';
-import YAML from 'yaml';
+import type { DatabaseSettings } from './Database';
+import DiscordSettings from './discord/DiscordSettings';
+import { Log, LogLevel } from './utils';
 
-class ServerPassPhrase {
-  Name: string;
-  Type: ServerType;
-  Id: string;
-  Passphrase: string;
-}
-
-export class DatabaseSettings {
+export type LokiSettings = {
+  Enabled: boolean;
   Server: string;
-  Type: string = 'mysql';
-  Port: number = 3306;
-  Username: string;
-  Password: string;
-  DatabaseName: string = 'paradise';
-}
+  ServiceName: string;
+};
+
+export type LogSettings = {
+  LogToConsole: boolean;
+  LogToFile: boolean;
+
+  LogPath: string;
+  LogLevel: keyof typeof LogLevel;
+
+  LokiSettings: LokiSettings;
+};
+
+export type GameplaySettings = {
+  GarbageCollectInterval: number;
+  ShopRefundFactor: number;
+};
 
 export class ParadiseServiceSettings {
+  ApplicationId: number = 1;
+
   Hostname: string = '127.0.0.1';
 
   WebServicePort: number = 8080;
   FileServerPort: number = 8081;
   SocketPort: number = 8082;
 
-  DatabaseSettings: DatabaseSettings = new DatabaseSettings();
+  DatabaseSettings: DatabaseSettings = {
+    Type: 'sqlite',
+    Filename: 'paradise.sqlite'
+  };
+
+  LogSettings: LogSettings = {
+    LogToConsole: true,
+    LogToFile: true,
+
+    LogPath: 'logs',
+    LogLevel: 'INFO',
+
+    LokiSettings: {
+      Enabled: false,
+      Server: 'http://127.0.0.1:3100',
+      ServiceName: 'paradise'
+    }
+  };
+
+  GameplaySettings: GameplaySettings = {
+    GarbageCollectInterval: 300, // 5 minutes
+    ShopRefundFactor: 0.75
+  };
 
   WebServicePrefix: string = 'UberStrike.DataCenter.WebService.CWS.';
   WebServiceSuffix: string = 'Contract.svc';
   EncryptionInitVector: string = 'aaaaBBBBccccDDDD'; // Must be 16 characters
   EncryptionPassPhrase: string = 'mysupersecretpassphrase';
-  ServerCredentials: ServerPassPhrase[] = [];
+  PhotonServers: Partial<PhotonServer>[] = [];
 
   FileServerRoot: string = 'wwwroot';
 
@@ -67,20 +97,33 @@ export class ParadiseServiceSettings {
 
   DiscordSettings: DiscordSettings = new DiscordSettings();
 
-  constructor(path: string) {
-    if (!fs.existsSync(path)) {
-      Log.warn(`No config file found at ${path}, using fallback config.`);
+  constructor(filename: string = 'paradise.yml') {
+    const settingsPath = path.join(process.cwd(), filename);
+
+    if (!fs.existsSync(settingsPath)) {
+      Log.warn(`No config file found at "${settingsPath}", using default config.`);
       return;
     }
 
+    Log.debug(`Using config file at "${settingsPath}"`);
+
     try {
-      const settings = YAML.parse(fs.readFileSync(path, 'utf-8'));
+      const settings = YAML.parse(fs.readFileSync(settingsPath, 'utf-8'));
 
       Object.assign(this, settings);
     } catch (error: any) {
       Log.error('There was an error parsing the settings file.', error);
     }
+
+    if (this.EncryptionInitVector.length !== 16) {
+      Log.error(`EncryptionInitVector must be exactly 16 characters. (Current: ${this.EncryptionInitVector.length})`);
+    }
+
+    if (this.EnableSSL) {
+      Log.warn('The "EnableSSL" setting is deprecated and will be removed in a future release.');
+    }
+    if (this.SSLCertificateName) {
+      Log.warn('The "SSLCertificateName" setting is deprecated and will be removed in a future release.');
+    }
   }
 }
-
-export default new ParadiseServiceSettings(path.join(process.cwd(), 'Paradise.Settings.WebServices.yml'));

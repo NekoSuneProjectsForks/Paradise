@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,59 +15,65 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type {
-    BuyingDurationType,
-    PackType,
-    UberStrikeCurrencyType,
+import {
+  BuyingDurationType,
+  PackType,
+  UberStrikeCurrencyType
 } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
-import { DataTypes, Model, type Sequelize } from 'sequelize';
+import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, type Relation } from 'typeorm';
+import { ShopFunctionalItem } from './ShopFunctionalItem';
+import { ShopGearItem } from './ShopGearItem';
+import { ShopQuickItem } from './ShopQuickItem';
+import { ShopWeaponItem } from './ShopWeaponItem';
 
-interface ShopItemPriceAttributes {
-  ID?: number;
-  Price?: number;
-  Currency?: UberStrikeCurrencyType;
-  Discount?: number;
-  Amount?: number;
-  PackType?: PackType;
-  Duration?: BuyingDurationType;
-}
+@Entity('ShopItemPrices')
+export class ShopItemPrice extends BaseEntity {
+  @PrimaryColumn('int')
+  ID: number;
 
-export default class ShopItemPrice extends Model<ShopItemPriceAttributes> {
-  declare ID: number;
-  declare Price: number;
-  declare Currency: UberStrikeCurrencyType;
-  declare Discount: number;
-  declare Amount: number;
-  declare PackType: PackType;
-  declare Duration: BuyingDurationType;
+  @Column('int', { default: 0 })
+  Price: number;
 
-  static initialize(sequelize: Sequelize) {
-    ShopItemPrice.init(
-      {
-        ID: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-        },
-        Price: DataTypes.INTEGER,
-        Currency: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-        },
-        Discount: DataTypes.INTEGER,
-        Amount: DataTypes.INTEGER,
-        PackType: DataTypes.INTEGER,
-        Duration: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-        },
-      },
-      {
-        sequelize,
-        tableName: 'ShopItemPrices',
-        timestamps: false,
-      },
-    );
-  }
+  @PrimaryColumn('int', { default: UberStrikeCurrencyType.None })
+  Currency: UberStrikeCurrencyType;
 
-  static associate(_: any) {}
+  @Column('int', { default: 0 })
+  Discount: number;
+
+  @Column('int', { default: 1 })
+  Amount: number;
+
+  @Column('int', { default: PackType.One })
+  PackType: PackType;
+
+  @PrimaryColumn('int', { default: BuyingDurationType.None })
+  Duration: BuyingDurationType;
+
+  @Column('int', { nullable: true })
+  FunctionalItemID: number | null;
+
+  @ManyToOne(() => ShopFunctionalItem, (item) => item.Prices, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'FunctionalItemID', referencedColumnName: 'ID' })
+  FunctionalItem?: Relation<ShopFunctionalItem>;
+
+  @Column('int', { nullable: true })
+  GearItemID: number | null;
+
+  @ManyToOne(() => ShopGearItem, (item) => item.Prices, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'GearItemID', referencedColumnName: 'ID' })
+  GearItem?: Relation<ShopGearItem>;
+
+  @Column({ nullable: true })
+  QuickItemID: number | null;
+
+  @ManyToOne(() => ShopQuickItem, (item) => item.Prices, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'QuickItemID', referencedColumnName: 'ID' })
+  QuickItem?: Relation<ShopQuickItem>;
+
+  @Column({ nullable: true })
+  WeaponItemID: number | null;
+
+  @ManyToOne(() => ShopWeaponItem, (item) => item.Prices, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'WeaponItemID', referencedColumnName: 'ID' })
+  WeaponItem?: Relation<ShopWeaponItem>;
 }

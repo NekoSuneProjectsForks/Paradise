@@ -1,7 +1,13 @@
-[submodule "packages/Core"]
-	path = packages/Core
+[submodule "packages/vendor/LiteNetLib"]
+	path = packages/vendor/LiteNetLib
+	url = https://github.com/RevenantX/LiteNetLib
+	branch = 0.9
+[submodule "packages/vendor/UberStrike"]
+	path = packages/vendor/UberStrike
 	url = https://github.com/festivaldev/UberStrike-Reverse-Engineered
-	branch = master
-[submodule "packages/Patcher"]
-	path = packages/Patcher
+[submodule "packages/vendor/Patcher"]
+	path = packages/vendor/Patcher
 	url = https://github.com/festivaldev/UniversalUnityPatcher
+[submodule "packages/vendor/uberstrike-js"]
+	path = packages/vendor/uberstrike-js
+	url = https://github.com/festivaldev/uberstrike-js

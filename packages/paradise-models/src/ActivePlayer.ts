@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,55 +15,45 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { ChannelType } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
-import { DataTypes, Model, type Sequelize } from 'sequelize';
+import type { ChannelType } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
+import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryColumn, type Relation } from 'typeorm';
+import { GameRoom } from './GameRoom';
+import { PhotonServer } from './PhotonServer';
+import { PublicProfile } from './PublicProfile';
 
-export interface ActivePlayerAttributes {
-  Cmid?: number;
-  IPAddress?: string;
-  Channel?: ChannelType;
-  CommServerId?: number | null;
-  GameServerId?: number | null;
-  GameRoomId?: number | null;
-}
+@Entity('ActivePlayers')
+export class ActivePlayer extends BaseEntity {
+  @PrimaryColumn('int')
+  Cmid: number;
 
-export default class ActivePlayer extends Model<ActivePlayerAttributes> {
-  declare Cmid: number;
-  declare IPAddress: string;
-  declare Channel: ChannelType;
-  declare CommServerId: number | null;
-  declare GameServerId: number | null;
-  declare GameRoomId: number | null;
+  @Column('varchar', { nullable: true })
+  IPAddress: string | null;
 
-  static initialize(sequelize: Sequelize) {
-    ActivePlayer.init(
-      {
-        Cmid: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-        },
-        IPAddress: DataTypes.STRING,
-        Channel: DataTypes.INTEGER,
-        CommServerId: DataTypes.INTEGER,
-        GameServerId: DataTypes.INTEGER,
-        GameRoomId: DataTypes.INTEGER,
-      },
-      {
-        sequelize,
-        tableName: 'ActivePlayers',
-        timestamps: false,
-      },
-    );
-  }
+  @Column('int')
+  Channel: ChannelType;
 
-  static associate(models: any) {
-    const { PublicProfile } = models;
+  @Column('int', { nullable: true })
+  CommServerId: number | null;
 
-    ActivePlayer.belongsTo(PublicProfile, {
-      foreignKey: 'Cmid',
-      targetKey: 'Cmid',
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
-    });
-  }
+  @ManyToOne(() => PhotonServer, (photonServer) => photonServer.CommPeers, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'CommServerId', referencedColumnName: 'PhotonId' })
+  CommServer: PhotonServer | null;
+
+  @Column('int', { nullable: true })
+  GameServerId: number | null;
+
+  @ManyToOne(() => PhotonServer, (photonServer) => photonServer.GamePeers, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'GameServerId', referencedColumnName: 'PhotonId' })
+  GameServer: PhotonServer | null;
+
+  @Column('int', { nullable: true })
+  GameRoomId: number | null;
+
+  @ManyToOne(() => GameRoom, (gameRoom) => gameRoom.Players, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'GameRoomId', referencedColumnName: 'Number' })
+  GameRoom: Relation<GameRoom> | null;
+
+  @OneToOne(() => PublicProfile, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid' })
+  PublicProfile: Relation<PublicProfile>;
 }

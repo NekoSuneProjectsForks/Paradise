@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,38 +15,116 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { YAML } from 'bun';
 import fs from 'fs';
-import moment from 'moment';
 import path from 'path';
-import YAML from 'yaml';
+import Log from './Log';
 
 const FILE_NAME = 'updates';
 const FILE_SUFFIX = 'yml';
-const VERSION = '2.1.2.1';
 
-const CHANNELS = ['stable', 'beta'];
-const PLATFORMS: string[] = ['win', 'darwin', 'universal'];
+const CHANNELS = ['stable', 'beta'] as const;
+const PLATFORMS = ['win', 'darwin', 'universal'] as const;
 
-const OPTIONAL_FILES: { [key: string]: any[] } = {
+const OPTIONAL_FILES: Partial<Record<(typeof PLATFORMS)[number], Partial<UpdateFile>[]>> = {
   win: [
     {
       filename: 'Paradise.Client.DiscordRPC.exe',
-      localPath: 'UberStrike_Data/Plugins',
-    },
-  ],
+      localPath: 'UberStrike_Data/Plugins'
+    }
+  ]
 };
 
-const REMOVED_FILES: { [key: string]: any[] } = {
+const REMOVED_FILES: Partial<Record<(typeof PLATFORMS)[number], Partial<UpdateFile>[]>> = {
   universal: [
     {
       filename: 'uberbeat.dll',
-      localPath: 'UberStrike_Data/Plugins',
-    },
-  ],
+      localPath: 'UberStrike_Data/Plugins'
+    }
+  ]
 };
 
-export class UpdateGenerator {
-  static listFiles(directory: string, extensions: string[] = ['.exe', '.dll', '.unity3d', '']): string[] {
+export default class UpdateGenerator {
+  static async generate(outputDir: string): Promise<void> {
+    Log.info('Generating V2 updates...');
+
+    if (!fs.existsSync(path.join(process.cwd(), 'VERSION'))) {
+      Log.error(
+        'VERSION file does not exist. Make sure the file exists and contains a vaild version and build number on two separate lines.'
+      );
+      return;
+    }
+
+    const [VERSION, BUILD] = fs.readFileSync(path.join(process.cwd(), 'VERSION')).toString('utf-8').split('\n');
+
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
+
+    process.chdir(outputDir);
+
+    for (const channel of CHANNELS) {
+      const channelPath = path.join(process.cwd(), channel);
+
+      if (fs.existsSync(channelPath)) {
+        const updates: UpdateCatalog = {
+          version: VERSION,
+          build: BUILD,
+          channel,
+          platforms: {}
+        };
+
+        for (const platform of PLATFORMS) {
+          const platformPath = path.join(channelPath, platform);
+
+          if (fs.existsSync(platformPath)) {
+            const platformUpdates: UpdatePlatformDefinition = {
+              platform,
+              files: [],
+              removedFiles: []
+            };
+
+            const files = this.listFiles(platformPath);
+
+            for (const file of files) {
+              const localPath = this.normalizePath(path.dirname(path.relative(platformPath, file)));
+              const remotePath = this.normalizePath(path.dirname(path.relative(process.cwd(), file)));
+
+              const fileDef: UpdateFile = {
+                filename: path.basename(file),
+                description: '',
+                localPath,
+                remotePath,
+                filesize: fs.statSync(file).size,
+                md5sum: await this.md5(file),
+                sha256: await this.sha256(file),
+                sha512: await this.sha512(file),
+                optional: false
+              };
+
+              if (OPTIONAL_FILES[platform]?.some((_) => _.filename === fileDef.filename)) {
+                fileDef.optional = true;
+              }
+
+              platformUpdates.files.push(fileDef);
+            }
+
+            if (platform in REMOVED_FILES) platformUpdates.removedFiles = REMOVED_FILES[platform] as UpdateFile[];
+
+            updates.platforms[platform] = platformUpdates;
+          }
+        }
+
+        fs.writeFileSync(
+          path.join(outputDir, `${channel}/${FILE_NAME}.${FILE_SUFFIX}`),
+          YAML.stringify(updates, null, 2)
+        );
+        Log.success(`Successfully generated "${channel}" updates for ${VERSION} (${BUILD}).`);
+      }
+    }
+  }
+
+  private static listFiles(directory: string, extensions: string[] = ['.exe', '.dll', '.unity3d', '']): string[] {
     const files: string[] = [];
 
     for (const file of (fs.readdirSync(directory, { recursive: true }) as string[]).sort()) {
@@ -58,182 +136,40 @@ export class UpdateGenerator {
     return files;
   }
 
-  static md5(path: string): Promise<string> {
+  private static md5(path: string): Promise<string> {
     return new Promise((resolve, reject) => {
       const hash = new Bun.CryptoHasher('md5');
       const stream = fs.createReadStream(path);
 
       stream.on('data', (chunk) => hash.update(chunk));
       stream.on('end', () => resolve(hash.digest('hex')));
+      stream.on('error', (error) => reject(error));
     });
   }
 
-  static sha256(path: string): Promise<string> {
+  private static sha256(path: string): Promise<string> {
     return new Promise((resolve, reject) => {
       const hash = new Bun.CryptoHasher('sha256');
       const stream = fs.createReadStream(path);
 
       stream.on('data', (chunk) => hash.update(chunk));
       stream.on('end', () => resolve(hash.digest('hex')));
+      stream.on('error', (error) => reject(error));
     });
   }
 
-  static sha512(path: string): Promise<string> {
+  private static sha512(path: string): Promise<string> {
     return new Promise((resolve, reject) => {
       const hash = new Bun.CryptoHasher('sha512');
       const stream = fs.createReadStream(path);
 
       stream.on('data', (chunk) => hash.update(chunk));
       stream.on('end', () => resolve(hash.digest('hex')));
+      stream.on('error', (error) => reject(error));
     });
   }
 
-  static normalizePath(pth: string): string {
+  private static normalizePath(pth: string): string {
     return path.normalize(pth).split(path.sep).join('/');
-  }
-
-  static async generate(outputDir: string): Promise<void> {
-    console.log('Generating V2 updates...');
-
-    if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir, { recursive: true });
-    }
-
-    process.chdir(outputDir);
-
-    const buildDate = moment().format('YYMMDD-HHmm');
-    const build = `4.7.1-${buildDate}`;
-
-    for (const channel of CHANNELS) {
-      if (fs.existsSync(channel)) {
-        const updates: { [key: string]: any } = {
-          version: VERSION,
-          build,
-          channel,
-          platforms: {},
-        };
-
-        for (const platform of PLATFORMS) {
-          const _path = path.join(process.cwd(), channel, platform);
-
-          if (fs.existsSync(_path)) {
-            const platformUpdates: { [key: string]: any } = {
-              platform,
-              files: [],
-              removedFiles: [],
-            };
-
-            const files = this.listFiles(_path);
-
-            for (const file of files) {
-              const localPath = this.normalizePath(path.dirname(path.relative(_path, file)));
-              const remotePath = this.normalizePath(path.dirname(path.relative(process.cwd(), file)));
-
-              const fileDef = {
-                filename: path.basename(file),
-                description: '',
-                localPath,
-                remotePath,
-                filesize: fs.statSync(file).size,
-                md5sum: await this.md5(file),
-                sha256: await this.sha256(file),
-                sha512: await this.sha512(file),
-                optional: false,
-              };
-
-              if (OPTIONAL_FILES[platform]?.some((_) => _.filename === fileDef.filename)) {
-                fileDef.optional = true;
-              }
-
-              platformUpdates.files.push(fileDef);
-            }
-
-            if (platform in REMOVED_FILES) platformUpdates.removedFiles = REMOVED_FILES[platform];
-
-            updates.platforms[platform] = platformUpdates;
-          }
-        }
-
-        fs.writeFileSync(
-          path.join(outputDir, `${channel}/${FILE_NAME}.${FILE_SUFFIX}`),
-          YAML.stringify(updates, { sortMapEntries: false }),
-        );
-      }
-    }
-
-    console.log('OK');
-  }
-}
-
-export class FallbackUpdateGenerator extends UpdateGenerator {
-  static async generate(outputDir: string): Promise<void> {
-    console.log('Generating pre-V2 updates...');
-
-    if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir, { recursive: true });
-    }
-
-    process.chdir(outputDir);
-
-    const buildDate = moment().format('YYMMDD-HHmm');
-    const build = `4.7.1-${buildDate}`;
-
-    for (const channel of CHANNELS) {
-      if (fs.existsSync(path.join(process.cwd(), 'v2', channel))) {
-        const updates: { [key: string]: any } = {
-          platforms: [],
-        };
-
-        for (const platform of PLATFORMS) {
-          const _path = path.join(process.cwd(), 'v2', channel, platform);
-          const _start = path.join('./v2', channel, platform, 'UberStrike_Data');
-
-          if (fs.existsSync(_path)) {
-            const platformUpdates: { [key: string]: any } = {
-              platform: platform === 'universal' ? platform : `${platform}32`,
-              version: VERSION,
-              build,
-              files: [],
-              removedFiles: [],
-            };
-
-            const files = this.listFiles(_path);
-
-            for (const file of files) {
-              const localPath = this.normalizePath(path.dirname(path.relative(_start, file)));
-              const remotePath = this.normalizePath(path.dirname(path.relative(process.cwd(), file)));
-
-              const fileDef = {
-                filename: path.basename(file),
-                description: '',
-                localPath,
-                remotePath,
-                filesize: fs.statSync(file).size,
-                md5sum: await this.md5(file),
-                sha256: await this.sha256(file),
-                sha512: await this.sha512(file),
-              };
-
-              platformUpdates.files.push(fileDef);
-            }
-
-            if (platform in REMOVED_FILES)
-              platformUpdates.removedFiles = REMOVED_FILES[platform].map((_) => ({
-                ..._,
-                localPath: path.relative('UberStrike_Data', _.localPath),
-              }));
-
-            updates.platforms.push(platformUpdates);
-          }
-        }
-
-        fs.writeFileSync(
-          path.join(outputDir, `${FILE_NAME}-${channel}.yaml`),
-          YAML.stringify(updates, { sortMapEntries: false }),
-        );
-      }
-    }
-
-    console.log('OK');
   }
 }

@@ -1,0 +1,86 @@
+Project Paradise is using the libraries listed below.
+For information about a library's license, please see the respective library URL.
+
+NuGet (.NET)
+- CommandLineParser by gsscoder,nemec,ericnewton76,moh-hassan
+   https://github.com/commandlineparser/commandline
+
+- discord-rcp-csharp by Lachee
+   https://github.com/Lachee/discord-rpc-csharp
+
+- Lib.Harmony by Andreas Pardeike
+   https://github.com/pardeike/Harmony
+
+- log4net by The Apache Software Foundation
+   https://github.com/apache/logging-log4net/
+
+- Newtonsoft.Json by James Newton-King
+   https://github.com/JamesNK/Newtonsoft.Json
+
+- ProfanityDetector by stephenhaunts
+   https://github.com/stephenhaunts/ProfanityDetector
+
+- WebSocketSharp by sta
+   https://github.com/sta/websocket-sharp
+
+- YamlDotNet by Antoine Aubry
+   https://github.com/aaubry/YamlDotNet
+
+
+NPM (Bun)
+- @inquirer/prompts by SBoudrias
+   https://github.com/SBoudrias/Inquirer.js
+
+- body-parser by expressjs
+   https://github.com/expressjs/body-parser
+
+- body-parser-xml by fiznool
+   https://github.com/fiznool/body-parser-xml
+
+- chalk by chalk
+   https://github.com/chalk/chalk
+
+- cli-table by Automattic
+   https://github.com/Automattic/cli-table
+
+- commander by tj
+   https://github.com/tj/commander.js
+
+- date-fns by date-fns
+   https://github.com/date-fns/date-fns
+
+- discord.js by discordjs
+   https://github.com/discordjs/discord.js
+
+- express by expressjs
+   https://github.com/expressjs/express
+
+- http-status by adaltas
+   https://github.com/adaltas/node-http-status
+
+- morgan by expressjs
+   https://github.com/expressjs/morgan
+
+- mysql2 by sidorares
+   https://github.com/sidorares/node-mysql2
+
+- seedrandom by davidbau
+   https://github.com/davidbau/seedrandom
+
+- sql.js by sql-js
+   https://github.com/sql-js/sql.js
+
+- typeorm by typeorm
+   https://github.com/typeorm/typeorm
+
+- winston by winstonjs
+   https://github.com/winstonjs/winston
+
+- winston-daily-rotate-file by winstonjs
+   https://github.com/winstonjs/winston-daily-rotate-file
+
+- winston-loki by JaniAnttonen
+   https://github.com/JaniAnttonen/winston-loki
+
+- yocto-spinner by sindresorhus
+   https://github.com/sindresorhus/yocto-spinner

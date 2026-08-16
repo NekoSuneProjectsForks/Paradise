@@ -1,4 +1,4 @@
-interface IAllowList {
+export interface IAllowList {
   Add(wordToAllowlist: string): void;
   Contains(wordToCheck: string): boolean;
   Remove(wordToRemove: string): boolean;
@@ -6,5 +6,3 @@ interface IAllowList {
   get Count(): number;
   get ToList(): string[];
 }
-
-export default IAllowList;

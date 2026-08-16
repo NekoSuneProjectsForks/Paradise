@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,64 +15,54 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { ContactRequestStatus } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
-import { DataTypes, Model, type Sequelize } from 'sequelize';
+import { ContactRequestStatus } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
+import {
+  BaseEntity,
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  type Relation
+} from 'typeorm';
+import { PublicProfile } from './PublicProfile';
 
-interface ContactRequestAttributes {
-  RequestId?: number;
-  InitiatorCmid?: number;
-  InitiatorName?: string;
-  ReceiverCmid?: number;
-  InitiatorMessage?: string;
-  Status?: ContactRequestStatus;
-  SentDate?: Date;
-}
+@Entity('ContactRequests')
+export class ContactRequest extends BaseEntity {
+  @PrimaryGeneratedColumn()
+  RequestId: number;
 
-export default class ContactRequest extends Model<ContactRequestAttributes> {
-  declare RequestId: number;
-  declare InitiatorCmid: number;
-  declare InitiatorName: string;
-  declare ReceiverCmid: number;
-  declare InitiatorMessage: string;
-  declare Status: ContactRequestStatus;
-  declare SentDate: Date;
+  @Column('int')
+  InitiatorCmid: number;
 
-  static initialize(sequelize: Sequelize) {
-    ContactRequest.init(
-      {
-        RequestId: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-          autoIncrement: true,
-        },
-        InitiatorCmid: DataTypes.INTEGER,
-        InitiatorName: DataTypes.STRING(18),
-        ReceiverCmid: DataTypes.INTEGER,
-        InitiatorMessage: DataTypes.TEXT,
-        Status: DataTypes.INTEGER,
-        SentDate: DataTypes.DATE,
-      },
-      {
-        sequelize,
-        tableName: 'ContactRequests',
-        timestamps: false,
-      },
-    );
+  @ManyToOne(() => PublicProfile, (publicProfile) => publicProfile.ContactRequestsSent, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE'
+  })
+  @JoinColumn({ name: 'InitiatorCmid', referencedColumnName: 'Cmid' })
+  Initiator: Relation<PublicProfile>;
+
+  get InitiatorName(): string {
+    return this.Initiator.Name;
   }
 
-  static associate({ PublicProfile }: any) {
-    ContactRequest.belongsTo(PublicProfile, {
-      foreignKey: 'InitiatorCmid',
-      targetKey: 'Cmid',
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
-    });
+  @Column('int')
+  ReceiverCmid: number;
 
-    ContactRequest.belongsTo(PublicProfile, {
-      foreignKey: 'ReceiverCmid',
-      targetKey: 'Cmid',
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
-    });
-  }
+  @ManyToOne(() => PublicProfile, (publicProfile) => publicProfile.ContactRequestsReceived, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE'
+  })
+  @JoinColumn({ name: 'ReceiverCmid', referencedColumnName: 'Cmid' })
+  Receiver: Relation<PublicProfile>;
+
+  @Column('text')
+  InitiatorMessage: string;
+
+  @Column('int', { default: ContactRequestStatus.Pending })
+  Status: ContactRequestStatus;
+
+  @CreateDateColumn()
+  SentDate: Date;
 }

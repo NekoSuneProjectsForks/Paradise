@@ -1,0 +1,123 @@
+diff --git a/UberStrike.Core/UberStrike.Core.dotnet.csproj b/UberStrike.Core/UberStrike.Core.dotnet.csproj
+index 899a7e0..8233c25 100644
+--- a/UberStrike.Core/UberStrike.Core.dotnet.csproj
++++ b/UberStrike.Core/UberStrike.Core.dotnet.csproj
+@@ -28,16 +28,10 @@
+     <GenerateDocumentationFile>False</GenerateDocumentationFile>
+   </PropertyGroup>
+ 
+-  <ItemGroup>
+-    <Reference Include="UnityEngine">
+-      <HintPath>..\AssemblyReferences\UnityEngine.dll</HintPath>
+-      <Private>False</Private>
+-    </Reference>
+-  </ItemGroup>
+-
+   <ItemGroup>
+     <ProjectReference Include="..\Cmune\Cmune.dotnet.csproj" />
+     <ProjectReference Include="..\UberStrike.Core.Types\UberStrike.Core.Types.dotnet.csproj" />
+     <ProjectReference Include="..\UberStrike.DataCenter.Common\UberStrike.DataCenter.Common.dotnet.csproj" />
++    <ProjectReference Include="..\..\..\shims\UnityEngine\UnityEngine.csproj" />
+   </ItemGroup>
+ </Project>
+diff --git a/UberStrike.Game/UberStrike.Game.dotnet.csproj b/UberStrike.Game/UberStrike.Game.dotnet.csproj
+index 8b57635..8de11dc 100644
+--- a/UberStrike.Game/UberStrike.Game.dotnet.csproj
++++ b/UberStrike.Game/UberStrike.Game.dotnet.csproj
+@@ -28,17 +28,6 @@
+     <GenerateDocumentationFile>False</GenerateDocumentationFile>
+   </PropertyGroup>
+ 
+-  <ItemGroup>
+-    <Reference Include="UnityEngine">
+-      <HintPath>..\AssemblyReferences\UnityEngine.dll</HintPath>
+-      <Private>False</Private>
+-    </Reference>
+-    <Reference Include="Photon3Unity3D">
+-      <HintPath>..\AssemblyReferences\Photon3Unity3D.dll</HintPath>
+-      <Private>False</Private>
+-    </Reference>
+-  </ItemGroup>
+-
+   <ItemGroup>
+     <ProjectReference Include="..\Cmune\Cmune.dotnet.csproj" />
+     <ProjectReference Include="..\Steamworks\Steamworks.dotnet.csproj" />
+@@ -48,5 +37,7 @@
+     <ProjectReference Include="..\UberStrike.DataCenter.UnitySdk\UberStrike.DataCenter.UnitySdk.dotnet.csproj" />
+     <ProjectReference Include="..\UberStrike.Realtime.Client\UberStrike.Realtime.Client.dotnet.csproj" />
+     <ProjectReference Include="..\UberStrike.Realtime.UnitySdk\UberStrike.Realtime.UnitySdk.dotnet.csproj" />
++    <ProjectReference Include="..\..\..\shims\UnityEngine\UnityEngine.csproj" />
++    <ProjectReference Include="..\..\..\shims\Photon3Unity3D\Photon3Unity3D.csproj" />
+   </ItemGroup>
+ </Project>
+diff --git a/UberStrike.Realtime.Client/UberStrike.Realtime.Client.dotnet.csproj b/UberStrike.Realtime.Client/UberStrike.Realtime.Client.dotnet.csproj
+index 7c85fe1..dd7b9ba 100644
+--- a/UberStrike.Realtime.Client/UberStrike.Realtime.Client.dotnet.csproj
++++ b/UberStrike.Realtime.Client/UberStrike.Realtime.Client.dotnet.csproj
+@@ -28,21 +28,12 @@
+     <GenerateDocumentationFile>False</GenerateDocumentationFile>
+   </PropertyGroup>
+ 
+-  <ItemGroup>
+-    <Reference Include="UnityEngine">
+-      <HintPath>..\AssemblyReferences\UnityEngine.dll</HintPath>
+-      <Private>False</Private>
+-    </Reference>
+-    <Reference Include="Photon3Unity3D">
+-      <HintPath>..\AssemblyReferences\Photon3Unity3D.dll</HintPath>
+-      <Private>False</Private>
+-    </Reference>
+-  </ItemGroup>
+-
+   <ItemGroup>
+     <ProjectReference Include="..\Cmune\Cmune.dotnet.csproj" />
+     <ProjectReference Include="..\UberStrike.Core.Types\UberStrike.Core.Types.dotnet.csproj" />
+     <ProjectReference Include="..\UberStrike.Core\UberStrike.Core.dotnet.csproj" />
+     <ProjectReference Include="..\UberStrike.Realtime.UnitySdk\UberStrike.Realtime.UnitySdk.dotnet.csproj" />
++    <ProjectReference Include="..\..\..\shims\UnityEngine\UnityEngine.csproj" />
++    <ProjectReference Include="..\..\..\shims\Photon3Unity3D\Photon3Unity3D.csproj" />
+   </ItemGroup>
+ </Project>
+diff --git a/UberStrike.Realtime.UnitySdk/UberStrike.Realtime.UnitySdk.dotnet.csproj b/UberStrike.Realtime.UnitySdk/UberStrike.Realtime.UnitySdk.dotnet.csproj
+index c0bddf5..2e9e671 100644
+--- a/UberStrike.Realtime.UnitySdk/UberStrike.Realtime.UnitySdk.dotnet.csproj
++++ b/UberStrike.Realtime.UnitySdk/UberStrike.Realtime.UnitySdk.dotnet.csproj
+@@ -28,14 +28,8 @@
+     <GenerateDocumentationFile>False</GenerateDocumentationFile>
+   </PropertyGroup>
+ 
+-  <ItemGroup>
+-    <Reference Include="UnityEngine">
+-      <HintPath>..\AssemblyReferences\UnityEngine.dll</HintPath>
+-      <Private>False</Private>
+-    </Reference>
+-  </ItemGroup>
+-
+   <ItemGroup>
+     <ProjectReference Include="..\UberStrike.Core\UberStrike.Core.dotnet.csproj" />
++    <ProjectReference Include="..\..\..\shims\UnityEngine\UnityEngine.csproj" />
+   </ItemGroup>
+ </Project>
+diff --git a/UberStrike.WebService.Unity/UberStrike.WebService.Unity.dotnet.csproj b/UberStrike.WebService.Unity/UberStrike.WebService.Unity.dotnet.csproj
+index 35a682a..e4659e4 100644
+--- a/UberStrike.WebService.Unity/UberStrike.WebService.Unity.dotnet.csproj
++++ b/UberStrike.WebService.Unity/UberStrike.WebService.Unity.dotnet.csproj
+@@ -28,17 +28,11 @@
+     <GenerateDocumentationFile>False</GenerateDocumentationFile>
+   </PropertyGroup>
+ 
+-  <ItemGroup>
+-    <Reference Include="UnityEngine">
+-      <HintPath>..\AssemblyReferences\UnityEngine.dll</HintPath>
+-      <Private>False</Private>
+-    </Reference>
+-  </ItemGroup>
+-
+   <ItemGroup>
+     <ProjectReference Include="..\Cmune\Cmune.dotnet.csproj" />
+     <ProjectReference Include="..\UberStrike.Core.Types\UberStrike.Core.Types.dotnet.csproj" />
+     <ProjectReference Include="..\UberStrike.Core\UberStrike.Core.dotnet.csproj" />
+     <ProjectReference Include="..\UberStrike.DataCenter.Common\UberStrike.DataCenter.Common.dotnet.csproj" />
++    <ProjectReference Include="..\..\..\shims\UnityEngine\UnityEngine.csproj" />
+   </ItemGroup>
+ </Project>

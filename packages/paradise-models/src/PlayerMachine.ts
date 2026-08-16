@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,76 +15,75 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { DataTypes, Model, type Sequelize } from 'sequelize';
+import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, type Relation } from 'typeorm';
+import { PublicProfile } from './PublicProfile';
 
-interface PlayerMachineAttributes {
-  SystemIdentifier?: string;
-  SystemModel?: string;
-  SystemDeviceType?: number;
-  SystemOperatingSystem?: string;
-  SystemProcessorType?: string;
-  SystemCoreCount?: number;
-  SystemMemory?: number;
-  GPUVendor?: string;
-  GPUModel?: string;
-  GPUVendorID?: string;
-  GPUModelID?: string;
-  GPUMemory?: number;
-  GPUDriverVersion?: string;
-  Cmid?: number;
-}
+@Entity('PlayerMachines')
+export class PlayerMachine extends BaseEntity {
+  @PrimaryColumn('int')
+  Cmid: number;
 
-export default class PlayerMachine extends Model<PlayerMachineAttributes> {
-  declare SystemIdentifier: string;
-  declare SystemModel: string;
-  declare SystemDeviceType: number;
-  declare SystemOperatingSystem: string;
-  declare SystemProcessorType: string;
-  declare SystemCoreCount: number;
-  declare SystemMemory: number;
-  declare GPUVendor: string;
-  declare GPUModel: string;
-  declare GPUVendorID: string;
-  declare GPUModelID: string;
-  declare GPUMemory: number;
-  declare GPUDriverVersion: string;
-  declare Cmid: number;
+  @PrimaryColumn('varchar')
+  SystemIdentifier: string; // CSProduct -> UUID
 
-  static initialize(sequelize: Sequelize) {
-    PlayerMachine.init(
-      {
-        SystemIdentifier: {
-          type: DataTypes.STRING,
-          primaryKey: true,
-        },
-        SystemModel: DataTypes.STRING,
-        SystemDeviceType: DataTypes.INTEGER,
-        SystemOperatingSystem: DataTypes.STRING,
-        SystemProcessorType: DataTypes.STRING,
-        SystemCoreCount: DataTypes.INTEGER,
-        SystemMemory: DataTypes.INTEGER,
-        GPUVendor: DataTypes.STRING,
-        GPUModel: DataTypes.STRING,
-        GPUVendorID: DataTypes.STRING,
-        GPUModelID: DataTypes.STRING,
-        GPUMemory: DataTypes.INTEGER,
-        GPUDriverVersion: DataTypes.STRING,
-        Cmid: DataTypes.INTEGER,
-      },
-      {
-        sequelize,
-        tableName: 'PlayerMachines',
-        timestamps: false,
-      },
-    );
-  }
+  @Column('varchar', { nullable: true })
+  SystemVendor: string | null; // CSProduct -> Vendor
 
-  static associate({ PublicProfile }: any) {
-    PlayerMachine.belongsTo(PublicProfile, {
-      foreignKey: 'Cmid',
-      targetKey: 'Cmid',
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
-    });
-  }
+  @Column('varchar', { nullable: true })
+  SystemModel: string | null; // CSProduct -> Name
+
+  @Column('varchar', { nullable: true })
+  SystemDeviceType: string | null;
+
+  @Column('varchar', { nullable: true })
+  SystemOperatingSystem: string | null; // OS -> Caption,Version,OSArchitecture
+
+  @Column('varchar', { nullable: true })
+  SystemProcessorVendor: string | null; // CPU -> Manufacturer
+
+  @Column('varchar', { nullable: true })
+  SystemProcessorModel: string | null; // CPU -> Name
+
+  @Column('varchar', { nullable: true })
+  SystemCoreCount: number | null; // CPU -> NumberOfCores
+
+  @Column('varchar', { nullable: true })
+  SystemThreadCount: number | null; // CPU -> NumberOfLogicalProcessors
+
+  @Column('int', { nullable: true })
+  SystemMemory: BigInt | null; // ComputerSystem -> TotalPhysicalMemory
+
+  @Column('varchar', { nullable: true })
+  GPUVendor: string | null;
+
+  @Column('varchar', { nullable: true })
+  GPUModel: string | null;
+
+  @Column('varchar', { nullable: true })
+  GPUVendorID: string | null;
+
+  @Column('varchar', { nullable: true })
+  GPUDeviceID: string | null;
+
+  @Column('int', { nullable: true })
+  GPUMemory: BigInt | null;
+
+  @Column('varchar', { nullable: true })
+  GPUDriverVersion: string | null; // wmic PATH Win32_videocontroller WHERE "AdapterRAM > 0" GET Caption,DriverVersion,AdapterRAM,AdapterCompatibility
+
+  @Column('varchar', { nullable: true })
+  ClientVersion: string | null;
+
+  @Column('varchar', { nullable: true })
+  ParadiseVersion: string | null;
+
+  @Column('varchar', { nullable: true })
+  ParadiseBuild: string | null;
+
+  @ManyToOne(() => PublicProfile, (publicProfile) => publicProfile.Machines, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE'
+  })
+  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid' })
+  PublicProfile: Relation<PublicProfile>;
 }

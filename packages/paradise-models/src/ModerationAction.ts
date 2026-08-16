@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,69 +15,61 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { DataTypes, Model, type Sequelize } from 'sequelize';
+import {
+  BaseEntity,
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  type Relation
+} from 'typeorm';
+import type { ModerationFlag } from './enums';
+import { PublicProfile } from './PublicProfile';
 
-interface ModerationActionAttributes {
-  id?: number;
-  ModerationFlag?: ModerationFlag;
-  SourceCmid?: number;
-  SourceName?: string;
-  TargetCmid?: number;
-  TargetName?: string;
-  ActionDate?: Date;
-  ExpireTime?: Date | null;
-  Reason?: string;
-}
+@Entity('ModerationActions')
+export class ModerationAction extends BaseEntity {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-export default class ModerationAction extends Model<ModerationActionAttributes> {
-  declare id: number;
-  declare ModerationFlag: ModerationFlag;
-  declare SourceCmid: number;
-  declare SourceName: string;
-  declare TargetCmid: number;
-  declare TargetName: string;
-  declare ActionDate: Date;
-  declare ExpireTime: Date | null;
-  declare Reason: string;
+  @Column('int')
+  ModerationFlag: ModerationFlag;
 
-  static initialize(sequelize: Sequelize) {
-    ModerationAction.init(
-      {
-        id: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-          autoIncrement: true,
-        },
-        ModerationFlag: DataTypes.INTEGER,
-        SourceCmid: DataTypes.INTEGER,
-        SourceName: DataTypes.STRING(18),
-        TargetCmid: DataTypes.INTEGER,
-        TargetName: DataTypes.STRING(18),
-        ActionDate: DataTypes.DATE,
-        ExpireTime: DataTypes.DATE,
-        Reason: DataTypes.TEXT,
-      },
-      {
-        sequelize,
-        tableName: 'ModerationActions',
-        timestamps: false,
-      },
-    );
+  @Column('int')
+  SourceCmid: number;
+
+  @ManyToOne(() => PublicProfile, (publicProfile) => publicProfile.ModerationActionsIssued, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE'
+  })
+  @JoinColumn({ name: 'SourceCmid', referencedColumnName: 'Cmid' })
+  Source: Relation<PublicProfile>;
+
+  get SourceName(): string {
+    return this.Source.Name;
   }
 
-  static associate({ PublicProfile }: any) {
-    ModerationAction.belongsTo(PublicProfile, {
-      foreignKey: 'SourceCmid',
-      targetKey: 'Cmid',
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
-    });
+  @Column()
+  TargetCmid: number;
 
-    ModerationAction.belongsTo(PublicProfile, {
-      foreignKey: 'TargetCmid',
-      targetKey: 'Cmid',
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
-    });
+  @ManyToOne(() => PublicProfile, (publicProfile) => publicProfile.ModerationActionsReceived, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE'
+  })
+  @JoinColumn({ name: 'TargetCmid', referencedColumnName: 'Cmid' })
+  Target: Relation<PublicProfile>;
+
+  get TargetName(): string {
+    return this.Target.Name;
   }
+
+  @CreateDateColumn()
+  ActionDate: Date;
+
+  @Column('datetime', { nullable: true })
+  ExpireTime: Date | null;
+
+  @Column('text')
+  Reason: string;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,8 +19,39 @@ interface Array<T> {
   writeTo(stream: Array<T>): void;
 }
 
-// Math functions
 interface Math {
   clamp(value, min, max): number;
   randomInt(min?, max?): number;
+}
+
+// #region Updates
+type UpdateCatalog = {
+  version: string;
+  build: string;
+  channel: 'stable' | 'beta';
+  platforms: Record<string, UpdatePlatformDefinition>;
+};
+
+type UpdatePlatformDefinition = {
+  platform: string;
+  files: UpdateFile[];
+  removedFiles: UpdateFile[];
+};
+
+type UpdateFile = {
+  filename: string;
+  description: string;
+  localPath: string;
+  remotePath: string;
+  filesize: number;
+  md5sum: string;
+  sha256: string;
+  sha512: string;
+  optional: boolean;
+};
+// #endregion
+
+declare module 'sql.js/dist/sql-wasm.wasm' {
+  const wasmPath: string;
+  export default wasmPath;
 }

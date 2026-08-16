@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,71 +15,62 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { DataTypes, Model, type Sequelize } from 'sequelize';
+import {
+  BaseEntity,
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+  type Relation
+} from 'typeorm';
+import { PublicProfile } from './PublicProfile';
 
-interface PrivateMessageAttributes {
-  PrivateMessageId?: number;
-  FromCmid?: number;
-  FromName?: string;
-  ToCmid?: number;
-  DateSent?: Date;
-  ContentText?: string;
-  IsRead?: boolean;
-  HasAttachment?: boolean;
-  IsDeletedBySender?: boolean;
-  IsDeletedByReceiver?: boolean;
-}
+@Entity('PrivateMessages')
+export class PrivateMessage extends BaseEntity {
+  @PrimaryColumn('int')
+  PrivateMessageId: number;
 
-export default class PrivateMessage extends Model<PrivateMessageAttributes> {
-  declare PrivateMessageId: number;
-  declare FromCmid: number;
-  declare FromName: string;
-  declare ToCmid: number;
-  declare DateSent: Date;
-  declare ContentText: string;
-  declare IsRead: boolean;
-  declare HasAttachment: boolean;
-  declare IsDeletedBySender: boolean;
-  declare IsDeletedByReceiver: boolean;
+  @Column('int')
+  FromCmid: number;
 
-  static initialize(sequelize: Sequelize) {
-    PrivateMessage.init(
-      {
-        PrivateMessageId: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-        },
-        FromCmid: DataTypes.INTEGER,
-        FromName: DataTypes.STRING(18),
-        ToCmid: DataTypes.INTEGER,
-        DateSent: DataTypes.DATE,
-        ContentText: DataTypes.TEXT,
-        IsRead: DataTypes.BOOLEAN,
-        HasAttachment: DataTypes.BOOLEAN,
-        IsDeletedBySender: DataTypes.BOOLEAN,
-        IsDeletedByReceiver: DataTypes.BOOLEAN,
-      },
-      {
-        sequelize,
-        tableName: 'PrivateMessages',
-        timestamps: false,
-      },
-    );
+  @ManyToOne(() => PublicProfile, (publicProfile) => publicProfile.PrivateMessagesSent, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE'
+  })
+  @JoinColumn({ name: 'FromCmid', referencedColumnName: 'Cmid' })
+  From: Relation<PublicProfile>;
+
+  get FromName(): string {
+    return this.From.Name;
   }
 
-  static associate({ PublicProfile }: any) {
-    PrivateMessage.belongsTo(PublicProfile, {
-      foreignKey: 'FromCmid',
-      targetKey: 'Cmid',
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
-    });
+  @Column('int')
+  ToCmid: number;
 
-    PrivateMessage.belongsTo(PublicProfile, {
-      foreignKey: 'ToCmid',
-      targetKey: 'Cmid',
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
-    });
-  }
+  @ManyToOne(() => PublicProfile, (publicProfile) => publicProfile.PrivateMessagesReceived, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE'
+  })
+  @JoinColumn({ name: 'ToCmid', referencedColumnName: 'Cmid' })
+  To: Relation<PublicProfile>;
+
+  @CreateDateColumn()
+  DateSent: Date;
+
+  @Column('text')
+  ContentText: string;
+
+  @Column('tinyint', { default: false })
+  IsRead: boolean;
+
+  @Column('tinyint', { default: false })
+  HasAttachment: boolean;
+
+  @Column('tinyint', { default: false })
+  IsDeletedBySender: boolean;
+
+  @Column('tinyint', { default: false })
+  IsDeletedByReceiver: boolean;
 }

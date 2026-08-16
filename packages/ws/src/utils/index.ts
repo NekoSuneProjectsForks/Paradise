@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,13 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-export { default as getDividerText } from './DividerText';
 export { default as GameSessionManager } from './GameSessionManager';
 export { default as LoadoutFilter } from './LoadoutFilter';
 export { default as Log, LogLevel } from './Log';
 export { default as RijndaelCipher } from './RijndaelCipher';
 export { default as RijndaelCryptographyPolicy } from './RijndaelCryptographyPolicy';
 export { default as SOAPResponse } from './SOAPResponse';
-export * from './UpdateGenerator';
+export { default as UpdateGenerator } from './UpdateGenerator';
 export { default as XpPointsUtil } from './XpPointsUtil';
 
+export const intToIPv4 = (ip: number): string => `${ip >>> 24}.${(ip >> 16) & 255}.${(ip >> 8) & 255}.${ip & 255}`;

@@ -1,26 +1,27 @@
 {
   "name": "@festivaldev/paradise-models",
-  "module": "src/index.ts",
+  "version": "2.2.0",
   "type": "module",
-  "exports": {
-    "default": "./src/index.ts"
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "rimraf dist && tsc --build && tsc-alias"
   },
   "devDependencies": {
-    "@eslint/js": "^9",
-    "@types/bun": "latest",
-    "@typescript-eslint/eslint-plugin": "^8",
-    "@typescript-eslint/parser": "^8",
-    "eslint": "^8",
-    "eslint-config-airbnb-base": "^15",
-    "eslint-config-prettier": "^9",
-    "eslint-plugin-prettier": "^5",
-    "prettier": "^3",
-    "sequelize": "^6",
-    "typescript": "~5.5.0",
-    "typescript-eslint": "^8"
+    "@festivaldev/eslint-config": "catalog:",
+    "@festivaldev/prettier-config": "catalog:",
+    "@festivaldev/typescript-config": "catalog:",
+    "@types/bun": "catalog:",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "eslint-plugin-prettier": "catalog:",
+    "prettier": "catalog:",
+    "tsc-alias": "catalog:",
+    "typescript": "catalog:"
   },
   "dependencies": {
     "@festivaldev/uberstrike-js": "workspace:*",
-    "moment": "^2"
+    "date-fns": "catalog:",
+    "reflect-metadata": "latest",
+    "typeorm": "catalog:"
   }
 }

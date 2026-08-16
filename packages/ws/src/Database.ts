@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,57 +15,68 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import models from '@festivaldev/paradise-models';
-import mysql from 'mysql2';
-import { type Dialect, type QueryOptions, type QueryOptionsWithType, QueryTypes, Sequelize } from 'sequelize';
-import { type DatabaseSettings } from './ParadiseServiceSettings';
+import * as entities from '@festivaldev/paradise-models';
+import path from 'path';
+import sqlWasm from 'sql.js/dist/sql-wasm.wasm';
+import { DataSource } from 'typeorm';
 import { Log } from './utils';
 
-const Database = {
-  initialized: false,
-  initialize: async (dbSettings: DatabaseSettings) => {
-    if (Database.initialized) return;
-
-    Log.info('Connecting to database...');
-    Log.debug(
-      `Type:${dbSettings.Type} \
-Database:${dbSettings.DatabaseName} \
-Auth:'${dbSettings.Username}'@'${dbSettings.Server}:${dbSettings.Port}' \
-(using password: ${dbSettings.Password?.length! > 0 ? 'YES' : 'NO'})`,
-    );
-
-    const sequelize = new Sequelize(dbSettings.DatabaseName!, dbSettings.Username!, dbSettings.Password, {
-      host: dbSettings.Server,
-      port: dbSettings.Port,
-      dialect: dbSettings.Type as Dialect,
-      dialectModule: mysql,
-      logging: false,
-    });
-
-    sequelize.query = async function (
-      sql: string | { query: string; values: unknown[] },
-      options?: QueryOptions | QueryOptionsWithType<QueryTypes.RAW> | undefined,
-    ): Promise<any> {
-      try {
-        return await Sequelize.prototype.query.apply(this, [sql, options]);
-      } catch (err: any) {
-        console.error(err);
-      }
-
-      return null;
+export type DatabaseSettings =
+  | {
+      Type: 'sqlite';
+      Filename: string;
+    }
+  | {
+      Type: 'mysql' | 'mariadb';
+      Server: string;
+      Port: number;
+      DatabaseName: string;
+      Username?: string;
+      Password?: string;
     };
 
-    for (const [modelName, model] of Object.entries(models)) {
-      model.initialize(sequelize);
-    }
+export const createDataSource = (dbSettings: DatabaseSettings) => {
+  Log.debug(
+    [
+      `Type:${dbSettings.Type}`,
+      dbSettings.Type === 'sqlite' && `Database:${path.join(process.cwd(), dbSettings.Filename)}`,
+      ...(dbSettings.Type !== 'sqlite'
+        ? [
+            `Auth:'${dbSettings.Username}'@'${dbSettings.Server}:${dbSettings.Port}'`,
+            `(using password: ${dbSettings.Password?.length! > 0 ? 'YES' : 'NO'})`
+          ]
+        : [])
+    ]
+      .filter(Boolean)
+      .join(' ')
+  );
 
-    for (const [modelName, model] of Object.entries(models)) {
-      model.associate?.(models);
-    }
-
-    await sequelize.sync();
-    Database.initialized = true;
-  },
+  switch (dbSettings.Type) {
+    case 'mysql':
+    case 'mariadb':
+      return new DataSource({
+        type: dbSettings.Type,
+        host: dbSettings.Server,
+        port: dbSettings.Port,
+        database: dbSettings.DatabaseName,
+        username: dbSettings.Username,
+        password: dbSettings.Password,
+        entities,
+        timezone: 'Z'
+      });
+    case 'sqlite':
+      return new DataSource({
+        type: 'sqljs',
+        autoSave: true,
+        location: path.isAbsolute(dbSettings.Filename)
+          ? dbSettings.Filename
+          : path.join(process.cwd(), dbSettings.Filename),
+        entities,
+        sqlJsConfig: {
+          locateFile: () => sqlWasm
+        }
+      });
+    default:
+      throw new Error('Unsupported database type');
+  }
 };
-
-export default Database;

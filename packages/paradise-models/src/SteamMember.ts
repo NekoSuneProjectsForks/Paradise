@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,46 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { DataTypes, Model, type Sequelize } from 'sequelize';
+import { BaseEntity, Column, Entity, JoinColumn, OneToOne, PrimaryColumn, type Relation } from 'typeorm';
+import { PublicProfile } from './PublicProfile';
 
-interface SteamMemberAttributes {
-  SteamId?: string;
-  Cmid?: number;
-  AuthToken?: string;
-  MachineId?: string;
-}
+@Entity('SteamMembers')
+export class SteamMember extends BaseEntity {
+  @PrimaryColumn('varchar')
+  SteamId: string;
 
-export default class SteamMember extends Model<SteamMemberAttributes> {
-  declare SteamId: string;
-  declare Cmid: number;
-  declare AuthToken: string;
-  declare MachineId: string;
+  @Column('int', { unique: true })
+  Cmid: number;
 
-  static initialize(sequelize: Sequelize) {
-    SteamMember.init(
-      {
-        SteamId: {
-          type: DataTypes.STRING,
-          primaryKey: true,
-        },
-        Cmid: DataTypes.INTEGER,
-        AuthToken: DataTypes.STRING,
-        MachineId: DataTypes.STRING,
-      },
-      {
-        sequelize,
-        tableName: 'SteamMembers',
-        timestamps: false,
-      },
-    );
-  }
+  @Column('varchar', { nullable: true })
+  AuthToken: string | null;
 
-  static associate({ PublicProfile }: any) {
-    SteamMember.belongsTo(PublicProfile, {
-      foreignKey: 'Cmid',
-      targetKey: 'Cmid',
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
-    });
-  }
+  @Column('varchar', { nullable: true })
+  MachineId: string | null;
+
+  @OneToOne(() => PublicProfile, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid' })
+  PublicProfile: Relation<PublicProfile>;
 }

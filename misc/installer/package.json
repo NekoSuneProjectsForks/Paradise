@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "scripts": {
+    "build:client:win-x86": "makensis client.nsi",
+    "build:server:win-x64": "makensis server-x64.nsi",
+    "build:server:win-arm64": "makensis server-arm64.nsi"
+  }
+}

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,75 +15,52 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { DataTypes, Model, type Sequelize } from 'sequelize';
+import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, type Relation } from 'typeorm';
+import { Clan } from './Clan';
+import { PublicProfile } from './PublicProfile';
 
-interface GroupInvitationAttributes {
-  InviterName?: string;
-  InviterCmid?: number;
-  GroupId?: number;
-  GroupName?: string;
-  GroupTag?: string;
-  GroupInvitationId?: number;
-  InviteeName?: string;
-  InviteeCmid?: number;
-  Message?: string;
-}
+@Entity('GroupInvitations')
+export class GroupInvitation extends BaseEntity {
+  @Column('int')
+  InviterCmid: number;
 
-export default class GroupInvitation extends Model<GroupInvitationAttributes> {
-  declare InviterName: string;
-  declare InviterCmid: number;
-  declare GroupId: number;
-  declare GroupName: string;
-  declare GroupTag: string;
-  declare GroupInvitationId: number;
-  declare InviteeName: string;
-  declare InviteeCmid: number;
-  declare Message: string;
+  @ManyToOne(() => PublicProfile, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'InviterCmid', referencedColumnName: 'Cmid' })
+  Inviter: Relation<PublicProfile>;
 
-  static initialize(sequelize: Sequelize) {
-    GroupInvitation.init(
-      {
-        InviterName: DataTypes.STRING(18),
-        InviterCmid: DataTypes.INTEGER,
-        GroupId: DataTypes.INTEGER,
-        GroupName: DataTypes.STRING(25),
-        GroupTag: DataTypes.STRING(5),
-        GroupInvitationId: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-        },
-        InviteeName: DataTypes.STRING(18),
-        InviteeCmid: DataTypes.INTEGER,
-        Message: DataTypes.TEXT,
-      },
-      {
-        sequelize,
-        tableName: 'GroupInvitations',
-        timestamps: false,
-      },
-    );
+  get InviterName(): string {
+    return this.Inviter.Name;
   }
 
-  static associate({ Clan, PublicProfile }: any) {
-    GroupInvitation.belongsTo(Clan, {
-      foreignKey: 'GroupId',
-      targetKey: 'GroupId',
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
-    });
+  @Column('int')
+  GroupId: number;
 
-    GroupInvitation.belongsTo(PublicProfile, {
-      foreignKey: 'InviterCmid',
-      targetKey: 'Cmid',
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
-    });
+  @ManyToOne(() => Clan, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'GroupId', referencedColumnName: 'GroupId' })
+  Group: Relation<Clan>;
 
-    GroupInvitation.belongsTo(PublicProfile, {
-      foreignKey: 'InviteeCmid',
-      targetKey: 'Cmid',
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
-    });
+  get GroupName(): string {
+    return this.Group.Name;
   }
+
+  get GroupTag(): string {
+    return this.Group.Tag;
+  }
+
+  @PrimaryColumn('int')
+  GroupInvitationId: number;
+
+  @Column('int')
+  InviteeCmid: number;
+
+  @ManyToOne(() => PublicProfile, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'InviteeCmid', referencedColumnName: 'Cmid' })
+  Invitee: Relation<PublicProfile>;
+
+  get InviteeName(): string {
+    return this.Invitee.Name;
+  }
+
+  @Column('text')
+  Message: string;
 }

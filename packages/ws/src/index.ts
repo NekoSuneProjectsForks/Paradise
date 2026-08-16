@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,15 +20,17 @@ import { program } from 'commander';
 import path from 'path';
 import seedrandom from 'seedrandom';
 import ParadiseService from './ParadiseService';
-import { FallbackUpdateGenerator, Log, LogLevel, UpdateGenerator } from './utils';
+import { ParadiseServiceSettings } from './ParadiseServiceSettings';
+import runSeed from './seed/seed';
+import { Log, LogLevel, UpdateGenerator } from './utils';
 
 const r = seedrandom(String(new Date().getTime()));
 
 // #region Extensions
 // eslint-disable-next-line no-extend-native
-Array.prototype.writeTo = function (stream: number[]) {
+Array.prototype.writeTo = function (byteArray: number[]) {
   for (const _ of this) {
-    stream.push(_);
+    byteArray.push(_);
   }
 };
 
@@ -47,33 +49,52 @@ program
   .version(packageJson.version)
   .helpOption('--help', 'Displays this help text')
   .helpCommand(false)
+  .option('--settings-file <PATH>', 'Specify the settings file to use')
   .option('--log-level <LEVEL>', 'Set the log level', (value: string) => {
+    if (!isNaN(Number(value)) && value in LogLevel) return Number(value);
     if (value.toUpperCase() in LogLevel) return LogLevel[value.toUpperCase() as keyof typeof LogLevel];
+
     return -1;
   })
-  .option('--no-service', 'Disable service host')
-  .option('--no-prompt', 'Disable console prompt')
-  .addHelpText('afterAll', '\nRun without any parameters to launch the Web Services.')
-  .action(async (options, command) => {
-    if (options.logLevel >= 0) Log.MaxLogLevel = options.logLevel;
-
+  .option('--debug', 'Enable debug mode')
+  .option('--console', 'Disables all services and enables console mode for managing a Web Services instance.')
+  .option('--service', 'Disables console prompts for use as a background service.')
+  .addHelpText('after', '\nRun without any parameters to launch the Web Services.')
+  .action(async ({ logLevel, debug, settingsFile, console: consoleMode = false, service = false }, command) => {
     process.stdout.write('\x1bc');
-    ParadiseService.Instance.Run({
-      serviceHost: options.service,
-      prompt: options.prompt,
+
+    const settings = new ParadiseServiceSettings(settingsFile);
+
+    Log.setupLogging(settings.LogSettings);
+
+    if (logLevel >= 0) Log.maxLogLevel = logLevel;
+    if (debug) Log.maxLogLevel = LogLevel.DEBUG;
+
+    const paradiseService = new ParadiseService(settings);
+
+    paradiseService.run({
+      serviceHost: !consoleMode || service,
+      prompt: !service || consoleMode
     });
   });
 
 program
   .command('gen-updates')
   .description('Generates YAML definitions for automatic game updates')
-  .option('--fallback', 'Generate fallback definitions for pre-v2 update clients')
+  // .option('--fallback', 'Generate fallback definitions for pre-v2 update clients')
   .action((options, command) => {
-    if (!options.fallback) {
-      UpdateGenerator.generate(path.join(process.cwd(), 'wwwroot/updates/v2'));
-    } else {
-      FallbackUpdateGenerator.generate(path.join(process.cwd(), 'wwwroot/updates/'));
-    }
+    UpdateGenerator.generate(path.join(process.cwd(), 'wwwroot/updates/v2'));
+  });
+
+program
+  .command('seed')
+  .description('Initializes the database using the default schema and inserts base data.')
+  .option('--reset', 'Resets the database to default values.')
+  .option('--economy', 'Adds realistic pricing to shop items.')
+  .action(async ({ reset, economy }) => {
+    const { settingsFile } = program.opts();
+
+    runSeed(new ParadiseServiceSettings(settingsFile), reset, economy);
   });
 
 program.parse();

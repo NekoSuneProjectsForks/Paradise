@@ -1,0 +1,43 @@
+name: paradise
+
+x-ws-volumes: &ws-volumes
+  - ./data/ws.yml:/app/packages/ws/paradise.yml:ro
+
+services:
+  ws:
+    image: ghcr.io/festivaldev/paradise-ws
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+      - "8082:8082"
+    volumes: *ws-volumes
+
+  ws-seed:
+    image: ghcr.io/festivaldev/paradise-ws
+    profiles:
+      - seed
+    command: ["bun", "start", "--", "seed"]
+    volumes: *ws-volumes
+
+  rt-comm:
+    image: ghcr.io/festivaldev/paradise-realtime
+    restart: unless-stopped
+    depends_on:
+      - ws
+    command: ["comm"]
+    ports:
+      - "5055:5055/udp"
+    volumes:
+      - ./data/rt.yml:/app/paradise-realtime.yml:ro
+
+  rt-game:
+    image: ghcr.io/festivaldev/paradise-realtime
+    restart: unless-stopped
+    depends_on:
+      - ws
+    command: ["game", "--port", "5155"]
+    ports:
+      - "5155:5155/udp"
+    volumes:
+      - ./data/rt.yml:/app/paradise-realtime.yml:ro

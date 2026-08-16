@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,134 +15,133 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { GameSession, type SteamMember, type UserAccount } from '@festivaldev/paradise-models';
-import type { PublicProfileView } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
-import { Op } from 'sequelize';
+import { GameSession, SteamMember, UserAccount } from '@festivaldev/paradise-models';
+import { ChannelType, type PublicProfileView } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
+import { add } from 'date-fns';
+import { LessThan, MoreThan } from 'typeorm';
 
-const SESSION_EXPIRE_HOURS: number = 12;
+export const SESSION_EXPIRE_HOURS: number = 12;
 
 export default class GameSessionManager {
-  private Seed: bigint = BigInt(new Date().getTime());
+  private static GarbageCollector: ReturnType<typeof setInterval>;
+  private seed: bigint = BigInt(new Date().getTime());
 
-  private static GarbageCollector: any;
-
-  constructor() {
+  constructor(garbageCollectInterval: number = 300) {
     if (!GameSessionManager.GarbageCollector) {
       GameSessionManager.GarbageCollector = setInterval(
-        () => {
-          GameSession.destroy({
-            where: {
-              ExpireTime: {
-                [Op.lte]: new Date(),
-              },
-            },
-          });
-        },
-        1000 * 60 * 5,
+        () =>
+          GameSession.delete({
+            ExpireTime: LessThan(new Date())
+          }),
+        garbageCollectInterval * 1000
       );
     }
   }
 
-  async findOrCreateSession(profile: PublicProfileView, machineId: string, userAccount: UserAccount): Promise<any> {
-    const expireTime = new Date();
-    expireTime.setHours(expireTime.getHours() + SESSION_EXPIRE_HOURS);
+  async findOrCreateSession(
+    profile: PublicProfileView,
+    machineId: string,
+    userAccount: UserAccount
+  ): Promise<GameSession> {
+    const expireTime = add(new Date(), { hours: SESSION_EXPIRE_HOURS });
 
-    const [session, isCreated] = await GameSession.findOrCreate({
+    const session = await GameSession.findOne({
       where: {
         Cmid: profile.Cmid,
-        ExpireTime: {
-          [Op.gt]: new Date(),
-        },
-      },
-      defaults: {
-        SessionId: this.createSessionId(profile.Cmid),
-        Cmid: profile.Cmid,
-        MachineId: machineId,
-        ExpireTime: expireTime,
-      },
+        ExpireTime: MoreThan(new Date())
+      }
     });
 
-    if (!isCreated) {
-      session.extendExpireTime();
+    if (session) {
+      return GameSession.save({
+        SessionId: session.SessionId,
+        ExpireTime: expireTime
+      });
     }
 
-    return session;
+    return GameSession.save(
+      GameSession.create({
+        SessionId: this.createSessionId(profile.Cmid, userAccount.Channel),
+        Cmid: profile.Cmid,
+        Channel: userAccount.Channel,
+        MachineId: machineId,
+        ExpireTime: expireTime
+      })
+    );
   }
 
   async findOrCreateSessionForSteamUser(
     profile: PublicProfileView,
     machineId: string,
-    steamMember: SteamMember,
-  ): Promise<any> {
-    const expireTime = new Date();
-    expireTime.setHours(expireTime.getHours() + SESSION_EXPIRE_HOURS);
+    steamMember: SteamMember
+  ): Promise<GameSession> {
+    const expireTime = add(new Date(), { hours: SESSION_EXPIRE_HOURS });
 
-    const [session, isCreated] = await GameSession.findOrCreate({
+    const session = await GameSession.findOne({
       where: {
         Cmid: profile.Cmid,
-        ExpireTime: {
-          [Op.gt]: new Date(),
-        },
-      },
-      defaults: {
+        ExpireTime: MoreThan(new Date())
+      }
+    });
+
+    if (session) {
+      return GameSession.save({
+        SessionId: session.SessionId,
+        ExpireTime: expireTime
+      });
+    }
+
+    return GameSession.save(
+      GameSession.create({
         SessionId: this.createSessionIdForSteamUser(profile.Cmid, BigInt(steamMember.SteamId)),
         Cmid: profile.Cmid,
+        Channel: ChannelType.Steam,
         MachineId: machineId,
-        ExpireTime: expireTime,
-      },
-    });
-
-    if (!isCreated) {
-      session.extendExpireTime();
-    }
-
-    return session;
+        ExpireTime: expireTime
+      })
+    );
   }
 
-  async findSessionByPlayerId(id: number): Promise<any> {
-    const [session, isCreated] = await GameSession.findOrCreate({
+  async findSessionByPlayerId(id: number): Promise<GameSession | null> {
+    const session = await GameSession.findOne({
       where: {
         Cmid: id,
-        ExpireTime: {
-          [Op.gt]: new Date(),
-        },
-      },
+        ExpireTime: MoreThan(new Date())
+      }
     });
-
-    if (!isCreated) {
-      session.extendExpireTime();
-    }
 
     return session;
   }
 
-  async findSessionForSteamUser(sessionId: string): Promise<any> {
+  async findSessionForSteamUser(sessionId: string): Promise<GameSession | null> {
     return this.findSessionByPlayerId(GameSession.getCmidFromSessionId(sessionId));
   }
 
-  private createSessionId(cmid: number): string {
-    const sessionId: Buffer = Buffer.alloc(20);
+  private createSessionId(cmid: number, channel: ChannelType): string {
+    const sessionId: Buffer = Buffer.alloc(24);
 
-    const seed = this.Seed;
-    this.Seed = (this.Seed + 1n) & 0xffffffffffffffn;
+    const { seed } = this;
+    this.seed = (seed + 1n) & 0xffffffffffffffn;
 
     sessionId.writeInt32LE(cmid);
-    sessionId.writeBigInt64LE(BigInt(new Date().getTime()), 4);
-    sessionId.writeBigInt64LE(seed, 12);
+    sessionId.writeInt32LE(channel, 4);
+    sessionId.writeBigInt64LE(BigInt(new Date().getTime()), 8);
+    sessionId.writeBigInt64LE(seed, 16);
 
-    return sessionId.toString('base64');
+    return sessionId.toBase64();
   }
 
   private createSessionIdForSteamUser(cmid: number, steamId: bigint): string {
-    const sessionId: Buffer = Buffer.alloc(20);
+    const sessionId: Buffer = Buffer.alloc(24);
 
-    const seed = this.Seed;
-    this.Seed = (this.Seed + 1n) & 0xffffffffffffffn;
+    const { seed } = this;
+    this.seed = (seed + 1n) & 0xffffffffffffffn;
 
     sessionId.writeInt32LE(cmid);
-    sessionId.writeBigInt64LE(steamId, 4);
-    sessionId.writeBigInt64LE(seed, 12);
+    sessionId.writeInt32LE(ChannelType.Steam, 4);
+    sessionId.writeBigInt64LE(steamId, 8);
+    sessionId.writeBigInt64LE(seed, 16);
 
-    return sessionId.toString('base64');
+    return sessionId.toBase64();
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,81 +15,80 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import type { GAME_FLAGS } from '@festivaldev/uberstrike-js';
 import type { GameModeType } from '@festivaldev/uberstrike-js/UberStrike/Core/Types';
-import { DataTypes, Model, type Sequelize } from 'sequelize';
+import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryColumn, type Relation } from 'typeorm';
+import { ActivePlayer } from './ActivePlayer';
+import { Map } from './Map';
+import { PhotonServer } from './PhotonServer';
 
-interface GameRoomAttributes {
-  Number?: number;
-  ServerIp?: string;
-  ServerPort?: number;
-  Name?: string;
-  // Guid?: string;
-  IsPasswordProtected?: boolean;
-  GameMode?: GameModeType;
-  PlayerLimit?: number;
-  ConnectedPlayers?: number;
-  TimeLimit?: number;
-  KillLimit?: number;
-  GameFlags?: number;
-  MapID?: number;
-  LevelMin?: number;
-  LevelMax?: number;
-  IsPermanentGame?: boolean;
-  ChannelId?: string;
-  WebhookUrl?: string;
-}
+@Entity('GameRooms')
+export class GameRoom extends BaseEntity {
+  @PrimaryColumn('int')
+  Number: number;
 
-export default class GameRoom extends Model<GameRoomAttributes> {
-  declare Number: number;
-  declare ServerIp: string;
-  declare ServerPort: number;
-  declare Name: string;
-  // declare Guid: string;
-  declare IsPasswordProtected: boolean;
-  declare GameMode: GameModeType;
-  declare PlayerLimit: number;
-  declare ConnectedPlayers: number;
-  declare TimeLimit: number;
-  declare KillLimit: number;
-  declare GameFlags: number;
-  declare MapID: number;
-  declare LevelMin: number;
-  declare LevelMax: number;
-  declare IsPermanentGame: boolean;
-  declare ChannelId: string;
-  declare WebhookUrl: string;
+  // @Column('varchar', { nullable: true })
+  // ServerIp: string | null;
 
-  static initialize(sequelize: Sequelize) {
-    GameRoom.init(
-      {
-        Number: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-        },
-        ServerIp: DataTypes.STRING,
-        ServerPort: DataTypes.INTEGER,
-        Name: DataTypes.STRING(18),
-        IsPasswordProtected: DataTypes.BOOLEAN,
-        GameMode: DataTypes.INTEGER,
-        PlayerLimit: DataTypes.INTEGER,
-        ConnectedPlayers: DataTypes.INTEGER,
-        TimeLimit: DataTypes.INTEGER,
-        KillLimit: DataTypes.INTEGER,
-        GameFlags: DataTypes.INTEGER,
-        MapID: DataTypes.INTEGER,
-        LevelMin: DataTypes.INTEGER,
-        LevelMax: DataTypes.INTEGER,
-        IsPermanentGame: DataTypes.BOOLEAN,
-        ChannelId: DataTypes.STRING,
-        WebhookUrl: DataTypes.STRING,
-      },
-      {
-        sequelize,
-        tableName: 'GameRooms',
-        timestamps: false,
-      },
-    );
-  }
+  // @Column('varchar', { nullable: true })
+  // ServerPort: number | null;
 
-  static associate(_: any) {}
+  @Column('int')
+  PhotonServerId: number;
+
+  @ManyToOne(() => PhotonServer, (photonServer) => photonServer.Rooms, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'PhotonServerId', referencedColumnName: 'PhotonId' })
+  PhotonServer: Relation<PhotonServer>;
+
+  @Column('varchar', { length: 18 })
+  Name: string;
+
+  // Only used for permanent games
+  @Column('varchar', { nullable: true })
+  Password: string | null;
+
+  @Column('tinyint', { default: false })
+  IsPasswordProtected: boolean;
+
+  @Column('int')
+  GameMode: GameModeType;
+
+  @Column('int')
+  PlayerLimit: number;
+
+  @OneToMany(() => ActivePlayer, (activePlayer) => activePlayer.GameRoom)
+  Players: Relation<ActivePlayer[]>;
+
+  @Column('int')
+  TimeLimit: number;
+
+  @Column('int')
+  KillLimit: number;
+
+  @Column('int')
+  GameFlags: GAME_FLAGS;
+
+  @Column('int')
+  MapID: number;
+
+  @ManyToOne(() => Map, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'MapID', referencedColumnName: 'MapId' })
+  Map: Relation<Map>;
+
+  @Column('int', { default: 0 })
+  LevelMin: number;
+
+  @Column('int', { default: 0 })
+  LevelMax: number;
+
+  @Column('tinyint', { default: false })
+  IsPermanentGame: boolean;
+
+  // Discord Channel ID
+  @Column('varchar', { nullable: true })
+  ChannelId: string | null;
+
+  // Discord Webhook URL
+  @Column('varchar', { nullable: true })
+  WebhookUrl: string | null;
 }

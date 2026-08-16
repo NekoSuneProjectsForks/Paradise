@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,98 +16,229 @@
  */
 
 import { EmailAddressStatus, MemberAccessLevel } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
-import { DataTypes, Model, Op, Utils, type Sequelize } from 'sequelize';
+import {
+  And,
+  BaseEntity,
+  Column,
+  Entity,
+  FindOperator,
+  IsNull,
+  Like,
+  MoreThan,
+  OneToMany,
+  OneToOne,
+  Or,
+  PrimaryColumn,
+  type FindOptionsRelations,
+  type Relation
+} from 'typeorm';
+import { ActivePlayer } from './ActivePlayer';
+import { Clan } from './Clan';
+import { ClanMember } from './ClanMember';
+import { ContactRequest } from './ContactRequest';
+import { CurrencyDeposit } from './CurrencyDeposit';
+import { DiscordUser } from './DiscordUser';
+import { GameSession } from './GameSession';
+import { GroupInvitation } from './GroupInvitation';
+import { ItemTransaction } from './ItemTransaction';
+import { MemberWallet } from './MemberWallet';
+import { ModerationAction } from './ModerationAction';
+import { PlayerInventoryItem } from './PlayerInventoryItem';
+import { PlayerLoadout } from './PlayerLoadout';
+import { PlayerMachine } from './PlayerMachine';
+import { PlayerStatistics } from './PlayerStatistics';
+import { PointDeposit } from './PointDeposit';
+import { PrivateMessage } from './PrivateMessage';
+import { SteamMember } from './SteamMember';
+import { UserAccount } from './UserAccount';
 
-export interface PublicProfileAttributes {
-  Cmid?: number;
-  Name?: string;
-  IsChatDisabled?: boolean;
-  AccessLevel?: MemberAccessLevel;
-  GroupTag?: string | null;
-  LastLoginDate?: string | Date;
-  EmailAddressStatus?: EmailAddressStatus;
-  FacebookId?: string;
-}
+@Entity('PublicProfiles')
+export class PublicProfile extends BaseEntity {
+  @PrimaryColumn('int')
+  Cmid: number;
 
-export default class PublicProfile extends Model<PublicProfileAttributes> {
-  declare Cmid: number;
-  declare Name: string;
-  declare IsChatDisabled: boolean;
-  declare AccessLevel: MemberAccessLevel;
-  declare GroupTag: string | null;
-  declare LastLoginDate: string | Date;
-  declare EmailAddressStatus: EmailAddressStatus;
-  declare FacebookId: string;
+  @Column('varchar', { length: 18 })
+  Name: string;
 
-  static initialize(sequelize: Sequelize) {
-    PublicProfile.init(
-      {
-        Cmid: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-        },
-        Name: {
-          type: DataTypes.STRING(18),
-          // unique: true,
-        },
-        IsChatDisabled: {
-          type: DataTypes.BOOLEAN,
-          defaultValue: false,
-        },
-        AccessLevel: {
-          type: DataTypes.INTEGER,
-          defaultValue: MemberAccessLevel.Default,
-        },
-        GroupTag: DataTypes.STRING(5),
-        LastLoginDate: DataTypes.DATE,
-        EmailAddressStatus: DataTypes.INTEGER,
-        FacebookId: DataTypes.STRING,
-      },
-      {
-        sequelize,
-        tableName: 'PublicProfiles',
-        timestamps: false,
-      },
-    );
+  @Column('tinyint', { default: false })
+  IsChatDisabled: boolean;
+
+  @Column('int', { default: MemberAccessLevel.Default })
+  AccessLevel: MemberAccessLevel;
+
+  // @Column('varchar', { length: 5, nullable: true })
+  // GroupTag: string | null;
+  get GroupTag(): string | null {
+    return this.Clan?.Tag ?? null;
   }
 
-  static associate(_: any) {}
+  @Column('datetime')
+  LastLoginDate: Date;
 
-  static async getProfile(search: string): Promise<PublicProfile | null> {
+  @Column('int', { default: EmailAddressStatus.Verified })
+  EmailAddressStatus: EmailAddressStatus;
+
+  @Column('varchar', { nullable: true })
+  FacebookId: string | null;
+
+  // #region Relations
+  @OneToOne(() => ActivePlayer, (activePlayer) => activePlayer.PublicProfile)
+  ActivePlayer?: Relation<ActivePlayer | null>;
+
+  @OneToOne(() => Clan, (clan) => clan.Owner)
+  Clan?: Relation<Clan | null>;
+
+  @OneToOne(() => ClanMember, (clanMember) => clanMember.PublicProfile)
+  ClanMember?: Relation<ClanMember | null>;
+
+  @OneToMany(() => ContactRequest, (contactRequest) => contactRequest.Initiator)
+  ContactRequestsSent: Relation<ContactRequest[]>;
+
+  @OneToMany(() => ContactRequest, (contactRequest) => contactRequest.Receiver)
+  ContactRequestsReceived: Relation<ContactRequest[]>;
+
+  @OneToMany(() => CurrencyDeposit, (currencyDeposit) => currencyDeposit.PublicProfile)
+  CurrencyDeposits: Relation<CurrencyDeposit[]>;
+
+  @OneToOne(() => DiscordUser, (discordUser) => discordUser.PublicProfile)
+  DiscordUser?: Relation<DiscordUser | null>;
+
+  @OneToMany(() => GameSession, (gameSession) => gameSession.PublicProfile)
+  GameSessions: Relation<GameSession[]>;
+
+  @OneToMany(() => GroupInvitation, (groupInvitation) => groupInvitation.Inviter)
+  GroupInvitationsSent: Relation<GroupInvitation[]>;
+
+  @OneToMany(() => GroupInvitation, (groupInvitation) => groupInvitation.Invitee)
+  GroupInvitationsReceived: Relation<GroupInvitation[]>;
+
+  @OneToMany(() => ItemTransaction, (itemTransaction) => itemTransaction.PublicProfile)
+  ItemTransactions: Relation<ItemTransaction[]>;
+
+  @OneToOne(() => MemberWallet, (memberWallet) => memberWallet.PublicProfile)
+  MemberWallet?: Relation<MemberWallet | null>;
+
+  @OneToMany(() => ModerationAction, (moderationAction) => moderationAction.Source)
+  ModerationActionsIssued: Relation<ModerationAction[]>;
+
+  @OneToMany(() => ModerationAction, (moderationAction) => moderationAction.Target)
+  ModerationActionsReceived: Relation<ModerationAction[]>;
+
+  @OneToMany(() => PlayerInventoryItem, (inventoryItem) => inventoryItem.PublicProfile)
+  InventoryItems: Relation<PlayerInventoryItem[]>;
+
+  @OneToOne(() => PlayerLoadout, (playerLoadout) => playerLoadout.PublicProfile)
+  Loadout?: Relation<PlayerLoadout | null>;
+
+  @OneToMany(() => PlayerMachine, (machine) => machine.PublicProfile)
+  Machines: Relation<PlayerMachine[]>;
+
+  @OneToOne(() => PlayerStatistics, (playerStatistics) => playerStatistics.PublicProfile)
+  Statistics?: Relation<PlayerStatistics | null>;
+
+  @OneToMany(() => PointDeposit, (pointDeposit) => pointDeposit.PublicProfile)
+  PointDeposits: Relation<PointDeposit[]>;
+
+  @OneToMany(() => PrivateMessage, (privateMessage) => privateMessage.From)
+  PrivateMessagesSent: Relation<PrivateMessage[]>;
+
+  @OneToMany(() => PrivateMessage, (privateMessage) => privateMessage.To)
+  PrivateMessagesReceived: Relation<PrivateMessage[]>;
+
+  @OneToOne(() => SteamMember, (steamMember) => steamMember.PublicProfile)
+  SteamMember?: Relation<SteamMember | null>;
+
+  @OneToOne(() => UserAccount, (userAccount) => userAccount.PublicProfile)
+  UserAccount?: Relation<UserAccount | null>;
+  // #endregion
+
+  static async findProfile(
+    searchString: string,
+    relations: FindOptionsRelations<PublicProfile> = {}
+  ): Promise<PublicProfile | null> {
     return PublicProfile.findOne({
-      where: {
-        Cmid: {
-          [Op.gt]: 0,
+      where: [
+        {
+          Cmid: And(MoreThan(0), Like(`%${searchString.toLocaleLowerCase()}%` as any as FindOperator<number>))
         },
-        [Op.or]: [
-          {
-            Name: {
-              [Op.like]: `%${search.toLocaleLowerCase()}%`,
-            },
-          },
-          new Utils.Where(new Utils.Col('Cmid'), 'LIKE', `%${search.toLocaleLowerCase()}%`),
-        ],
+        {
+          Cmid: MoreThan(0),
+          Name: Like(`%${searchString.toLocaleLowerCase()}%`)
+        },
+        {
+          Cmid: MoreThan(0),
+          SteamMember: {
+            SteamId: Like(`%${searchString.toLocaleLowerCase()}%`)
+          }
+        },
+        {
+          Cmid: MoreThan(0),
+          UserAccount: {
+            EmailAddress: Like(`%${searchString.toLocaleLowerCase()}%`)
+          }
+        }
+      ],
+      relations: {
+        ActivePlayer: true,
+        SteamMember: true,
+        UserAccount: true,
+        ...relations
       },
-      order: [['Name', 'ASC']],
+      order: {
+        Name: 'ASC'
+      }
     });
   }
 
-  static async getProfiles(search: string): Promise<any> {
-    return PublicProfile.findAll({
-      where: {
-        Cmid: {
-          [Op.gt]: 0,
-        },
-        [Op.or]: [
+  static async findProfiles(
+    searchString?: string,
+    relations: FindOptionsRelations<PublicProfile> = {}
+  ): Promise<PublicProfile[]> {
+    return PublicProfile.find({
+      where:
+        (searchString && [
           {
-            Name: {
-              [Op.like]: `%${search.toLocaleLowerCase()}%`,
-            },
+            Cmid: And(MoreThan(0), Like(`%${searchString.toLocaleLowerCase()}%` as any as FindOperator<number>))
           },
-          new Utils.Where(new Utils.Col('Cmid'), 'LIKE', `%${search.toLocaleLowerCase()}%`),
-        ],
+          {
+            Cmid: MoreThan(0),
+            Name: Like(`%${searchString.toLocaleLowerCase()}%`)
+          },
+          {
+            Cmid: MoreThan(0),
+            SteamMember: {
+              SteamId: Like(`%${searchString.toLocaleLowerCase()}%`)
+            }
+          },
+          {
+            Cmid: MoreThan(0),
+            UserAccount: {
+              EmailAddress: Like(`%${searchString.toLocaleLowerCase()}%`)
+            }
+          }
+        ]) ||
+        undefined,
+      relations: {
+        ActivePlayer: true,
+        SteamMember: true,
+        UserAccount: true,
+        ...relations
       },
-      order: [['Name', 'ASC']],
+      order: {
+        Name: 'ASC'
+      }
     });
+  }
+
+  async hasInventoryItem(itemId: number): Promise<boolean> {
+    const item = await PlayerInventoryItem.findOne({
+      where: {
+        Cmid: this.Cmid,
+        ItemId: itemId,
+        ExpirationDate: Or(IsNull(), MoreThan(new Date()))
+      }
+    });
+
+    return item != null;
   }
 }

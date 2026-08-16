@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,21 +16,15 @@
  */
 
 import ParadiseService from '@/ParadiseService';
-import { MemberAccessLevel } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
-import ParadiseCommand from '../ParadiseCommand';
+import ConsoleCommand from '../ConsoleCommand';
 
-export default class QuitCommand extends ParadiseCommand {
-  static override Command: string = 'quit';
-  static override Aliases: string[] = ['q'];
+export default class QuitCommand extends ConsoleCommand {
+  static override command: string = 'quit';
+  static override aliases: string[] = ['q', 'exit'];
+  static override description: string = 'Quits the application.';
 
-  override Description: string = 'Quits the application.';
-  override HelpString: string = `${QuitCommand.Command}\t\t${this.Description}`;
-
-  override UsageText: string[] = [`${QuitCommand.Command}: ${this.Description}`];
-
-  override MinimumAccessLevel: MemberAccessLevel = MemberAccessLevel.Admin;
-
-  override async Run(args: string[]): Promise<any> {
-    ParadiseService.Instance.Teardown();
+  override async run(args: string[]) {
+    ParadiseService.Instance.teardown();
+    return 0;
   }
 }

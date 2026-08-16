@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "scripts": {
+    "bundle:win-x64": "TARGET=x86_64 PLATFORM=win ARCH=x64 bun run bundle:__win",
+    "bundle:win-arm64": "TARGET=aarch64 PLATFORM=win ARCH=arm64 bun run bundle:__win",
+    "bundle:darwin-x64": "TARGET=x86_64 PLATFORM=darwin ARCH=x64 bun run bundle:__unix",
+    "bundle:darwin-arm64": "TARGET=aarch64 PLATFORM=darwin ARCH=arm64 bun run bundle:__unix",
+    "bundle:linux-x64": "TARGET=x86_64 PLATFORM=linux ARCH=x64 bun run bundle:__unix",
+    "bundle:linux-arm64": "TARGET=aarch64 PLATFORM=linux ARCH=arm64 bun run bundle:__unix",
+    "bundle:__win": "pushd ./_pak; zip -FSr ../Paradise-server-${PLATFORM}-${TARGET}.zip Paradise.WebServices/{wwwroot/{images,UberStrike},paradise_SAMPLE.yml,Paradise.WebServices_${ARCH}.exe} Paradise.Realtime -x \"Paradise.Realtime/bin/logs/*\"; popd",
+    "bundle:__unix": "pushd ./_pak; zip -FSr ../Paradise-server-${PLATFORM}-${TARGET}.zip Paradise.WebServices/{wwwroot/{images,UberStrike},paradise_SAMPLE.yml,paradise-${PLATFORM}-${ARCH}} Paradise.Realtime -x \"Paradise.Realtime/bin/logs/*\"; popd"
+  }
+}

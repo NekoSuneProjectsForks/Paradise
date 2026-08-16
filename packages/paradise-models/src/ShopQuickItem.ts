@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,109 +15,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { ItemPropertyType } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
-import type { ItemShopHighlightType, UberstrikeItemClass } from '@festivaldev/uberstrike-js/UberStrike/Core/Types';
-import { DataTypes, Model, type Sequelize } from 'sequelize';
-import type ShopItemAttributes from './ShopItemAttributes';
-import ShopItemPrice from './ShopItemPrice';
+import type { QuickItemLogic } from '@festivaldev/uberstrike-js/UberStrike/Core/Types';
+import { Column, Entity, OneToMany, type Relation } from 'typeorm';
+import { ShopItem } from './ShopItem';
+import { ShopItemPrice } from './ShopItemPrice';
 
-interface ShopGearItemAttributes extends ShopItemAttributes {
-  UsesPerLife?: number;
-  UsesPerRound?: number;
-  UsesPerGame?: number;
-  CoolDownTime?: number;
-  WarmUpTime?: number;
-  MaxOwnableAmount?: number;
-  BehaviourType?: number;
-}
+@Entity('ShopQuickItems')
+export class ShopQuickItem extends ShopItem {
+  @Column('int', { nullable: true })
+  UsesPerLife: number | null;
 
-export default class ShopQuickItem extends Model<ShopGearItemAttributes> {
-  declare ID: number;
-  declare Name: string;
-  declare PrefabName: string;
-  declare Description: string;
-  declare ItemClass: UberstrikeItemClass;
-  declare LevelLock: number;
-  declare MaxDurationDays: number;
-  declare IsConsumable: boolean;
-  declare ShopHighlightType: ItemShopHighlightType;
-  declare CustomProperties: Record<string, string>;
-  declare ItemProperties: Record<ItemPropertyType, number>;
+  @Column('int', { nullable: true })
+  UsesPerRound: number | null;
 
-  // QuickItem specific
-  declare UsesPerLife: number;
-  declare UsesPerRound: number;
-  declare UsesPerGame: number;
-  declare CoolDownTime: number;
-  declare WarmUpTime: number;
-  declare MaxOwnableAmount: number;
-  declare BehaviourType: number;
+  @Column('int', { nullable: true })
+  UsesPerGame: number | null;
 
-  declare Prices: ShopItemPrice[];
+  @Column('int', { nullable: true })
+  CoolDownTime: number | null;
 
-  static initialize(sequelize: Sequelize) {
-    ShopQuickItem.init(
-      {
-        ID: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-        },
-        Name: DataTypes.STRING,
-        PrefabName: DataTypes.STRING,
-        Description: DataTypes.STRING,
-        ItemClass: DataTypes.INTEGER,
-        LevelLock: DataTypes.INTEGER,
-        MaxDurationDays: DataTypes.INTEGER,
-        IsConsumable: DataTypes.BOOLEAN,
-        ShopHighlightType: DataTypes.INTEGER,
-        CustomProperties: {
-          type: DataTypes.JSON,
-          defaultValue: {},
-          get(this: ShopQuickItem): any {
-            return JSON.parse(this.getDataValue('CustomProperties') as any);
-          },
-          set(this: ShopQuickItem, value: any): any {
-            this.setDataValue('CustomProperties', JSON.stringify(value) as any);
-          },
-        },
-        ItemProperties: {
-          type: DataTypes.JSON,
-          defaultValue: {},
-          get(this: ShopQuickItem): any {
-            return JSON.parse(this.getDataValue('ItemProperties') as any);
-          },
-          set(this: ShopQuickItem, value: any): any {
-            this.setDataValue('ItemProperties', JSON.stringify(value) as any);
-          },
-        },
+  @Column('int', { nullable: true })
+  WarmUpTime: number | null;
 
-        // QuickItem Specific
-        UsesPerLife: DataTypes.INTEGER,
-        UsesPerRound: DataTypes.INTEGER,
-        UsesPerGame: DataTypes.INTEGER,
-        CoolDownTime: DataTypes.INTEGER,
-        WarmUpTime: DataTypes.INTEGER,
-        MaxOwnableAmount: DataTypes.INTEGER,
-        BehaviourType: DataTypes.INTEGER,
-      },
-      {
-        sequelize,
-        tableName: 'ShopQuickItems',
-        timestamps: false,
-      },
-    );
-  }
+  @Column('int', { nullable: true })
+  MaxOwnableAmount: number | null;
 
-  static associate({ ShopItemPrice }: any) {
-    ShopQuickItem.hasMany(ShopItemPrice, {
-      as: 'Prices',
-      constraints: false,
-      foreignKey: 'ID',
-      sourceKey: 'ID',
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
-    });
-  }
+  @Column('int', { nullable: true })
+  BehaviourType: QuickItemLogic | null;
+
+  @OneToMany(() => ShopItemPrice, (price) => price.QuickItem)
+  Prices: Relation<ShopItemPrice[]>;
 
   get IsForSale(): boolean {
     return this.Prices?.length > 0;

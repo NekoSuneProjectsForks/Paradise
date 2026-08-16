@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,54 +16,83 @@
  */
 
 import type { PhotonUsageType, RegionType } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
-import { DataTypes, Model, type Sequelize } from 'sequelize';
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  FindOperator,
+  Like,
+  OneToMany,
+  PrimaryColumn,
+  type FindOptionsRelations,
+  type Relation
+} from 'typeorm';
+import { ActivePlayer } from './ActivePlayer';
+import { GameRoom } from './GameRoom';
 
-interface PhotonServerAttributes {
-  PhotonId?: number;
-  IP?: string;
-  Name?: string;
-  Region?: RegionType;
-  Port?: number;
-  UsageType?: PhotonUsageType;
-  MinLatency?: number;
-  LastResponseTime?: Date;
-  Guid?: string;
-}
+@Entity('PhotonServers')
+export class PhotonServer extends BaseEntity {
+  @PrimaryColumn('int')
+  PhotonId: number;
 
-export default class PhotonServer extends Model<PhotonServerAttributes> {
-  declare PhotonId: number;
-  declare IP: string;
-  declare Name: string;
-  declare Region: RegionType;
-  declare Port: number;
-  declare UsageType: PhotonUsageType;
-  declare MinLatency: number;
-  declare LastReponseTime: Date;
-  declare Guid: string;
+  @Column('varchar', { length: 36 })
+  Guid: string;
 
-  static initialize(sequelize: Sequelize) {
-    PhotonServer.init(
-      {
-        PhotonId: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
+  @Column('varchar')
+  Passphrase: string;
+
+  @Column('varchar')
+  IP: string;
+
+  @Column('int')
+  Port: number;
+
+  @Column('varchar')
+  Name: string;
+
+  @Column('tinyint', { default: true })
+  Enabled: boolean;
+
+  @Column('varchar')
+  ApiVersion: string;
+
+  @Column('int')
+  Region: RegionType;
+
+  @Column('int')
+  UsageType: PhotonUsageType;
+
+  @Column('int', { nullable: true })
+  MinLatency: number | null;
+
+  @Column('datetime', { nullable: true })
+  LastResponseTime: Date | null;
+
+  @OneToMany(() => ActivePlayer, (activePlayer) => activePlayer.CommServer)
+  CommPeers: Relation<ActivePlayer[]>;
+
+  @OneToMany(() => ActivePlayer, (activePlayer) => activePlayer.GameServer)
+  GamePeers: Relation<ActivePlayer[]>;
+
+  @OneToMany(() => GameRoom, (gameRoom) => gameRoom.PhotonServer)
+  Rooms: Relation<GameRoom[]>;
+
+  static async findServer(
+    searchString: string,
+    relations: FindOptionsRelations<PhotonServer> = {}
+  ): Promise<PhotonServer | null> {
+    return PhotonServer.findOne({
+      where: [
+        {
+          PhotonId: Like(`${searchString}` as any as FindOperator<number>)
         },
-        IP: DataTypes.STRING,
-        Name: DataTypes.STRING,
-        Region: DataTypes.INTEGER,
-        Port: DataTypes.INTEGER,
-        UsageType: DataTypes.INTEGER,
-        MinLatency: DataTypes.INTEGER,
-        LastResponseTime: DataTypes.DATE,
-        Guid: DataTypes.STRING(36),
-      },
-      {
-        sequelize,
-        tableName: 'PhotonServers',
-        timestamps: false,
-      },
-    );
+        {
+          Name: Like(`%${searchString}%`)
+        }
+      ],
+      relations: {
+        ...relations
+      }
+    });
   }
-
-  static associate(_: any) {}
 }

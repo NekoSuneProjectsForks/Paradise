@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "scripts": {
+    "bundle:win-x86": "pushd ./_pak; zip -FSr ../Paradise-client-win-x86.zip UberStrike_Data/* uberdaemon_paradise.exe; popd",
+    "bundle:darwin-x64": "pushd ./_pak; zip -FSr ../Paradise-client-darwin-x64.zip UberStrike.app/* uberdaemon_paradise uberdaemon_paradise.sh; popd"
+  }
+}

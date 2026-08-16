@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,67 +15,41 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { DataTypes, Model, type Sequelize } from 'sequelize';
+import { BaseEntity, Column, Entity, OneToMany, PrimaryColumn, type Relation } from 'typeorm';
+import { MapSettings } from './MapSettings';
 
-interface MapAttributes {
-  MapId?: number;
-  DisplayName?: string;
-  Description?: string;
-  SceneName?: Record<string, string>;
-  IsBlueBox?: boolean;
-  RecommendedItemId?: number;
-  SupportedGameModes?: number;
-  SupportedItemClass?: number;
-  MaxPlayers?: number;
-  FileName?: Record<string, string>;
-}
+@Entity('Maps')
+export class Map extends BaseEntity {
+  @PrimaryColumn('int')
+  MapId: number;
 
-export default class Map extends Model<MapAttributes> {
-  declare MapId: number;
-  declare DisplayName: string;
-  declare Description: string;
-  declare SceneName: Record<string, string>;
-  declare IsBlueBox: boolean;
-  declare RecommendedItemId: number;
-  declare SupportedGameModes: number;
-  declare SupportedItemClass: number;
-  declare MaxPlayers: number;
-  declare FileName: Record<string, string>;
+  @Column('varchar')
+  DisplayName: string;
 
-  static initialize(sequelize: Sequelize) {
-    Map.init(
-      {
-        MapId: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-        },
-        DisplayName: DataTypes.STRING,
-        Description: DataTypes.TEXT,
-        SceneName: {
-          type: DataTypes.JSON,
-          get(this: Map): any {
-            return JSON.parse(this.getDataValue('SceneName') as any);
-          },
-        },
-        IsBlueBox: DataTypes.BOOLEAN,
-        RecommendedItemId: DataTypes.INTEGER,
-        SupportedGameModes: DataTypes.INTEGER,
-        SupportedItemClass: DataTypes.INTEGER,
-        MaxPlayers: DataTypes.INTEGER,
-        FileName: {
-          type: DataTypes.JSON,
-          get(this: Map): any {
-            return JSON.parse(this.getDataValue('FileName') as any);
-          },
-        },
-      },
-      {
-        sequelize,
-        tableName: 'Maps',
-        timestamps: false,
-      },
-    );
-  }
+  @Column('text')
+  Description: string;
 
-  static associate(_: any) {}
+  @Column('json', { default: '{}' })
+  SceneName: { [key: string]: any };
+
+  @Column('tinyint')
+  IsBlueBox: boolean;
+
+  @Column('int', { nullable: true })
+  RecommendedItemId: number | null;
+
+  @Column('int', { nullable: true })
+  SupportedGameModes: number | null;
+
+  @Column('int', { nullable: true })
+  SupportedItemClass: number | null;
+
+  @Column('int', { nullable: true })
+  MaxPlayers: number | null;
+
+  @Column('json', { default: '{}' })
+  FileName: { [key: string]: any };
+
+  @OneToMany(() => MapSettings, (mapSettings) => mapSettings.Map)
+  Settings: Relation<MapSettings[]>;
 }

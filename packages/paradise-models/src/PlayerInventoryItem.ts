@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,52 +15,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { DataTypes, Model, type Sequelize } from 'sequelize';
+import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, type Relation } from 'typeorm';
+import { PublicProfile } from './PublicProfile';
+import type { UberstrikeInventoryItem } from './enums';
 
-interface PlayerInventoryItemAttributes {
-  Cmid?: number;
-  ItemId?: UberstrikeInventoryItem;
-  ExpirationDate?: Date | null;
-  AmountRemaining?: number;
-}
+@Entity('PlayerInventoryItems')
+export class PlayerInventoryItem extends BaseEntity {
+  @PrimaryColumn('int')
+  Cmid: number;
 
-export default class PlayerInventoryItem extends Model<PlayerInventoryItemAttributes> {
-  declare Cmid: number;
-  declare ItemId: UberstrikeInventoryItem;
-  declare ExpirationDate: Date | null;
-  declare AmountRemaining: number;
+  @PrimaryColumn('int')
+  ItemId: UberstrikeInventoryItem;
 
-  static initialize(sequelize: Sequelize) {
-    PlayerInventoryItem.init(
-      {
-        Cmid: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-        },
-        ItemId: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-        },
-        ExpirationDate: {
-          type: DataTypes.DATE,
-          allowNull: true,
-        },
-        AmountRemaining: DataTypes.INTEGER,
-      },
-      {
-        sequelize,
-        tableName: 'PlayerInventoryItems',
-        timestamps: false,
-      },
-    );
-  }
+  @Column('datetime', { nullable: true })
+  ExpirationDate: Date | null;
 
-  static associate({ PublicProfile }: any) {
-    PlayerInventoryItem.belongsTo(PublicProfile, {
-      foreignKey: 'Cmid',
-      targetKey: 'Cmid',
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
-    });
-  }
+  @Column('int', { default: 0 })
+  AmountRemaining: number;
+
+  @ManyToOne(() => PublicProfile, (publicProfile) => publicProfile.InventoryItems, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE'
+  })
+  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid' })
+  PublicProfile: Relation<PublicProfile>;
 }

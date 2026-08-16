@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,52 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { DataTypes, Model, type Sequelize } from 'sequelize';
+import { BaseEntity, Column, Entity, JoinColumn, OneToOne, PrimaryColumn, type Relation } from 'typeorm';
+import { PublicProfile } from './PublicProfile';
 
-interface DiscordUserAttributes {
-  Cmid?: number;
-  DiscordUserId?: string | null;
-  Nonce?: string | null;
-  Completed?: boolean;
-}
+@Entity('DiscordUsers')
+export class DiscordUser extends BaseEntity {
+  @PrimaryColumn('int')
+  Cmid: number;
 
-export default class DiscordUser extends Model<DiscordUserAttributes> {
-  declare Cmid: number;
-  declare DiscordUserId: string | null;
-  declare Nonce: string | null;
-  declare Completed: boolean;
+  @Column('varchar', { unique: true, nullable: true })
+  DiscordUserId: string | null;
 
-  static initialize(sequelize: Sequelize) {
-    DiscordUser.init(
-      {
-        Cmid: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-        },
-        DiscordUserId: DataTypes.STRING,
-        Nonce: {
-          type: DataTypes.TEXT,
-          unique: true,
-        },
-        Completed: {
-          type: DataTypes.BOOLEAN,
-          defaultValue: false,
-        },
-      },
-      {
-        sequelize,
-        tableName: 'DiscordUsers',
-        timestamps: false,
-      },
-    );
-  }
+  @Column('varchar', { unique: true, nullable: true })
+  Nonce: string | null;
 
-  static associate({ PublicProfile }: any) {
-    DiscordUser.belongsTo(PublicProfile, {
-      foreignKey: 'Cmid',
-      targetKey: 'Cmid',
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
-    });
-  }
+  @Column('tinyint', { default: false })
+  Completed: boolean;
+
+  @OneToOne(() => PublicProfile, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid' })
+  PublicProfile: Relation<PublicProfile>;
 }

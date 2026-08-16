@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,128 +15,109 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { AvatarType } from '@festivaldev/uberstrike-js/UberStrike/Core/Types';
-import { DataTypes, Model, type Sequelize } from 'sequelize';
+import { AvatarType } from '@festivaldev/uberstrike-js/UberStrike/Core/Types';
+import { BaseEntity, Column, Entity, JoinColumn, OneToOne, PrimaryColumn, type Relation } from 'typeorm';
+import { PublicProfile } from './PublicProfile';
+import type { UberstrikeInventoryItem } from './enums';
 
-interface PlayerLoadoutAttributes {
-  LoadoutId?: number;
-  Backpack?: number;
-  Boots?: UberstrikeInventoryItem;
-  Cmid?: number;
-  Face?: UberstrikeInventoryItem;
-  FunctionalItem1?: UberstrikeInventoryItem;
-  FunctionalItem2?: UberstrikeInventoryItem;
-  FunctionalItem3?: UberstrikeInventoryItem;
-  Gloves?: UberstrikeInventoryItem;
-  Head?: UberstrikeInventoryItem;
-  LowerBody?: UberstrikeInventoryItem;
-  MeleeWeapon?: UberstrikeInventoryItem;
-  QuickItem1?: UberstrikeInventoryItem;
-  QuickItem2?: UberstrikeInventoryItem;
-  QuickItem3?: UberstrikeInventoryItem;
-  Type?: AvatarType;
-  UpperBody?: UberstrikeInventoryItem;
-  Weapon1?: UberstrikeInventoryItem;
-  Weapon1Mod1?: UberstrikeInventoryItem;
-  Weapon1Mod2?: UberstrikeInventoryItem;
-  Weapon1Mod3?: UberstrikeInventoryItem;
-  Weapon2?: UberstrikeInventoryItem;
-  Weapon2Mod1?: UberstrikeInventoryItem;
-  Weapon2Mod2?: UberstrikeInventoryItem;
-  Weapon2Mod3?: UberstrikeInventoryItem;
-  Weapon3?: UberstrikeInventoryItem;
-  Weapon3Mod1?: UberstrikeInventoryItem;
-  Weapon3Mod2?: UberstrikeInventoryItem;
-  Weapon3Mod3?: UberstrikeInventoryItem;
-  Webbing?: UberstrikeInventoryItem;
-  SkinColor?: string;
-}
+@Entity('PlayerLoadouts')
+export class PlayerLoadout extends BaseEntity {
+  // [key: string]: any;
 
-export default class PlayerLoadout extends Model<PlayerLoadoutAttributes> {
-  declare LoadoutId: number;
-  declare Backpack: number;
-  declare Boots: UberstrikeInventoryItem;
-  declare Cmid: number;
-  declare Face: UberstrikeInventoryItem;
-  declare FunctionalItem1: UberstrikeInventoryItem;
-  declare FunctionalItem2: UberstrikeInventoryItem;
-  declare FunctionalItem3: UberstrikeInventoryItem;
-  declare Gloves: UberstrikeInventoryItem;
-  declare Head: UberstrikeInventoryItem;
-  declare LowerBody: UberstrikeInventoryItem;
-  declare MeleeWeapon: UberstrikeInventoryItem;
-  declare QuickItem1: UberstrikeInventoryItem;
-  declare QuickItem2: UberstrikeInventoryItem;
-  declare QuickItem3: UberstrikeInventoryItem;
-  declare Type: AvatarType;
-  declare UpperBody: UberstrikeInventoryItem;
-  declare Weapon1: UberstrikeInventoryItem;
-  declare Weapon1Mod1: UberstrikeInventoryItem;
-  declare Weapon1Mod2: UberstrikeInventoryItem;
-  declare Weapon1Mod3: UberstrikeInventoryItem;
-  declare Weapon2: UberstrikeInventoryItem;
-  declare Weapon2Mod1: UberstrikeInventoryItem;
-  declare Weapon2Mod2: UberstrikeInventoryItem;
-  declare Weapon2Mod3: UberstrikeInventoryItem;
-  declare Weapon3: UberstrikeInventoryItem;
-  declare Weapon3Mod1: UberstrikeInventoryItem;
-  declare Weapon3Mod2: UberstrikeInventoryItem;
-  declare Weapon3Mod3: UberstrikeInventoryItem;
-  declare Webbing: UberstrikeInventoryItem;
-  declare SkinColor: string;
+  @Column('int', { nullable: true })
+  LoadoutId: number | null;
 
-  static initialize(sequelize: Sequelize) {
-    PlayerLoadout.init(
-      {
-        LoadoutId: DataTypes.INTEGER,
-        Backpack: DataTypes.INTEGER,
-        Boots: DataTypes.INTEGER,
-        Cmid: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-        },
-        Face: DataTypes.INTEGER,
-        FunctionalItem1: DataTypes.INTEGER,
-        FunctionalItem2: DataTypes.INTEGER,
-        FunctionalItem3: DataTypes.INTEGER,
-        Gloves: DataTypes.INTEGER,
-        Head: DataTypes.INTEGER,
-        LowerBody: DataTypes.INTEGER,
-        MeleeWeapon: DataTypes.INTEGER,
-        QuickItem1: DataTypes.INTEGER,
-        QuickItem2: DataTypes.INTEGER,
-        QuickItem3: DataTypes.INTEGER,
-        Type: DataTypes.INTEGER,
-        UpperBody: DataTypes.INTEGER,
-        Weapon1: DataTypes.INTEGER,
-        Weapon1Mod1: DataTypes.INTEGER,
-        Weapon1Mod2: DataTypes.INTEGER,
-        Weapon1Mod3: DataTypes.INTEGER,
-        Weapon2: DataTypes.INTEGER,
-        Weapon2Mod1: DataTypes.INTEGER,
-        Weapon2Mod2: DataTypes.INTEGER,
-        Weapon2Mod3: DataTypes.INTEGER,
-        Weapon3: DataTypes.INTEGER,
-        Weapon3Mod1: DataTypes.INTEGER,
-        Weapon3Mod2: DataTypes.INTEGER,
-        Weapon3Mod3: DataTypes.INTEGER,
-        Webbing: DataTypes.INTEGER,
-        SkinColor: DataTypes.STRING,
-      },
-      {
-        sequelize,
-        tableName: 'PlayerLoadouts',
-        timestamps: false,
-      },
-    );
-  }
+  @Column('int', { nullable: true })
+  Backpack: number | null;
 
-  static associate({ PublicProfile }: any) {
-    PlayerLoadout.belongsTo(PublicProfile, {
-      foreignKey: 'Cmid',
-      targetKey: 'Cmid',
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
-    });
-  }
+  @Column('int', { nullable: true })
+  Boots: UberstrikeInventoryItem | null;
+
+  @PrimaryColumn('int')
+  Cmid: number;
+
+  @Column('int', { nullable: true })
+  Face: UberstrikeInventoryItem | null;
+
+  @Column('int', { nullable: true })
+  FunctionalItem1: UberstrikeInventoryItem | null;
+
+  @Column('int', { nullable: true })
+  FunctionalItem2: UberstrikeInventoryItem | null;
+
+  @Column('int', { nullable: true })
+  FunctionalItem3: UberstrikeInventoryItem | null;
+
+  @Column('int', { nullable: true })
+  Gloves: UberstrikeInventoryItem | null;
+
+  @Column('int', { nullable: true })
+  Head: UberstrikeInventoryItem | null;
+
+  @Column('int', { nullable: true })
+  LowerBody: UberstrikeInventoryItem | null;
+
+  @Column('int', { nullable: true })
+  MeleeWeapon: UberstrikeInventoryItem | null;
+
+  @Column('int', { nullable: true })
+  QuickItem1: UberstrikeInventoryItem | null;
+
+  @Column('int', { nullable: true })
+  QuickItem2: UberstrikeInventoryItem | null;
+
+  @Column('int', { nullable: true })
+  QuickItem3: UberstrikeInventoryItem | null;
+
+  @Column('int', { default: AvatarType.LutzRavinoff, nullable: true })
+  Type: AvatarType | null;
+
+  @Column('int', { nullable: true })
+  UpperBody: UberstrikeInventoryItem | null;
+
+  @Column('int', { nullable: true })
+  Weapon1: UberstrikeInventoryItem | null;
+
+  @Column('int', { nullable: true })
+  Weapon1Mod1: UberstrikeInventoryItem | null;
+
+  @Column('int', { nullable: true })
+  Weapon1Mod2: UberstrikeInventoryItem | null;
+
+  @Column('int', { nullable: true })
+  Weapon1Mod3: UberstrikeInventoryItem | null;
+
+  @Column('int', { nullable: true })
+  Weapon2: UberstrikeInventoryItem | null;
+
+  @Column('int', { nullable: true })
+  Weapon2Mod1: UberstrikeInventoryItem | null;
+
+  @Column('int', { nullable: true })
+  Weapon2Mod2: UberstrikeInventoryItem | null;
+
+  @Column('int', { nullable: true })
+  Weapon2Mod3: UberstrikeInventoryItem | null;
+
+  @Column('int', { nullable: true })
+  Weapon3: UberstrikeInventoryItem | null;
+
+  @Column('int', { nullable: true })
+  Weapon3Mod1: UberstrikeInventoryItem | null;
+
+  @Column('int', { nullable: true })
+  Weapon3Mod2: UberstrikeInventoryItem | null;
+
+  @Column('int', { nullable: true })
+  Weapon3Mod3: UberstrikeInventoryItem | null;
+
+  @Column('int', { nullable: true })
+  Webbing: UberstrikeInventoryItem | null;
+
+  @Column('varchar', { nullable: true })
+  SkinColor: string | null;
+
+  @OneToOne(() => PublicProfile, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid' })
+  PublicProfile: Relation<PublicProfile>;
 }

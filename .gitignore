@@ -1,18 +1,35 @@
-# Based on https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore
+# dependencies (bun install)
+node_modules
 
-# Logs
+# output
+
+out
+dist
+dist-ssr
+*.tgz
+*.local
+
+# code coverage
+
+coverage
+*.lcov
+
+# logs
 
 logs
-_.log
-npm-debug.log_
+*.log
+npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
+_.log
 
 # Caches
 
 .cache
+.eslintcache
+*.tsbuildinfo
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 
@@ -106,6 +123,12 @@ web_modules/
 .env.production.local
 .env.local
 
+# Editor directories and files
+
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
 # parcel-bundler cache (https://parceljs.org/)
 
 .parcel-cache
@@ -175,19 +198,20 @@ dist
 .DS_Store
 
 # Paradise
-.vscode/
 .old/
-build/
-*.old/
-**/wwwroot/updates
-migration
-
-.release
-
-bin
-obj
-packages/AssemblyReferences/**/*.dll
-packages/Realtime/photon/*
+.release/
+.vs
 *.csproj.user
 *.DotSettings.user
-.vs
+*.old/
+*.pdb
+*.sqlite
+**/wwwroot/updates
+bin
+build
+migration
+obj
+packages/assemblies/**/*.dll
+packages/assemblies/**/*.xml
+packages/docker/data
+packages/realtime/photon/*

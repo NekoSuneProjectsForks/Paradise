@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,58 +16,46 @@
  */
 
 import type { BuyingDurationType } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
-import { DataTypes, Model, type Sequelize } from 'sequelize';
+import {
+  BaseEntity,
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+  type Relation
+} from 'typeorm';
+import { PublicProfile } from './PublicProfile';
+import type { UberstrikeInventoryItem } from './enums';
 
-interface ItemTransactionAttributes {
-  WithdrawalId?: number;
-  WithdrawalDate?: Date;
-  Points?: number;
-  Credits?: number;
-  Cmid?: number;
-  IsAdminAction?: boolean;
-  ItemId?: UberstrikeInventoryItem;
-  Duration?: BuyingDurationType;
-}
+@Entity('ItemTransactions')
+export class ItemTransaction extends BaseEntity {
+  @PrimaryColumn('int')
+  WithdrawalId: number;
 
-export default class ItemTransaction extends Model<ItemTransactionAttributes> {
-  declare WithdrawalId: number;
-  declare WithdrawalDate: Date;
-  declare Points: number;
-  declare Credits: number;
-  declare Cmid: number;
-  declare IsAdminAction: boolean;
-  declare ItemId: UberstrikeInventoryItem;
-  declare Duration: BuyingDurationType;
+  @CreateDateColumn()
+  WithdrawalDate: Date;
 
-  static initialize(sequelize: Sequelize) {
-    ItemTransaction.init(
-      {
-        WithdrawalId: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-        },
-        WithdrawalDate: DataTypes.DATE,
-        Points: DataTypes.INTEGER,
-        Credits: DataTypes.INTEGER,
-        Cmid: DataTypes.INTEGER,
-        IsAdminAction: DataTypes.BOOLEAN,
-        ItemId: DataTypes.INTEGER,
-        Duration: DataTypes.INTEGER,
-      },
-      {
-        sequelize,
-        tableName: 'ItemTransactions',
-        timestamps: false,
-      },
-    );
-  }
+  @Column('int', { default: 0 })
+  Points: number;
 
-  static associate({ PublicProfile }: any) {
-    ItemTransaction.belongsTo(PublicProfile, {
-      foreignKey: 'Cmid',
-      targetKey: 'Cmid',
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
-    });
-  }
+  @Column('int', { default: 0 })
+  Credits: number;
+
+  @Column('int')
+  Cmid: number;
+
+  @Column('tinyint', { default: false })
+  IsAdminAction: boolean;
+
+  @Column('int')
+  ItemId: UberstrikeInventoryItem;
+
+  @Column('int')
+  Duration: BuyingDurationType;
+
+  @ManyToOne(() => PublicProfile, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid' })
+  PublicProfile: Relation<PublicProfile>;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,46 +16,31 @@
  */
 
 import type { ChannelType } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
-import type { TutorialStepType } from '@festivaldev/uberstrike-js/UberStrike/Core/Types';
-import { DataTypes, Model, type Sequelize } from 'sequelize';
+import { TutorialStepType } from '@festivaldev/uberstrike-js/UberStrike/Core/Types';
+import { BaseEntity, Column, Entity, JoinColumn, OneToOne, PrimaryColumn, type Relation } from 'typeorm';
+import { PublicProfile } from './PublicProfile';
 
-interface UserAccountAttributes {
-  Cmid?: number;
-  EmailAddress?: string;
-  Password?: string;
-  Channel?: ChannelType;
-  Locale?: string;
-  TutorialStep?: TutorialStepType;
-}
+@Entity('UserAccounts')
+export class UserAccount extends BaseEntity {
+  @PrimaryColumn('int')
+  Cmid: number;
 
-export default class UserAccount extends Model<UserAccountAttributes> {
-  declare Cmid: number;
-  declare EmailAddress: string;
-  declare Password: string;
-  declare Channel: ChannelType;
-  declare Locale: string;
-  declare TutorialStep: TutorialStepType;
+  @Column('varchar')
+  EmailAddress: string;
 
-  static initialize(sequelize: Sequelize) {
-    UserAccount.init(
-      {
-        Cmid: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-        },
-        EmailAddress: DataTypes.STRING,
-        Password: DataTypes.STRING,
-        Channel: DataTypes.INTEGER,
-        Locale: DataTypes.STRING,
-        TutorialStep: DataTypes.INTEGER,
-      },
-      {
-        sequelize,
-        tableName: 'UserAccounts',
-        timestamps: false,
-      },
-    );
-  }
+  @Column('varchar')
+  Password: string;
 
-  static associate(_: any) {}
+  @Column('int')
+  Channel: ChannelType;
+
+  @Column('varchar', { nullable: true })
+  Locale: String | null;
+
+  @Column('int', { default: TutorialStepType.MouseLook })
+  TutorialStep: TutorialStepType;
+
+  @OneToOne(() => PublicProfile, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid' })
+  PublicProfile: Relation<PublicProfile>;
 }

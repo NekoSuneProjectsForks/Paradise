@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,15 +15,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import ParadiseService from '@/ParadiseService';
 import { ApplicationConfiguration } from '@festivaldev/paradise-models';
 import { ApplicationConfigurationView } from '@festivaldev/uberstrike-js/UberStrike/Core/Models/Views';
 
 export default class XpPointsUtil {
   private static Config: ApplicationConfigurationView;
 
-  static async _initialize() {
+  static async Initialize() {
     this.Config = new ApplicationConfigurationView({
-      ...(await ApplicationConfiguration.findOne())!.get({ plain: true }),
+      ...(await ApplicationConfiguration.findOne({
+        where: {
+          ApplicationId: ParadiseService.Instance.ServiceSettings.ApplicationId
+        }
+      }))
     });
   }
 
@@ -31,10 +36,10 @@ export default class XpPointsUtil {
     level = Math.min(Math.min(level, 1), XpPointsUtil.MaxPlayerLevel);
 
     if (level < this.MaxPlayerLevel) {
-      minXp = this.Config.XpRequiredPerLevel[level];
-      maxXp = this.Config.XpRequiredPerLevel[level + 1];
+      minXp = this.Config.XpRequiredPerLevel[level]!;
+      maxXp = this.Config.XpRequiredPerLevel[level + 1]!;
     } else {
-      minXp = this.Config.XpRequiredPerLevel[this.MaxPlayerLevel];
+      minXp = this.Config.XpRequiredPerLevel[this.MaxPlayerLevel]!;
       maxXp = minXp + 1;
     }
   }
@@ -43,7 +48,7 @@ export default class XpPointsUtil {
     for (let i = this.MaxPlayerLevel; i > 0; i--) {
       if (this.Config.XpRequiredPerLevel[i] !== undefined) {
         const num = this.Config.XpRequiredPerLevel[i];
-        if (xp >= num) return i;
+        if (xp >= num!) return i;
       }
     }
 

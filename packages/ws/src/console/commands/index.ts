@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,9 +16,11 @@
  */
 
 import { BanCommand, UnbanCommand } from './BanCommands';
+import ClanCommand from './ClanCommand';
 import ClearCommand from './ClearCommand';
 import HelpCommand from './HelpCommand';
 import InventoryCommand from './InventoryCommand';
+import LoadoutCommand from './LoadoutCommand';
 import { DeopCommand, OpCommand } from './OpCommands';
 import PlayersCommand from './PlayersCommand';
 import QuitCommand from './QuitCommand';
@@ -29,10 +31,12 @@ import XpCommand from './XpCommand';
 
 export default [
   BanCommand,
+  ClanCommand,
   ClearCommand,
   DeopCommand,
   HelpCommand,
   InventoryCommand,
+  LoadoutCommand,
   OpCommand,
   PlayersCommand,
   QuitCommand,
@@ -40,5 +44,7 @@ export default [
   ServerCommand,
   UnbanCommand,
   WalletCommand,
-  XpCommand,
+  XpCommand
 ];
+
+export const CommandBlacklist = [QuitCommand];

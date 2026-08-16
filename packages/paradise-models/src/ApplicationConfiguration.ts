@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,92 +15,67 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { DataTypes, Model, type Sequelize } from 'sequelize';
+import { BaseEntity, Column, Entity, PrimaryColumn } from 'typeorm';
 
-interface ApplicationConfigurationAttributes {
-  ApplicationId?: number;
-  XpRequiredPerLevel?: Record<string, number>;
-  MaxLevel?: number;
-  MaxXp?: number;
-  XpKill?: number;
-  XpSmackdown?: number;
-  XpHeadshot?: number;
-  XpNutshot?: number;
-  XpPerMinuteLoser?: number;
-  XpPerMinuteWinner?: number;
-  XpBaseLoser?: number;
-  XpBaseWinner?: number;
-  PointsKill?: number;
-  PointsSmackdown?: number;
-  PointsHeadshot?: number;
-  PointsNutshot?: number;
-  PointsPerMinuteLoser?: number;
-  PointsPerMinuteWinner?: number;
-  PointsBaseLoser?: number;
-  PointsBaseWinner?: number;
-}
+@Entity('ApplicationConfiguration')
+export class ApplicationConfiguration extends BaseEntity {
+  @PrimaryColumn('int')
+  ApplicationId: number;
 
-export default class ApplicationConfiguration extends Model<ApplicationConfigurationAttributes> {
-  declare ApplicationId: number;
-  declare XpRequiredPerLevel: Record<string, number>;
-  declare MaxLevel: number;
-  declare MaxXp: number;
-  declare XpKill: number;
-  declare XpSmackdown: number;
-  declare XpHeadshot: number;
-  declare XpNutshot: number;
-  declare XpPerMinuteLoser: number;
-  declare XpPerMinuteWinner: number;
-  declare XpBaseLoser: number;
-  declare XpBaseWinner: number;
-  declare PointsKill: number;
-  declare PointsSmackdown: number;
-  declare PointsHeadshot: number;
-  declare PointsNutshot: number;
-  declare PointsPerMinuteLoser: number;
-  declare PointsPerMinuteWinner: number;
-  declare PointsBaseLoser: number;
-  declare PointsBaseWinner: number;
+  @Column('json')
+  XpRequiredPerLevel: { [key: string]: number };
 
-  static initialize(sequelize: Sequelize) {
-    ApplicationConfiguration.init(
-      {
-        ApplicationId: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-        },
-        XpRequiredPerLevel: {
-          type: DataTypes.JSON,
-          get(this: ApplicationConfiguration): any {
-            return JSON.parse(this.getDataValue('XpRequiredPerLevel') as any);
-          },
-        },
-        MaxLevel: DataTypes.INTEGER,
-        MaxXp: DataTypes.INTEGER,
-        XpKill: DataTypes.INTEGER,
-        XpSmackdown: DataTypes.INTEGER,
-        XpHeadshot: DataTypes.INTEGER,
-        XpNutshot: DataTypes.INTEGER,
-        XpPerMinuteLoser: DataTypes.INTEGER,
-        XpPerMinuteWinner: DataTypes.INTEGER,
-        XpBaseLoser: DataTypes.INTEGER,
-        XpBaseWinner: DataTypes.INTEGER,
-        PointsKill: DataTypes.INTEGER,
-        PointsSmackdown: DataTypes.INTEGER,
-        PointsHeadshot: DataTypes.INTEGER,
-        PointsNutshot: DataTypes.INTEGER,
-        PointsPerMinuteLoser: DataTypes.INTEGER,
-        PointsPerMinuteWinner: DataTypes.INTEGER,
-        PointsBaseLoser: DataTypes.INTEGER,
-        PointsBaseWinner: DataTypes.INTEGER,
-      },
-      {
-        sequelize,
-        tableName: 'ApplicationConfiguration',
-        timestamps: false,
-      },
-    );
-  }
+  @Column('int')
+  MaxLevel: number;
 
-  static associate(_: any) {}
+  @Column('int')
+  MaxXp: number;
+
+  @Column('int')
+  XpKill: number;
+
+  @Column('int')
+  XpSmackdown: number;
+
+  @Column('int')
+  XpHeadshot: number;
+
+  @Column('int')
+  XpNutshot: number;
+
+  @Column('int')
+  XpPerMinuteLoser: number;
+
+  @Column('int')
+  XpPerMinuteWinner: number;
+
+  @Column('int')
+  XpBaseLoser: number;
+
+  @Column('int')
+  XpBaseWinner: number;
+
+  @Column('int')
+  PointsKill: number;
+
+  @Column('int')
+  PointsSmackdown: number;
+
+  @Column('int')
+  PointsHeadshot: number;
+
+  @Column('int')
+  PointsNutshot: number;
+
+  @Column('int')
+  PointsPerMinuteLoser: number;
+
+  @Column('int')
+  PointsPerMinuteWinner: number;
+
+  @Column('int')
+  PointsBaseLoser: number;
+
+  @Column('int')
+  PointsBaseWinner: number;
 }

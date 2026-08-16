@@ -1,0 +1,69 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net481</TargetFramework>
+    <OutputPath>..\..\..\.release\server\_pak\Paradise.Realtime</OutputPath>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateSupportedRuntime>False</GenerateSupportedRuntime>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <NuGetAudit>false</NuGetAudit>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugType>none</DebugType>
+    <DebugSymbols>False</DebugSymbols>
+    <Optimize>true</Optimize>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowedReferenceRelatedFileExtensions>
+      <!-- Prevent default XML and PDB files copied to output in RELEASE.
+           Only *.allowedextension files will be included, which doesn't exist in my case.
+      -->
+      .allowedextension
+    </AllowedReferenceRelatedFileExtensions>
+    <PathMap>
+      $([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))=C:\buildroot\$(MSBuildProjectName)
+    </PathMap>
+    <GenerateDocumentationFile>False</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="System.ServiceModel" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="log4net" Version="3.3.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="WebSocketSharp" Version="1.0.3-rc11" />
+    <PackageReference Include="YamlDotNet" Version="17.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\vendor\UberStrike\Cmune\Cmune.dotnet.csproj" />
+    <ProjectReference Include="..\..\vendor\UberStrike\UberStrike.Core.Types\UberStrike.Core.Types.dotnet.csproj" />
+    <ProjectReference Include="..\..\vendor\UberStrike\UberStrike.Core\UberStrike.Core.dotnet.csproj" />
+    <ProjectReference Include="..\..\vendor\UberStrike\UberStrike.DataCenter.Common\UberStrike.DataCenter.Common.dotnet.csproj" />
+    <ProjectReference Include="..\..\vendor\UberStrike\UberStrike.Realtime.Client\UberStrike.Realtime.Client.dotnet.csproj" />
+    <ProjectReference Include="..\..\vendor\UberStrike\UberStrike.Realtime.UnitySdk\UberStrike.Realtime.UnitySdk.dotnet.csproj" />
+
+    <ProjectReference Include="..\..\shims\Photon.SocketServer\Photon.SocketServer.csproj" />
+    <ProjectReference Include="..\..\shims\PhotonHostRuntimeInterfaces\PhotonHostRuntimeInterfaces.csproj" />
+    <ProjectReference Include="..\..\shims\UnityEngine\UnityEngine.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="log4net.config" />
+    <None Include="paradise-realtime_SAMPLE.yml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\PhotonServer.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <!-- <Link>..\photon\%(Filename)%(Extension)</Link> -->
+    </Content>
+  </ItemGroup>
+</Project>

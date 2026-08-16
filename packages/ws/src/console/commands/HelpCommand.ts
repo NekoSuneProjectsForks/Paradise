@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,42 +16,42 @@
  */
 
 import CommandHandler from '../CommandHandler';
-import ParadiseCommand from '../ParadiseCommand';
+import ConsoleCommand from '../ConsoleCommand';
 
-export default class HelpCommand extends ParadiseCommand {
-  static override Command: string = 'help';
-  static override Aliases: string[] = ['h'];
+export default class HelpCommand extends ConsoleCommand {
+  static override command: string = 'help';
+  static override aliases: string[] = ['h'];
+  static override description: string = 'Shows this help text.';
 
-  override Description: string = 'Shows this help text. (Alias: h)';
-  override HelpString: string = `${HelpCommand.Command}\t\t${this.Description}`;
-
-  override UsageText: string[] = [];
-
-  override async Run(args: string[]): Promise<any> {
-    if (args.length) {
-      const commandObj = CommandHandler.Commands.find(
-        (_) => _.Command.localeCompare(args[0], undefined, { sensitivity: 'base' }) === 0,
+  override async run([command]: string[]) {
+    if (command) {
+      const commandObj = CommandHandler.commands.find(
+        (_) =>
+          _.command.localeCompare(command, undefined, { sensitivity: 'base' }) === 0 ||
+          _.aliases.some((_) => _.localeCompare(command, undefined, { sensitivity: 'base' }) === 0)
       );
 
       if (commandObj) {
-        /* eslint-disable new-cap */
-        const cmd = new commandObj('');
-
-        for (const line of cmd.UsageText) {
-          this.WriteLine(line);
+        for (const line of commandObj.usageText) {
+          this.writeLine(line);
         }
       }
     } else {
-      this.WriteLine('Use "help <command>" to get help for a specific command.');
-      this.WriteLine('Available commands:\n');
+      const cmdLength = Math.max(...CommandHandler.commands.map((cmd) => cmd.command.length));
+      const descriptionLength = Math.max(...CommandHandler.commands.map((cmd) => cmd.description.length));
 
-      for (const commandObj of CommandHandler.Commands.toSorted((a, b) =>
-        a.Command.localeCompare(b.Command, undefined, { sensitivity: 'base' }),
+      this.writeLine('Use "help <command>" to get help for a specific command.');
+      this.writeLine('Available commands:\n');
+
+      for (const commandObj of CommandHandler.commands.toSorted((a, b) =>
+        a.command.localeCompare(b.command, undefined, { sensitivity: 'base' })
       )) {
-        /* eslint-disable new-cap */
-        const cmd = new commandObj('');
-        this.WriteLine(cmd.HelpString);
+        this.writeLine(
+          `  ${commandObj.command.padEnd(cmdLength + 2, ' ')}${commandObj.description.padEnd(descriptionLength + 2, ' ')}${commandObj.aliases.length ? `(Alias${commandObj.aliases.length > 1 ? 'es' : ''}: ${commandObj.aliases.join(', ')})` : ''}`
+        );
       }
     }
+
+    return 0;
   }
 }

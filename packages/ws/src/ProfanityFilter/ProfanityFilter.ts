@@ -23,8 +23,8 @@ Ported to TypeScript by Team FESTIVAL.
 /* eslint-disable no-dupe-class-members */
 
 import AllowList from './AllowList';
-import type IAllowList from './Interfaces/IAllowList';
-import type IProfanityFilter from './Interfaces/IProfanityFilter';
+import { type IAllowList } from './Interfaces/IAllowList';
+import { type IProfanityFilter } from './Interfaces/IProfanityFilter';
 import ProfanityBase from './ProfanityBase';
 
 function IsPunctuation(c: string): boolean {
@@ -108,7 +108,7 @@ export default class ProfanityFilter extends ProfanityBase implements IProfanity
     }
 
     return this.FilterSwearListForCompleteWordsOnly(sentence, swearList).filter(
-      (value, index, array) => array.indexOf(value) === index,
+      (value, index, array) => array.indexOf(value) === index
     );
   }
 
@@ -162,7 +162,7 @@ export default class ProfanityFilter extends ProfanityBase implements IProfanity
       swearList,
       String(sentence),
       String(sentence),
-      ignoreNumbers,
+      ignoreNumbers
     );
   }
 
@@ -193,7 +193,7 @@ export default class ProfanityFilter extends ProfanityBase implements IProfanity
 
       // Work backwards in string to get to the start of the word.
       while (startIndex > 0) {
-        if (toCheck[startIndex - 1] === ' ' || IsPunctuation(toCheck[startIndex - 1])) {
+        if (toCheck[startIndex - 1] === ' ' || IsPunctuation(toCheck[startIndex - 1]!)) {
           break;
         }
 
@@ -202,7 +202,7 @@ export default class ProfanityFilter extends ProfanityBase implements IProfanity
 
       // Work forwards to get to the end of the word.
       while (endIndex < toCheck.length) {
-        if (toCheck[endIndex] === ' ' || IsPunctuation(toCheck[endIndex])) {
+        if (toCheck[endIndex] === ' ' || IsPunctuation(toCheck[endIndex]!)) {
           break;
         }
 
@@ -252,7 +252,7 @@ export default class ProfanityFilter extends ProfanityBase implements IProfanity
     swearList: string[],
     censored: string,
     tracker: string,
-    ignoreNumeric: boolean,
+    ignoreNumeric: boolean
   ) {
     for (const word of swearList.sort((a, b) => b.length - a.length)) {
       let result: [number, number, string] | null = [0, 0, ''];

@@ -1,0 +1,281 @@
+name: Build Paradise
+
+on:
+  workflow_dispatch:
+#   push:
+#     branches:
+#       - dev
+#     tags:
+#       - 'v*'
+
+permissions:
+  contents: write
+  packages: write
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  DOCKER_BUILD_SUMMARY: false
+  DOCKER_BUILD_RECORD_UPLOAD: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+      - name: Set up Golang
+        uses: actions/setup-go@v7
+        with:
+          go-version: '1.14.15'
+      - name: Install packages
+        run: sudo apt-get update && sudo apt-get install -y rsync nsis
+      - name: Checkout reference assemblies
+        uses: actions/checkout@v4
+        with:
+          repository: festivaldev/paradise-client-refs
+          ssh-key: ${{ secrets.REFS_DEPLOY_KEY }}
+          path: packages/assemblies
+          github-server-url: https://github.com
+      - name: Download dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          curl -fL "https://github.com/ManlyMarco/RuntimeUnityEditor/releases/download/v6.3/RuntimeUnityEditor.Core_v6.3.zip" -o /tmp/rue.zip
+          unzip -j /tmp/rue.zip \
+            "RuntimeUnityEditor.Core.dll" \
+            "RuntimeUnityEditor.Core.xml" \
+            -d ./packages/assemblies
+
+          curl -fL "https://nsis.sourceforge.io/mediawiki/images/5/5a/NSISunzU.zip" -o /tmp/nsisunz.zip
+          unzip -j /tmp/nsisunz.zip \
+            "NSISunzU/Plugin unicode/nsisunz.dll" \
+            -d /usr/share/nsis/Plugins/x86-unicode
+      - name: Apply patch to UberStrike core library
+        working-directory: packages/vendor/UberStrike
+        run: git apply ../UberStrike.patch
+      - name: Apply patch to Patcher
+        working-directory: packages/vendor/Patcher
+        run: git apply ../Patcher.patch
+      - name: Install Bun dependencies
+        run: bun install
+      - name: Build uberstrike-js
+        working-directory: packages/vendor/uberstrike-js
+        run: bun run build
+      - name: Build paradise-models
+        working-directory: packages/paradise-models
+        run: bun run build
+      - name: Build Web Services
+        working-directory: packages/ws
+        run: bun run build-all
+      - name: Copy ws resources
+        run: |
+          rsync -a --mkpath --exclude='/updates/' \
+            ./packages/ws/wwwroot \
+            ./packages/ws/paradise_SAMPLE.yml \
+            ./.release/server/_pak/Paradise.WebServices/
+      - name: Copy client resources
+        run: |
+          rsync -a --mkpath \
+            ./assets/client/current/ \
+            ./.release/client/_pak/UberStrike_Data/
+      - name: Build Paradise.Realtime.Host (x64)
+        working-directory: packages/realtime/Paradise.Realtime.Host
+        run: dotnet build -c Release -r win-x64
+      - name: Bundle server binaries (x64)
+        working-directory: .release/server
+        run: |
+          bun run bundle:win-x64
+          bun run bundle:darwin-x64
+          bun run bundle:linux-x64
+      - name: Create server installer (x64)
+        working-directory: misc/installer
+        run: makensis server-x64.nsi
+      - name: Build Paradise.Realtime.Host (arm64)
+        working-directory: packages/realtime/Paradise.Realtime.Host
+        run: dotnet build -c Release -r win-arm64
+      - name: Bundle server binaries (arm64)
+        working-directory: .release/server
+        run: |
+          bun run bundle:win-arm64
+          bun run bundle:darwin-arm64
+          bun run bundle:linux-arm64
+      - name: Create server installer (x64)
+        working-directory: misc/installer
+        run: makensis server-arm64.nsi
+      - name: Upload artifacts (GitHub)
+        uses: actions/upload-artifact@v4
+        if: ${{ github.server_url == 'https://github.com' }}
+        with:
+          name: paradise-server
+          retention-days: 14
+          path: |
+            .release/server/*.exe
+            .release/server/*.zip
+      - name: Upload artifacts (Gitea)
+        uses: christopherhx/gitea-upload-artifact@v4
+        if: ${{ github.server_url != 'https://github.com' }}
+        with:
+          name: paradise-server
+          retention-days: 14
+          path: |
+            .release/server/*.exe
+            .release/server/*.zip
+      - name: Build Paradise.Client.Bootstrap
+        working-directory: packages/client/current/Paradise.Client.Bootstrap
+        run: dotnet build -c Release -r win-x86
+      - name: Build Paradise.Client.DiscordRPC
+        working-directory: packages/client/current/Paradise.Client.DiscordRPC
+        run: dotnet build -c Release -r win-x86
+      - name: Build uberdaemon
+        working-directory: misc/uberdaemon
+        run: |
+          bun run build:win-x86
+          bun run build:darwin-x64
+      - name: Ensure macOS directory structure
+        working-directory: .release/client/_pak
+        run: |
+          mkdir -p UberStrike.app/Contents
+          ln -sr UberStrike_Data/ UberStrike.app/Contents/Data
+      - name: Bundle client binaries
+        working-directory: .release/client
+        run: |
+          bun run bundle:win-x86
+          bun run bundle:darwin-x64
+      - name: Build UniversalUnityPatcher
+        working-directory: packages/vendor/Patcher
+        run: dotnet build -c Release -r win-x64
+      - name: Create client installer
+        working-directory: misc/installer
+        run: makensis client.nsi
+      - name: Upload artifacts (GitHub)
+        uses: actions/upload-artifact@v4
+        if: ${{ github.server_url == 'https://github.com' }}
+        with:
+          name: paradise-client
+          retention-days: 14
+          path: |
+            .release/client/*.exe
+            .release/client/*.zip
+      - name: Upload artifacts (Gitea)
+        uses: christopherhx/gitea-upload-artifact@v4
+        if: ${{ github.server_url != 'https://github.com' }}
+        with:
+          name: paradise-client
+          retention-days: 14
+          path: |
+            .release/client/*.exe
+            .release/client/*.zip
+
+  docker:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_REGISTRY: ghcr.io
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+      - name: Apply patch to UberStrike core library
+        working-directory: packages/vendor/UberStrike
+        run: git apply ../UberStrike.patch
+      - name: Apply patch to Patcher
+        working-directory: packages/vendor/Patcher
+        run: git apply ../Patcher.patch
+      - name: Install Bun dependencies
+        run: bun install
+      - name: Build uberstrike-js
+        working-directory: packages/vendor/uberstrike-js
+        run: bun run build
+      - name: Build paradise-models
+        working-directory: packages/paradise-models
+        run: bun run build
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+      - name: Registry Login
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+      - name: Set metadata
+        uses: docker/metadata-action@v6
+        id: docker-ws
+        with:
+          images: ${{ env.DOCKER_REGISTRY }}/festivaldev/paradise-ws
+          tags: |
+            type=semver,pattern={{major}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{version}}
+            type=raw,value=latest,enable=${{ !contains(github.ref_name, '-') }}
+      - name: Build/push web services image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: packages/docker/ws.Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.docker-ws.outputs.tags }}
+          labels: ${{ steps.docker-ws.outputs.labels }}
+      - name: Set metadata
+        uses: docker/metadata-action@v6
+        id: docker-rt
+        with:
+          images: ${{ env.DOCKER_REGISTRY }}/festivaldev/paradise-realtime
+          tags: |
+            type=semver,pattern={{major}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{version}}
+            type=raw,value=latest,enable=${{ !contains(github.ref_name, '-') }}
+      - name: Build/push realtime server image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: packages/docker/realtime.Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.docker-rt.outputs.tags }}
+          labels: ${{ steps.docker-rt.outputs.labels }}
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .github
+          sparse-checkout-cone-mode: true
+          fetch-depth: 1
+      - name: Download artifacts (GitHub)
+        uses: actions/download-artifact@v4
+        if: ${{ github.server_url == 'https://github.com' }}
+        with:
+          pattern: paradise-*
+          path: dist
+      - name: Download artifacts (Gitea)
+        uses: christopherhx/gitea-download-artifact@v4
+        if: ${{ github.server_url != 'https://github.com' }}
+        with:
+          pattern: paradise-*
+          path: dist
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: .github/changelog/${{ github.ref_name }}.md
+          files: dist/**/*
+          prerelease: ${{ contains(github.ref_name, '-') }}

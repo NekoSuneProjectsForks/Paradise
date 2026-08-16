@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,63 +16,45 @@
  */
 
 import type { GameModeType } from '@festivaldev/uberstrike-js/UberStrike/Core/Types';
-import { DataTypes, Model, type Sequelize } from 'sequelize';
+import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, type Relation } from 'typeorm';
+import { Map } from './Map';
 
-interface MapSettingsAttributes {
-  MapId?: number;
-  GameModeType?: GameModeType;
-  KillsMin?: number;
-  KillsMax?: number;
-  KillsCurrent?: number;
-  PlayersMin?: number;
-  PlayersMax?: number;
-  PlayersCurrent?: number;
-  TimeMin?: number;
-  TimeMax?: number;
-  TimeCurrent?: number;
-}
+@Entity('MapSettings')
+export class MapSettings extends BaseEntity {
+  @PrimaryColumn('int')
+  MapId: number;
 
-export default class MapSettings extends Model<MapSettingsAttributes> {
-  declare MapId: number;
-  declare GameModeType: GameModeType;
-  declare KillsMin: number;
-  declare KillsMax: number;
-  declare KillsCurrent: number;
-  declare PlayersMin: number;
-  declare PlayersMax: number;
-  declare PlayersCurrent: number;
-  declare TimeMin: number;
-  declare TimeMax: number;
-  declare TimeCurrent: number;
+  @PrimaryColumn('int')
+  GameModeType: GameModeType;
 
-  static initialize(sequelize: Sequelize) {
-    MapSettings.init(
-      {
-        MapId: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-        },
-        GameModeType: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-        },
-        KillsMin: DataTypes.INTEGER,
-        KillsMax: DataTypes.INTEGER,
-        KillsCurrent: DataTypes.INTEGER,
-        PlayersMin: DataTypes.INTEGER,
-        PlayersMax: DataTypes.INTEGER,
-        PlayersCurrent: DataTypes.INTEGER,
-        TimeMin: DataTypes.INTEGER,
-        TimeMax: DataTypes.INTEGER,
-        TimeCurrent: DataTypes.INTEGER,
-      },
-      {
-        sequelize,
-        tableName: 'MapSettings',
-        timestamps: false,
-      },
-    );
-  }
+  @Column('int')
+  KillsMin: number;
 
-  static associate(_: any) {}
+  @Column('int')
+  KillsMax: number;
+
+  @Column('int')
+  KillsCurrent: number;
+
+  @Column('int')
+  PlayersMin: number;
+
+  @Column('int')
+  PlayersMax: number;
+
+  @Column('int')
+  PlayersCurrent: number;
+
+  @Column('int')
+  TimeMin: number;
+
+  @Column('int')
+  TimeMax: number;
+
+  @Column('int')
+  TimeCurrent: number;
+
+  @ManyToOne(() => Map, (map) => map.Settings, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'MapId', referencedColumnName: 'MapId' })
+  Map: Relation<Map>;
 }

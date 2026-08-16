@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,85 +16,54 @@
  */
 
 import type {
-    PlayerPersonalRecordStatisticsView,
-    PlayerWeaponStatisticsView,
+  PlayerPersonalRecordStatisticsView,
+  PlayerWeaponStatisticsView
 } from '@festivaldev/uberstrike-js/UberStrike/DataCenter/Common/Entities';
-import { DataTypes, Model, type Sequelize } from 'sequelize';
+import { BaseEntity, Column, Entity, JoinColumn, OneToOne, PrimaryColumn, type Relation } from 'typeorm';
+import { PublicProfile } from './PublicProfile';
 
-interface PlayerStatisticsAttributes {
-  Cmid?: number;
-  Splats?: number;
-  Splatted?: number;
-  Shots?: bigint;
-  Hits?: bigint;
-  Headshots?: number;
-  Nutshots?: number;
-  Xp?: number;
-  Points?: number;
-  Level?: number;
-  TimeSpentInGame?: number;
-  PersonalRecord?: PlayerPersonalRecordStatisticsView;
-  WeaponStatistics?: PlayerWeaponStatisticsView;
-}
+@Entity('PlayerStatistics')
+export class PlayerStatistics extends BaseEntity {
+  @PrimaryColumn('int')
+  Cmid: number;
 
-export default class PlayerStatistics extends Model<PlayerStatisticsAttributes> {
-  declare Cmid: number;
-  declare Splats: number;
-  declare Splatted: number;
-  declare Shots: bigint;
-  declare Hits: bigint;
-  declare Headshots: number;
-  declare Nutshots: number;
-  declare Xp: number;
-  declare Points: number;
-  declare Level: number;
-  declare TimeSpentInGame: number;
-  declare PersonalRecord: PlayerPersonalRecordStatisticsView;
-  declare WeaponStatistics: PlayerWeaponStatisticsView;
+  @Column('int', { nullable: true })
+  Splats: number | null;
 
-  static initialize(sequelize: Sequelize) {
-    PlayerStatistics.init(
-      {
-        Cmid: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-        },
-        Splats: DataTypes.INTEGER,
-        Splatted: DataTypes.INTEGER,
-        Shots: DataTypes.BIGINT,
-        Hits: DataTypes.BIGINT,
-        Headshots: DataTypes.INTEGER,
-        Nutshots: DataTypes.INTEGER,
-        Xp: DataTypes.INTEGER,
-        Points: DataTypes.INTEGER,
-        Level: DataTypes.INTEGER,
-        TimeSpentInGame: DataTypes.INTEGER,
-        PersonalRecord: {
-          type: DataTypes.JSON,
-          get(this: PlayerStatistics): any {
-            return JSON.parse(this.getDataValue('PersonalRecord') as any);
-          },
-          set(this: PlayerStatistics, value: any): any {
-            this.setDataValue('PersonalRecord', JSON.stringify(value) as any);
-          },
-        },
-        WeaponStatistics: {
-          type: DataTypes.JSON,
-          get(this: PlayerStatistics): any {
-            return JSON.parse(this.getDataValue('WeaponStatistics') as any);
-          },
-          set(this: PlayerStatistics, value: any): any {
-            this.setDataValue('WeaponStatistics', JSON.stringify(value) as any);
-          },
-        },
-      },
-      {
-        sequelize,
-        tableName: 'PlayerStatistics',
-        timestamps: false,
-      },
-    );
-  }
+  @Column('int', { nullable: true })
+  Splatted: number | null;
 
-  static associate(_: any) {}
+  @Column('bigint', { nullable: true })
+  Shots: bigint | null;
+
+  @Column('bigint', { nullable: true })
+  Hits: bigint | null;
+
+  @Column('int', { nullable: true })
+  Headshots: number | null;
+
+  @Column('int', { nullable: true })
+  Nutshots: number | null;
+
+  @Column('int', { default: 0 })
+  Xp: number;
+
+  @Column('int', { nullable: true })
+  Points: number | null;
+
+  @Column('int', { default: 0 })
+  Level: number;
+
+  @Column('int', { nullable: true })
+  TimeSpentInGame: number;
+
+  @Column('json', { default: '{}' })
+  PersonalRecord: PlayerPersonalRecordStatisticsView;
+
+  @Column('json', { default: '{}' })
+  WeaponStatistics: PlayerWeaponStatisticsView;
+
+  @OneToOne(() => PublicProfile, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid' })
+  PublicProfile: Relation<PublicProfile>;
 }

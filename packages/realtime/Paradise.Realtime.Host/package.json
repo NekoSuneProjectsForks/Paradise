@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "scripts": {
+    "comm": "dotnet run -- comm",
+    "game": "dotnet run -- game",
+    "build:win-x64": "dotnet build -c Release -r win-x64",
+    "build:win-arm64": "dotnet build -c Release -r win-arm64"
+  }
+}

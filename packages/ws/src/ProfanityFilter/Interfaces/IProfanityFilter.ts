@@ -1,6 +1,6 @@
-import IAllowList from './IAllowList';
+import { type IAllowList } from './IAllowList';
 
-interface IProfanityFilter {
+export interface IProfanityFilter {
   IsProfanity(word: string): boolean;
   DetectAllProfanities(sentence: string, removePartialMatches: boolean): string[];
   ContainsProfanity(term: string): boolean;
@@ -18,5 +18,3 @@ interface IProfanityFilter {
   Clear(): void;
   get Count(): number;
 }
-
-export default IProfanityFilter;

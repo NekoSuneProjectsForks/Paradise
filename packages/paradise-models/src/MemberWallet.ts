@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,49 +15,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { DataTypes, Model, type Sequelize } from 'sequelize';
+import { BaseEntity, Column, Entity, JoinColumn, OneToOne, PrimaryColumn, type Relation } from 'typeorm';
+import { PublicProfile } from './PublicProfile';
 
-interface MemberWalletAttributes {
-  Cmid?: number;
-  Credits?: number;
-  Points?: number;
-  CreditsExpiration?: Date;
-  PointsExpiration?: Date;
-}
+@Entity('MemberWallets')
+export class MemberWallet extends BaseEntity {
+  @PrimaryColumn('int')
+  Cmid: number;
 
-export default class MemberWallet extends Model<MemberWalletAttributes> {
-  declare Cmid: number;
-  declare Credits: number;
-  declare Points: number;
-  declare CreditsExpiration: Date;
-  declare PointsExpiration: Date;
+  @Column('int', { default: 0 })
+  Credits: number;
 
-  static initialize(sequelize: Sequelize) {
-    MemberWallet.init(
-      {
-        Cmid: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-        },
-        Credits: DataTypes.INTEGER,
-        Points: DataTypes.INTEGER,
-        CreditsExpiration: DataTypes.DATE,
-        PointsExpiration: DataTypes.DATE,
-      },
-      {
-        sequelize,
-        tableName: 'MemberWallets',
-        timestamps: false,
-      },
-    );
-  }
+  @Column('int', { default: 0 })
+  Points: number;
 
-  static associate({ PublicProfile }: any) {
-    MemberWallet.belongsTo(PublicProfile, {
-      foreignKey: 'Cmid',
-      targetKey: 'Cmid',
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
-    });
-  }
+  @Column('datetime', { nullable: true })
+  CreditsExpiration: Date | null;
+
+  @Column('datetime', { nullable: true })
+  PointsExpiration: Date | null;
+
+  @OneToOne(() => PublicProfile, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid' })
+  PublicProfile: Relation<PublicProfile>;
 }

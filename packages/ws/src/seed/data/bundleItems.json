@@ -1,0 +1,30 @@
+[
+  {
+    "id": 0,
+    "BundleId": 0,
+    "ItemId": 1000,
+    "Amount": 1,
+    "Duration": 5
+  },
+  {
+    "id": 1,
+    "BundleId": 0,
+    "ItemId": 1002,
+    "Amount": 1,
+    "Duration": 5
+  },
+  {
+    "id": 2,
+    "BundleId": 0,
+    "ItemId": 1003,
+    "Amount": 1,
+    "Duration": 5
+  },
+  {
+    "id": 3,
+    "BundleId": 0,
+    "ItemId": 1004,
+    "Amount": 1,
+    "Duration": 5
+  }
+]

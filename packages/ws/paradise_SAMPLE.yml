@@ -1,0 +1,104 @@
+# Paradise Web Services
+ApplicationId: 1
+
+Hostname: '0.0.0.0'
+
+# Port Settings
+WebServicePort: 8080
+FileServerPort: 8081
+SocketPort: 8082
+
+# Database Settings
+DatabaseSettings:
+  Type: 'mysql'
+  Server: '127.0.0.1'
+  Port: 3306 # MySQL/MariaDB
+  Username: ''
+  Password: ''
+  DatabaseName: 'paradise'
+
+  # For SQLite, use these settings instead
+  # Type: 'sqlite'
+  # Filename: 'paradise.sqlite'
+
+# Log Settings
+LogSettings:
+  LogToConsole: true
+  LogToFile: true
+
+  LogPath: 'logs'
+  LogLevel: 'INFO' # "NONE" | "OK" | "INFO" | "WARN" | "ERROR" | "FATAL" | "DEBUG"
+
+  # Loki Settings (external log)
+  LokiSettings:
+    Enabled: false
+    Server: 'http://127.0.0.1:3100'
+    ServiceName: 'paradise'
+
+# Gameplay Settings
+GameplaySettings:
+  ShopRefundFactor: 0.75
+
+#region Web Service Settings
+WebServicePrefix: 'UberStrike.DataCenter.WebService.CWS.'
+WebServiceSuffix: 'Contract.svc'
+EncryptionInitVector: 'aaaaBBBBccccDDDD' # Must be 16 characters
+EncryptionPassPhrase: 'mysupersecretkey'
+PhotonServers:
+  - PhotonId: 0
+    Guid: '00000000-0000-0000-0000-000000000000'
+    Passphrase: 'paradise-secret-comm'
+    IP: '1.1.1.1' # replace with public IP
+    Port: 5055
+    Name: 'Example Comm Server'
+    Enabled: true
+    ApiVersion: '2.0'
+    Region: 1
+    UsageType: 6 # 1 = GameServer, 6 = CommServer
+    # MinLatency: 300 # optional
+  - PhotonId: 1
+    Guid: '11111111-1111-1111-1111-111111111111'
+    Passphrase: 'paradise-secret-game'
+    IP: '1.1.1.1' # replace with public IP
+    Port: 5055
+    Name: 'Example Game Server'
+    Enabled: true
+    ApiVersion: '2.0'
+    Region: 1
+    UsageType: 1 # 1 = GameServer, 6 = CommServer
+    # MinLatency: 300 # optional
+
+# File Server Settings
+FileServerRoot: 'wwwroot'
+
+# Discord Settings
+DiscordSettings:
+  Enabled: false
+  ApplicationId: ''
+  BotToken: ''
+  Integrations:
+    LobbyChat: true
+    RoomChats: true
+    Commands: true
+    PlayerJoinAnnouncements: true
+    PlayerLeaveAnnouncements: true
+    RoomOpenAnnouncements: true
+    RoomCloseAnnouncements: true
+    PlayerJoinedRoomAnnouncements: true
+    PlayerLeftRoomAnnouncements: true
+    RoundStartAnnouncements: true
+    RoundEndAnnouncements: true
+    ErrorLog: true
+  GuildId: ''
+  ChatChannelId: ''
+  CommandChannelId: ''
+  CommandPrefix: '?'
+  RoomChatCategory: ''
+  WebHooks:
+    LobbyChat: ''
+    PlayerAnnouncements: ''
+    RoomAnnouncements: ''
+    RoundAnnouncements: ''
+    ErrorLog: ''
+  AnnouncementBlacklist: # A list of Cmids to not publish any announcements for
+    -

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,159 +16,381 @@
  */
 
 import ParadiseService from '@/ParadiseService';
-import { WebSocketPacketType } from '@/ServiceHosts/WebSocket';
+import { ModerationFlag } from '@/utils/enums';
+import { PacketType } from '@/utils/PacketCodec';
 import { ModerationAction, PublicProfile } from '@festivaldev/paradise-models';
 import { MemberAccessLevel } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
-import moment from 'moment';
-import { Op } from 'sequelize';
-import ParadiseCommand from '../ParadiseCommand';
+import { Separator } from '@inquirer/prompts';
+import chalk from 'chalk';
+import Table from 'cli-table';
+import { add, format } from 'date-fns';
+import { MoreThan } from 'typeorm';
+import yoctoSpinner from 'yocto-spinner';
+import ConsoleCommand from '../ConsoleCommand';
+import ConsoleHelper from '../ConsoleHelper';
 
-export class BanCommand extends ParadiseCommand {
-  static override Command: string = 'ban';
-  static override Aliases: string[] = [];
+export class BanCommand extends ConsoleCommand {
+  static override command: string = 'ban';
+  static override description: string = 'Bans a player, either for a specified duration or permanently.';
+  static override get usageText(): string[] {
+    return [
+      `${this.command}: ${this.description}`,
+      '  <pattern> <reason> [minutes]  Bans a player with a reason for a given duration (0 = permanent)',
+      '  list                          List currently banned players.'
+    ];
+  }
 
-  override Description: string = 'Bans a player for a specified duration.';
-  override HelpString: string = `${BanCommand.Command}\t\t${this.Description}`;
+  override minimumAccessLevel: MemberAccessLevel = MemberAccessLevel.Moderator;
 
-  override UsageText: string[] = [
-    `${BanCommand.Command}: ${this.Description}`,
-    `Usage: ${BanCommand.Command} <name> <reason> [duration]`,
-    '\nTo specify a multi-word reason, embed the \'reason\' parameter\nin quotation marks (eg. "very obvious reason")',
-  ];
+  override async run([cmd, ...args]: string[]) {
+    if (!cmd && this.allowInteractive) return this.runInteractive();
 
-  override MinimumAccessLevel: MemberAccessLevel = MemberAccessLevel.Moderator;
+    switch (cmd?.toLocaleLowerCase()) {
+      case 'ls':
+      case 'list':
+        return this.listBannedPlayers();
+      default:
+        return this.banPlayer([cmd, ...args].filter(Boolean));
+    }
+  }
 
-  override async Run(args: string[]): Promise<any> {
-    if (args.length < 2) {
-      this.PrintUsageText();
-      return;
+  // #region non-interactive
+  private async listBannedPlayers() {
+    const bannedPlayers = await PublicProfile.find({
+      where: {
+        ModerationActionsReceived: {
+          ModerationFlag: ModerationFlag.Banned,
+          ExpireTime: MoreThan(new Date())
+        }
+      },
+      relations: {
+        ModerationActionsReceived: true
+      },
+      order: {
+        ModerationActionsReceived: {
+          ExpireTime: 'ASC'
+        }
+      }
+    });
+
+    if (!bannedPlayers.length) {
+      this.writeLine('There are currently no banned players.');
+      return 0;
     }
 
-    const searchString = args[0];
+    const table = new Table({
+      head: [
+        chalk.white.bold('Username'),
+        chalk.white.bold('Cmid'),
+        chalk.white.bold('Expires'),
+        chalk.white.bold('Reason')
+      ],
+      rows: bannedPlayers.map((profile) => [
+        profile.Name,
+        String(profile.Cmid),
+        String(profile.ModerationActionsReceived[0].ExpireTime?.toISOString()),
+        String(profile.ModerationActionsReceived[0].Reason)
+      ])
+    });
 
-    if (searchString.length < 3) {
-      this.WriteLine('Search pattern must contain at least 3 characters.');
-      return;
+    this.writeLine(table.toString());
+
+    return 0;
+  }
+
+  private async banPlayer([pattern, reason, duration = '0']: string[]) {
+    if (!pattern || !reason) {
+      this.printUsage();
+      return 2;
     }
 
-    const publicProfile = await PublicProfile.getProfile(searchString);
+    if (pattern.length < 3) {
+      this.writeLine('Search pattern must contain at least 3 characters.');
+      return 2;
+    }
+
+    const publicProfile = await PublicProfile.findProfile(pattern);
 
     if (!publicProfile) {
-      this.WriteLine(`Failed to ban player: Could not find player matching ${searchString}.`);
-      return;
+      this.writeLine(`Could not find player matching ${pattern}.`);
+      return 1;
     }
 
-    const reason = args[1];
-    const duration = Number(args[2]);
+    const minutes = Number(duration);
 
     if (
       await ModerationAction.findOne({
         where: {
           ModerationFlag: ModerationFlag.Banned,
-          ExpireTime: {
-            [Op.gt]: new Date(),
-          },
-          TargetCmid: publicProfile.Cmid,
-        },
+          ExpireTime: MoreThan(new Date()),
+          TargetCmid: publicProfile.Cmid
+        }
       })
     ) {
-      this.WriteLine('Failed to ban player: Player is already banned.');
-      return;
+      this.writeLine(`Player "${publicProfile.Name}" is already banned.`);
+      return 1;
     }
 
-    await ModerationAction.create({
-      ModerationFlag: ModerationFlag.Banned,
-      SourceCmid: 0,
-      SourceName: 'root',
-      TargetCmid: publicProfile.Cmid,
-      TargetName: publicProfile.Name,
-      ActionDate: new Date(),
-      ExpireTime:
-        Number.isNaN(duration) || duration === 0
-          ? new Date('9999-12-31T23:59:59.999Z')
-          : moment(new Date()).add(duration, 'minutes').toDate(),
-      Reason: reason,
+    return this.executeBanPlayer(publicProfile, reason, minutes);
+  }
+  // #endregion
+
+  // #region interactive
+  private async runInteractive() {
+    const task = await ConsoleHelper.select({
+      message: 'Choose a task:',
+      choices: [
+        {
+          name: 'Ban player',
+          value: 'ban',
+          description: 'Bans a player, either for a specified duration or permanently.'
+        },
+        {
+          name: 'List banned players',
+          value: 'list',
+          description: 'List currently banned players.'
+        },
+        new Separator(),
+        {
+          name: 'Cancel',
+          value: null
+        }
+      ]
     });
 
-    await ParadiseService.Instance.SocketHost.SendToCommServer(WebSocketPacketType.BanPlayer, {
-      TargetCmid: publicProfile.Cmid,
-      Duration: duration,
-      ExpireTime: duration > 0 ? moment(new Date()).add(duration, 'minutes') : undefined,
-      Reason: reason,
-    });
-
-    if (duration === 0) {
-      this.WriteLine(`Player has been banned permanently. (reason: ${reason})`);
-    } else {
-      this.WriteLine(`Player has been banned for ${duration} minute(s). (reason: ${reason})`);
+    switch (task) {
+      case 'ban':
+        return this.banPlayerInteractive();
+      case 'list':
+        return this.listBannedPlayers();
+      case null:
+        return 0;
+      default:
+        this.writeLine(`${BanCommand.command}: unknown command ${task}\n`);
+        return 2;
     }
   }
+
+  private async banPlayerInteractive() {
+    const players = await PublicProfile.find({
+      where: { Cmid: MoreThan(0) },
+      relations: { ModerationActionsReceived: true }
+    });
+
+    const publicProfile = await ConsoleHelper.search({
+      message: 'Select a player to ban:',
+      source: async () =>
+        players.map((player) => {
+          const currentBan = player.ModerationActionsReceived.find(
+            (action) =>
+              action.ModerationFlag === ModerationFlag.Banned && (!action.ExpireTime || action.ExpireTime > new Date())
+          );
+
+          return {
+            name: `${player.Name} (${player.Cmid})`,
+            value: player,
+            disabled:
+              !!currentBan &&
+              `[banned ${currentBan.ExpireTime ? `until ${format(currentBan.ExpireTime, 'yyyy-MM-dd HH:mm:ss')}` : 'permanently'}]`
+          };
+        })
+    });
+
+    const minutes = await ConsoleHelper.promptNumber({
+      message: 'Enter ban duration in minutes (0 = permanent):',
+      defaultValue: 0
+    });
+
+    const reason = await ConsoleHelper.promptText({
+      message: 'Enter a ban reason (optional):'
+    });
+
+    return this.executeBanPlayer(publicProfile, reason, minutes);
+  }
+  // #endregion
+
+  // #region executors
+  private async executeBanPlayer(publicProfile: PublicProfile, reason?: string, minutes: number = 0) {
+    const permaBan = Number.isNaN(minutes) || minutes === 0;
+
+    if (
+      (this.allowInteractive &&
+        (await ConsoleHelper.confirm({
+          message: `Are you sure you want to ban player "${publicProfile.Name}" ${permaBan ? 'permanently' : `for ${minutes} minute(s)`}?`
+        }))) ||
+      !this.allowInteractive
+    ) {
+      const spinner = yoctoSpinner({ text: 'Banning player...' }).start();
+
+      try {
+        const expireTime = permaBan ? undefined : add(new Date(), { minutes });
+
+        await ModerationAction.insert({
+          ModerationFlag: ModerationFlag.Banned,
+          SourceCmid: 0,
+          TargetCmid: publicProfile.Cmid,
+          ExpireTime: permaBan ? new Date('9999-12-31T23:59:59.999Z') : expireTime,
+          Reason: reason
+        });
+
+        await (ParadiseService.Instance.SocketHost ?? ParadiseService.Instance.PipeClient)?.sendToCommServer(
+          PacketType.BanPlayer,
+          {
+            TargetCmid: publicProfile.Cmid,
+            Duration: minutes,
+            ExpireTime: expireTime,
+            Reason: reason
+          }
+        );
+
+        spinner.stop();
+
+        if (permaBan) {
+          this.writeLine(`Player "${publicProfile.Name}" has been banned permanently. (reason: ${reason})`);
+        } else {
+          this.writeLine(
+            `Player "${publicProfile.Name}" has been banned for ${minutes} minute(s). (reason: ${reason})`
+          );
+        }
+      } catch (error: any) {
+        spinner.stop();
+
+        this.writeLine(error.message);
+        return 1;
+      }
+    }
+
+    return 0;
+  }
+  // #endregion
 }
 
-export class UnbanCommand extends ParadiseCommand {
-  static override Command: string = 'unban';
-  static override Aliases: string[] = [];
+export class UnbanCommand extends ConsoleCommand {
+  static override command: string = 'unban';
+  static override description: string = 'Unbans a player.';
+  static override get usageText(): string[] {
+    return [`${this.command}: ${this.description}`, '  <pattern>  Unbans a player matching the pattern.'];
+  }
 
-  override Description: string = 'Unbans a player.';
-  override HelpString: string = `${UnbanCommand.Command}\t\t${this.Description}`;
+  override minimumAccessLevel: MemberAccessLevel = MemberAccessLevel.Moderator;
 
-  override UsageText: string[] = [
-    `${UnbanCommand.Command}: ${this.Description}`,
-    `Usage: ${UnbanCommand.Command} <name>`,
-  ];
+  override async run([cmd, ...args]: string[]) {
+    if (!cmd && this.allowInteractive) return this.runInteractive();
 
-  override MinimumAccessLevel: MemberAccessLevel = MemberAccessLevel.Moderator;
+    return this.unbanPlayer([cmd, ...args].filter(Boolean));
+  }
 
-  override async Run(args: string[]): Promise<any> {
-    if (args.length < 1) {
-      this.PrintUsageText();
-      return;
+  // #region non-interactive
+  private async unbanPlayer([pattern]: string[]) {
+    if (!pattern) {
+      this.printUsage();
+      return 2;
     }
 
-    const searchString = args[0];
-
-    if (searchString.length < 3) {
-      this.WriteLine('Search pattern must contain at least 3 characters.');
-      return;
+    if (pattern.length < 3) {
+      this.writeLine('Search pattern must contain at least 3 characters.');
+      return 2;
     }
 
-    const publicProfile = await PublicProfile.getProfile(searchString);
+    const publicProfile = await PublicProfile.findProfile(pattern);
 
     if (!publicProfile) {
-      this.WriteLine(`Failed to ban player: Could not find player matching ${searchString}.`);
-      return;
+      this.writeLine(`Could not find player matching ${pattern}.`);
+      return 1;
     }
 
     if (
       !(await ModerationAction.findOne({
         where: {
           ModerationFlag: ModerationFlag.Banned,
-          ExpireTime: {
-            [Op.gt]: new Date(),
-          },
-          TargetCmid: publicProfile.Cmid,
-        },
+          ExpireTime: MoreThan(new Date()),
+          TargetCmid: publicProfile.Cmid
+        }
       }))
     ) {
-      this.WriteLine('Failed to ban player: Player is not currently banned.');
-      return;
+      this.writeLine(`Player "${publicProfile.Name}" is not currently banned.`);
+      return 1;
     }
 
-    await ModerationAction.update(
-      {
-        ExpireTime: new Date(0),
-      },
-      {
-        where: {
-          ModerationFlag: ModerationFlag.Banned,
-          TargetCmid: publicProfile.Cmid,
-          ExpireTime: {
-            [Op.gt]: new Date(),
-          },
-        },
-      },
+    return this.executeUnbanPlayer(publicProfile);
+  }
+  // #endregion
+
+  // #region interactive
+  private async runInteractive() {
+    const players = await PublicProfile.find({
+      where: { Cmid: MoreThan(0) },
+      relations: { ModerationActionsReceived: true }
+    });
+
+    const bannedPlayers = players.filter((player) =>
+      player.ModerationActionsReceived.some(
+        (action) =>
+          action.ModerationFlag === ModerationFlag.Banned && (!action.ExpireTime || action.ExpireTime > new Date())
+      )
     );
 
-    this.WriteLine('User has been unbanned successfully.');
+    if (!bannedPlayers.length) {
+      this.writeLine('There are currently no banned players.');
+      return 0;
+    }
+
+    const publicProfile = await ConsoleHelper.search({
+      message: 'Select a player to unban:',
+      source: async () =>
+        bannedPlayers.map((player) => {
+          const currentBan = player.ModerationActionsReceived.find(
+            (action) =>
+              action.ModerationFlag === ModerationFlag.Banned && (!action.ExpireTime || action.ExpireTime > new Date())
+          );
+
+          return {
+            name: `${player.Name} (${player.Cmid})`,
+            value: player,
+            description: `Banned ${currentBan?.ExpireTime ? `until ${format(currentBan.ExpireTime, 'yyyy-MM-dd HH:mm:ss')}` : 'permanently'}`
+          };
+        })
+    });
+
+    return this.executeUnbanPlayer(publicProfile);
   }
+  // #endregion
+
+  // #region executors
+  private async executeUnbanPlayer(publicProfile: PublicProfile) {
+    if (
+      (this.allowInteractive &&
+        (await ConsoleHelper.confirm({
+          message: `Are you sure you want to unban player "${publicProfile.Name}"?`
+        }))) ||
+      !this.allowInteractive
+    ) {
+      const spinner = yoctoSpinner({ text: 'Unbanning player...' }).start();
+
+      try {
+        await ModerationAction.update(
+          {
+            ModerationFlag: ModerationFlag.Banned,
+            TargetCmid: publicProfile.Cmid,
+            ExpireTime: MoreThan(new Date())
+          },
+          {
+            ExpireTime: new Date(0)
+          }
+        );
+
+        spinner.stop();
+
+        this.writeLine(`Player "${publicProfile.Name}" has been unbanned successfully.`);
+      } catch (error: any) {
+        spinner.stop();
+
+        this.writeLine(error.message);
+        return 1;
+      }
+    }
+
+    return 0;
+  }
+  // #endregion
 }

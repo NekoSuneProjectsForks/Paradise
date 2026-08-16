@@ -1614,7 +1614,7 @@ const wordList = [
   'yobbo',
   'zibbi',
   'zoophilia',
-  'zubb',
+  'zubb'
 ];
 
 export default wordList;

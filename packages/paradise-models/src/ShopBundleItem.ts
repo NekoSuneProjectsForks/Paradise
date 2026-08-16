@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2021-2025 Team FESTIVAL
+ * Copyright (C) 2017, 2022-2026 Team FESTIVAL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,60 +16,28 @@
  */
 
 import type { BuyingDurationType } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
-import { DataTypes, Model, type Sequelize } from 'sequelize';
+import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, type Relation } from 'typeorm';
+import { ShopBundle } from './ShopBundle';
+import type { UberstrikeInventoryItem } from './enums';
 
-interface ShopBundleItemAttributes {
-  id?: number;
-  BundleId?: number;
-  ItemId?: UberstrikeInventoryItem;
-  Amount?: number;
-  Duration?: BuyingDurationType;
-}
+@Entity('ShopBundleItems')
+export class ShopBundleItem extends BaseEntity {
+  @PrimaryColumn('int')
+  id: number;
 
-export default class ShopBundleItem extends Model<ShopBundleItemAttributes> {
-  declare id: number;
-  declare BundleId: number;
-  declare ItemId: UberstrikeInventoryItem;
-  declare Amount: number;
-  declare Duration: BuyingDurationType;
+  @Column('int')
+  BundleId: number;
 
-  static initialize(sequelize: Sequelize) {
-    ShopBundleItem.init(
-      {
-        id: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-          autoIncrement: true,
-        },
-        BundleId: {
-          type: DataTypes.INTEGER,
-          references: {
-            model: 'ShopBundles',
-            key: 'Id',
-          },
-        },
-        ItemId: DataTypes.INTEGER,
-        Amount: DataTypes.INTEGER,
-        Duration: DataTypes.INTEGER,
-      },
-      {
-        sequelize,
-        defaultScope: {
-          attributes: { exclude: ['id'] },
-        },
-        tableName: 'ShopBundleItems',
-        timestamps: false,
-      },
-    );
-  }
+  @ManyToOne(() => ShopBundle, (shopBundle) => shopBundle.BundleItemViews, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'BundleId', referencedColumnName: 'Id' })
+  Bundle: Relation<ShopBundle>;
 
-  static associate({ ShopBundle }: any) {
-    ShopBundleItem.belongsTo(ShopBundle, {
-      as: 'BundleItemViews',
-      foreignKey: 'BundleId',
-      targetKey: 'Id',
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
-    });
-  }
+  @Column('int')
+  ItemId: UberstrikeInventoryItem;
+
+  @Column('int', { default: 1 })
+  Amount: number;
+
+  @Column('int')
+  Duration: BuyingDurationType;
 }

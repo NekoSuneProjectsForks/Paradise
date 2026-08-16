@@ -20,7 +20,7 @@ SOFTWARE.
 Ported to TypeScript by Team FESTIVAL.
 */
 
-import IAllowList from './Interfaces/IAllowList';
+import { type IAllowList } from './Interfaces/IAllowList';
 
 export default class AllowList implements IAllowList {
   private _allowList: string[];

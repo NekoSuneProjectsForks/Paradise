@@ -1,0 +1,39 @@
+{
+  "eslint.quiet": true,
+  "files.exclude": {
+    // "**/bin": true,
+    // "**/obj": true
+  },
+  "js/ts.preferences.autoImportSpecifierExcludeRegexes": [
+    "@radix-ui",
+    "radix-ui",
+    "radix-ui/*",
+    "next/router",
+    "next/dist",
+    "node_modules",
+    "*.old*"
+  ],
+  "js/ts.preferences.quoteStyle": "single",
+  "js/ts.tsdk.path": "node_modules/typescript/lib",
+  "[javascript][typescript][javascriptreact][typescriptreact][json][jsonc]": {
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "always"
+    },
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.detectIndentation": false,
+    "editor.formatOnPaste": false,
+    "editor.formatOnSave": true,
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.useTabStops": true,
+    "files.insertFinalNewline": true
+  },
+  "[csharp]": {
+    "editor.detectIndentation": false,
+    "editor.insertSpaces": false,
+    "editor.tabSize": 4,
+    "files.insertFinalNewline": true
+  },
+  "todo-tree.tree.showCountsInTree": true,
+  "todo-tree.tree.showBadges": true
+}
