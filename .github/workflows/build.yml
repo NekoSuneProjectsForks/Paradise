@@ -2,11 +2,11 @@ name: Build Paradise
 
 on:
   workflow_dispatch:
-#   push:
-#     branches:
-#       - dev
-#     tags:
-#       - 'v*'
+  push:
+    branches:
+      - dev
+    tags:
+      - 'v*'
 
 permissions:
   contents: write
