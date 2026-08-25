@@ -176,6 +176,7 @@ jobs:
             .release/client/*.zip
 
   docker:
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     env:
       DOCKER_REGISTRY: ghcr.io
