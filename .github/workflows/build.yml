@@ -56,7 +56,7 @@ jobs:
             -d ./packages/assemblies
 
           curl -fL "https://nsis.sourceforge.io/mediawiki/images/5/5a/NSISunzU.zip" -o /tmp/nsisunz.zip
-          unzip -j /tmp/nsisunz.zip \
+          sudo unzip -j /tmp/nsisunz.zip \
             "NSISunzU/Plugin unicode/nsisunz.dll" \
             -d /usr/share/nsis/Plugins/x86-unicode
       - name: Apply patch to UberStrike core library
