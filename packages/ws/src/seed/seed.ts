@@ -245,11 +245,7 @@ export default async function runSeed(
     await runDatabaseOperations((model, data) => seedModel(model, data), true, economy);
     spinner.stop();
   } else {
-    let spinner = yoctoSpinner({ text: 'Synchronizing database...' }).start();
-    await dataSource.synchronize();
-    spinner.stop();
-
-    spinner = yoctoSpinner({ text: 'Seeding database...' }).start();
+    const spinner = yoctoSpinner({ text: 'Seeding database...' }).start();
     await runDatabaseOperations((model, data, conflicts) => updateModel(model, data, conflicts!), false, economy);
     spinner.stop();
   }
