@@ -431,8 +431,6 @@ namespace Paradise.Client {
 						updateDirty = true;
 					}
 				}
-
-				GUITools.PopGUIState();
 			});
 			#endregion
 
