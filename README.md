@@ -24,19 +24,19 @@ Then came Februrary 2022 when the same three students, since then grouped as _Te
 ### Client
 Installing the Paradise client requires a working build of UberStrike. Don't have UberStrike installed yet? See [Downloading UberStrike](https://github.com/festivaldev/Paradise/wiki/ClientDownloadingUberStrike) first.  
 Client binaries are available for the following platforms:
-- Windows (x86): [.exe](https://github.com/festivaldev/Paradise/releases/download/latest/Paradise-client-win-x86.exe) or [.zip](https://github.com/festivaldev/Paradise/releases/download/latest/Paradise-client-win-x86.zip)
-- macOS (Intel): [.zip](https://github.com/festivaldev/Paradise/releases/download/latest/Paradise-client-darwin-x64.zip)
+- Windows (x86): [.exe](https://github.com/festivaldev/Paradise/releases/latest/download/Paradise-client-win-x86.exe) or [.zip](https://github.com/festivaldev/Paradise/releases/latest/download/Paradise-client-win-x86.zip)
+- macOS (Intel): [.zip](https://github.com/festivaldev/Paradise/releases/latest/download/Paradise-client-darwin-x64.zip)
 
 ZIP installation requires a one-time [manual patch](https://github.com/festivaldev/Paradise/wiki/ClientInstallingParadise#manual-instructions) of the game. Using the installer does not require manual patching.
 
 ### Server
 Server binaries are available for the following platforms:
-- Windows (x64): [.exe](https://github.com/festivaldev/Paradise/releases/download/latest/Paradise-server-win-x86_64.exe) or [.zip](https://github.com/festivaldev/Paradise/releases/download/latest/Paradise-server-win-x86_64.zip)
-- Windows (ARM64): [.exe](https://github.com/festivaldev/Paradise/releases/download/latest/Paradise-server-win-aarch64.exe) or [.zip](https://github.com/festivaldev/Paradise/releases/download/latest/Paradise-server-win-aarch64.zip)
-- macOS (Intel): [.zip](https://github.com/festivaldev/Paradise/releases/download/v2.1.2/Paradise-server-darwin-x86_64.zip)
-- macOS (Apple Silicon): [.zip](https://github.com/festivaldev/Paradise/releases/download/v2.1.2/Paradise-server-darwin-aarch64.zip)
-- Linux (x64): [.zip](https://github.com/festivaldev/Paradise/releases/download/v2.1.2/Paradise-server-linux-x86_64.zip)
-- Linux (ARM64): [.zip](https://github.com/festivaldev/Paradise/releases/download/v2.1.2/Paradise-server-linux-aarch64.zip)
+- Windows (x64): [.exe](https://github.com/festivaldev/Paradise/releases/latest/download/Paradise-server-win-x86_64.exe) or [.zip](https://github.com/festivaldev/Paradise/releases/latest/download/Paradise-server-win-x86_64.zip)
+- Windows (ARM64): [.exe](https://github.com/festivaldev/Paradise/releases/latest/download/Paradise-server-win-aarch64.exe) or [.zip](https://github.com/festivaldev/Paradise/releases/latest/download/Paradise-server-win-aarch64.zip)
+- macOS (Intel): [.zip](https://github.com/festivaldev/Paradise/releases/download/latest/Paradise-server-darwin-x86_64.zip)
+- macOS (Apple Silicon): [.zip](https://github.com/festivaldev/Paradise/releases/download/latest/Paradise-server-darwin-aarch64.zip)
+- Linux (x64): [.zip](https://github.com/festivaldev/Paradise/releases/download/latest/Paradise-server-linux-x86_64.zip)
+- Linux (ARM64): [.zip](https://github.com/festivaldev/Paradise/releases/download/latest/Paradise-server-linux-aarch64.zip)
 
 For server setup instructions, please see [Server Setup](https://github.com/festivaldev/Paradise/wiki/ServerSetup).
 
