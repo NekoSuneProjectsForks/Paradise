@@ -1,39 +1,33 @@
 ALTER TABLE `ActivePlayers`
-  DROP FOREIGN KEY `ActivePlayers_ibfk_1`,
-  MODIFY COLUMN `Channel` int(11) NOT NULL,
-  ADD CONSTRAINT `FK_9172ac1ba62b1de0ac9d87717d1`
-    FOREIGN KEY (`Cmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_058ffc10ec30d30a06ded3cd5ea`
-    FOREIGN KEY (`CommServerId`) REFERENCES `PhotonServers` (`PhotonId`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_6c29a29bfce5df53d1a6729c4d6`
-    FOREIGN KEY (`GameServerId`) REFERENCES `PhotonServers` (`PhotonId`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_a3651ba3786e41f2fbacc0cf1c3`
-    FOREIGN KEY (`GameRoomId`) REFERENCES `GameRooms` (`Number`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD INDEX `FK_058ffc10ec30d30a06ded3cd5ea` (`CommServerId`),
-  ADD INDEX `FK_6c29a29bfce5df53d1a6729c4d6` (`GameServerId`),
-  ADD INDEX `FK_a3651ba3786e41f2fbacc0cf1c3` (`GameRoomId`);
+  MODIFY `Channel` int(11) NOT NULL,
+  ADD KEY `ActivePlayers_ibfk_2` (`CommServerId`),
+  ADD KEY `ActivePlayers_ibfk_3` (`GameServerId`),
+  ADD KEY `ActivePlayers_ibfk_4` (`GameRoomId`),
+  ADD CONSTRAINT `ActivePlayers_ibfk_2` FOREIGN KEY (`CommServerId`) REFERENCES `PhotonServers` (`PhotonId`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `ActivePlayers_ibfk_3` FOREIGN KEY (`GameServerId`) REFERENCES `PhotonServers` (`PhotonId`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `ActivePlayers_ibfk_4` FOREIGN KEY (`GameRoomId`) REFERENCES `GameRooms` (`Number`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 UPDATE `ApplicationConfiguration` SET `MaxXp`=1584350 WHERE `ApplicationId`=1 AND `MaxXp` IS NULL;
 ALTER TABLE `ApplicationConfiguration`
-  MODIFY COLUMN `XpRequiredPerLevel` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`XpRequiredPerLevel`)),
-  MODIFY COLUMN `MaxLevel` int(11) NOT NULL,
-  MODIFY COLUMN `MaxXp` int(11) NOT NULL,
-  MODIFY COLUMN `XpKill` int(11) NOT NULL,
-  MODIFY COLUMN `XpSmackdown` int(11) NOT NULL,
-  MODIFY COLUMN `XpHeadshot` int(11) NOT NULL,
-  MODIFY COLUMN `XpNutshot` int(11) NOT NULL,
-  MODIFY COLUMN `XpPerMinuteLoser` int(11) NOT NULL,
-  MODIFY COLUMN `XpPerMinuteWinner` int(11) NOT NULL,
-  MODIFY COLUMN `XpBaseLoser` int(11) NOT NULL,
-  MODIFY COLUMN `XpBaseWinner` int(11) NOT NULL,
-  MODIFY COLUMN `PointsKill` int(11) NOT NULL,
-  MODIFY COLUMN `PointsSmackdown` int(11) NOT NULL,
-  MODIFY COLUMN `PointsHeadshot` int(11) NOT NULL,
-  MODIFY COLUMN `PointsNutshot` int(11) NOT NULL,
-  MODIFY COLUMN `PointsPerMinuteLoser` int(11) NOT NULL,
-  MODIFY COLUMN `PointsPerMinuteWinner` int(11) NOT NULL,
-  MODIFY COLUMN `PointsBaseLoser` int(11) NOT NULL,
-  MODIFY COLUMN `PointsBaseWinner` int(11) NOT NULL;
+  MODIFY `XpRequiredPerLevel` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`XpRequiredPerLevel`)),
+  MODIFY `MaxLevel` int(11) NOT NULL,
+  MODIFY `MaxXp` int(11) NOT NULL,
+  MODIFY `XpKill` int(11) NOT NULL,
+  MODIFY `XpSmackdown` int(11) NOT NULL,
+  MODIFY `XpHeadshot` int(11) NOT NULL,
+  MODIFY `XpNutshot` int(11) NOT NULL,
+  MODIFY `XpPerMinuteLoser` int(11) NOT NULL,
+  MODIFY `XpPerMinuteWinner` int(11) NOT NULL,
+  MODIFY `XpBaseLoser` int(11) NOT NULL,
+  MODIFY `XpBaseWinner` int(11) NOT NULL,
+  MODIFY `PointsKill` int(11) NOT NULL,
+  MODIFY `PointsSmackdown` int(11) NOT NULL,
+  MODIFY `PointsHeadshot` int(11) NOT NULL,
+  MODIFY `PointsNutshot` int(11) NOT NULL,
+  MODIFY `PointsPerMinuteLoser` int(11) NOT NULL,
+  MODIFY `PointsPerMinuteWinner` int(11) NOT NULL,
+  MODIFY `PointsBaseLoser` int(11) NOT NULL,
+  MODIFY `PointsBaseWinner` int(11) NOT NULL;
 
 ALTER TABLE `ClanMembers`
   DROP PRIMARY KEY,
@@ -43,20 +37,20 @@ ALTER TABLE `ClanMembers`
   MODIFY `Cmid` int(11) NOT NULL FIRST,
   MODIFY `Position` int(11) NOT NULL DEFAULT 2,
   MODIFY `JoiningDate` datetime(6) NOT NULL DEFAULT current_timestamp(6),
-  MODIFY `Lastlogin` datetime NOT NULL,
+  MODIFY `Lastlogin` datetime NOT NULL;
+ALTER TABLE `ClanMembers`
   ADD PRIMARY KEY (`Cmid`),
-  ADD KEY `FK_9accaf4f3326f54d3a77e21feff` (`GroupId`),
-  ADD CONSTRAINT `FK_011d6c7d16c556266d633434026` FOREIGN KEY (`Cmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_9accaf4f3326f54d3a77e21feff` FOREIGN KEY (`GroupId`) REFERENCES `Clans` (`GroupId`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD KEY `ClanMembers_ibfk_1` (`GroupId`),
+  ADD CONSTRAINT `ClanMembers_ibfk_1` FOREIGN KEY (`GroupId`) REFERENCES `Clans` (`GroupId`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `ClanMembers_ibfk_2` FOREIGN KEY (`Cmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 UPDATE `Clans` SET `ColorStyle`=0 WHERE `ColorStyle` IS NULL;
 UPDATE `Clans` SET `FontStyle`=0 WHERE `FontStyle` IS NULL;
 ALTER TABLE `Clans`
-  DROP INDEX `Name`,
   DROP FOREIGN KEY `Clans_ibfk_1`,
   DROP COLUMN `MembersCount`,
-  DROP COLUMN `Cmid`,
   DROP COLUMN `OwnerName`,
+  DROP COLUMN `Cmid`,
   MODIFY `Description` varchar(255) DEFAULT NULL,
   MODIFY `Name` varchar(25) NOT NULL,
   MODIFY `Motto` varchar(25) NOT NULL,
@@ -67,28 +61,47 @@ ALTER TABLE `Clans`
   MODIFY `ColorStyle` int(11) NOT NULL DEFAULT 0,
   MODIFY `FontStyle` int(11) NOT NULL DEFAULT 0,
   MODIFY `ApplicationId` int(11) NOT NULL,
-  MODIFY `OwnerCmid` int(11) NOT NULL,
-  ADD UNIQUE KEY `IDX_3976131461bb1a52c3b5be93e9` (`Name`),
-  ADD UNIQUE KEY `IDX_1115f40bc40ab1a51e0b27fa9d` (`Tag`),
-  ADD UNIQUE KEY `IDX_f13144fd9f8dab54a1673598df` (`OwnerCmid`),
-  ADD CONSTRAINT `FK_f13144fd9f8dab54a1673598dfa` FOREIGN KEY (`OwnerCmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE;
+  MODIFY `OwnerCmid` int(11) NOT NULL;
+ALTER TABLE `Clans`
+  ADD UNIQUE KEY `Tag` (`Tag`),
+  ADD UNIQUE KEY `OwnerCmid` (`OwnerCmid`),
+  ADD CONSTRAINT `Clans_ibfk_1` FOREIGN KEY (`OwnerCmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 UPDATE `ContactRequests` SET `Status`=0 WHERE `Status` IS NULL;
 ALTER TABLE `ContactRequests`
   DROP INDEX `InitiatorCmid`,
   DROP INDEX `ReceiverCmid`,
-  DROP FOREIGN KEY `ContactRequests_ibfk_1`,
-  DROP FOREIGN KEY `ContactRequests_ibfk_2`,
-  DROP COLUMN `InitiatorName`,
+  DROP COLUMN `Initiatorname`,
+  MODIFY `RequestId` int(11) NOT NULL,
   MODIFY `InitiatorCmid` int(11) NOT NULL,
   MODIFY `ReceiverCmid` int(11) NOT NULL,
   MODIFY `InitiatorMessage` text NOT NULL,
   MODIFY `Status` int(11) NOT NULL DEFAULT 0,
-  MODIFY `SentDate` datetime(6) NOT NULL DEFAULT current_timestamp(6),
-  ADD INDEX `FK_c6a95f753621584f67b8331d968` (`InitiatorCmid`),
-  ADD INDEX `FK_403b8193c87bd4889353756c129` (`ReceiverCmid`),
-  ADD CONSTRAINT `FK_c6a95f753621584f67b8331d968` FOREIGN KEY (`InitiatorCmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_403b8193c87bd4889353756c129` FOREIGN KEY (`ReceiverCmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE;
+  MODIFY `SentDate` datetime(6) NOT NULL DEFAULT current_timestamp(6);
+ALTER TABLE `ContactRequests` AUTO_INCREMENT=0;
+ALTER TABLE `ContactRequests`
+  ADD KEY `ContactRequests_ibfk_1` (`InitiatorCmid`),
+  ADD KEY `ContactRequests_ibfk_2` (`ReceiverCmid`),
+  ADD CONSTRAINT `ContactRequests_ibfk_1` FOREIGN KEY (`InitiatorCmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `ContactRequests_ibfk_2` FOREIGN KEY (`ReceiverCmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `ShopBundles`
+  MODIFY `ApplicationId` int(11) NOT NULL,
+  MODIFY `Name` varchar(255) NOT NULL,
+  MODIFY `ImageUrl` varchar(255) DEFAULT NULL,
+  MODIFY `IconUrl` varchar(255) DEFAULT NULL,
+  MODIFY `Description` text DEFAULT NULL,
+  MODIFY `IsOnSale` tinyint(4) NOT NULL DEFAULT 0,
+  MODIFY `IsPromoted` tinyint(4) NOT NULL DEFAULT 0,
+  MODIFY `USDPrice` int(11) DEFAULT 0,
+  MODIFY `USDPromoPrice` int(11) DEFAULT NULL,
+  MODIFY `Credits` int(11) NOT NULL DEFAULT 0,
+  MODIFY `Points` int(11) NOT NULL DEFAULT 0,
+  MODIFY `Category` int(11) NOT NULL DEFAULT 0,
+  MODIFY `Availability` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '[]' CHECK (json_valid(`Availability`)),
+  MODIFY `IsDefault` tinyint(4) NOT NULL DEFAULT 0;
+UPDATE `ShopBundles` SET `Id`=1 WHERE `Id` = 0 AND `Name` = 'Example Bundle';
+INSERT INTO `ShopBundles` (`Id`, `ApplicationId`, `Name`, `ImageUrl`, `IconUrl`, `Description`, `IsOnSale`, `IsPromoted`, `USDPrice`, `USDPromoPrice`, `Credits`, `Points`, `Category`, `Availability`, `PromotionTag`, `MacAppStoreUniqueId`, `IosAppStoreUniqueId`, `AndroidStoreUniqueId`, `IsDefault`) VALUES ('0', '1', 'Signup Reward', NULL, NULL, NULL, 0, 0, NULL, NULL, '1000', '10000', '0', '[12]', NULL, NULL, NULL, NULL, '1');
 
 UPDATE `CurrencyDeposits` SET `Cash`=0 WHERE `Cash` IS NULL;
 UPDATE `CurrencyDeposits` SET `IsAdminAction`=0 WHERE `IsAdminAction` IS NULL;
@@ -96,33 +109,37 @@ UPDATE `CurrencyDeposits` SET `PaymentProviderId`=0 WHERE `PaymentProviderId` IS
 UPDATE `CurrencyDeposits` SET `ApplicationId`=1 WHERE `ApplicationId` IS NULL;
 UPDATE `CurrencyDeposits` SET `UsdAmount`=0 WHERE `UsdAmount` IS NULL;
 ALTER TABLE `CurrencyDeposits`
-  DROP INDEX `Cmid`,
   DROP FOREIGN KEY `CurrencyDeposits_ibfk_1`,
+  DROP INDEX `Cmid`,
   DROP COLUMN `BundleName`,
   MODIFY `DepositDate` datetime(6) NOT NULL DEFAULT current_timestamp(6),
   MODIFY `Credits` int(11) NOT NULL DEFAULT 0,
   MODIFY `Points` int(11) NOT NULL DEFAULT 0,
   MODIFY `Cash` decimal(10,0) NOT NULL DEFAULT 0,
+  MODIFY `CurrencyLabel` varchar(255) DEFAULT NULL,
   MODIFY `Cmid` int(11) NOT NULL,
   MODIFY `IsAdminAction` tinyint(4) NOT NULL DEFAULT 0,
   MODIFY `PaymentProviderId` int(11) NOT NULL DEFAULT 0,
   MODIFY `TransactionKey` varchar(255) NOT NULL,
   MODIFY `ApplicationId` int(11) NOT NULL,
   MODIFY `ChannelId` int(11) NOT NULL,
-  MODIFY `UsdAmount` decimal(10,0) NOT NULL DEFAULT 0,
-  ADD KEY `FK_ce92a61c9314358366fb7dc2972` (`Cmid`),
-  ADD KEY `FK_a4900913d76ac786d425b261152` (`BundleId`),
-  ADD CONSTRAINT `FK_a4900913d76ac786d425b261152` FOREIGN KEY (`BundleId`) REFERENCES `ShopBundles` (`Id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_ce92a61c9314358366fb7dc2972` FOREIGN KEY (`Cmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE;
+  MODIFY `UsdAmount` decimal(10,0) NOT NULL DEFAULT 0;
+ALTER TABLE `CurrencyDeposits`
+  ADD KEY `CurrencyDeposits_ibfk_2` (`BundleId`),
+  ADD KEY `CurrencyDeposits_ibfk_1` (`Cmid`),
+  ADD CONSTRAINT `CurrencyDeposits_ibfk_1` FOREIGN KEY (`Cmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `CurrencyDeposits_ibfk_2` FOREIGN KEY (`BundleId`) REFERENCES `ShopBundles` (`Id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `DiscordUsers`
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+ALTER TABLE `DiscordUsers`
   DROP INDEX `Nonce`,
-  DROP FOREIGN KEY `DiscordUsers_ibfk_1`,
+  MODIFY `DiscordUserId` varchar(255) DEFAULT NULL,
   MODIFY `Nonce` varchar(255) DEFAULT NULL,
-  MODIFY `Completed` tinyint(4) NOT NULL DEFAULT 0,
-  ADD UNIQUE KEY `IDX_1bd6093097dd257502a5c48f58` (`DiscordUserId`),
-  ADD UNIQUE KEY `IDX_1061e172f3ecbc003bf8cdff0a` (`Nonce`),
-  ADD CONSTRAINT `FK_d5edf8a304788f3864e43686610` FOREIGN KEY (`Cmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE;
+  MODIFY `Completed` tinyint(4) NOT NULL DEFAULT 0;
+ALTER TABLE `DiscordUsers`
+  ADD UNIQUE KEY `DiscordUserId` (`DiscordUserId`),
+  ADD UNIQUE KEY `Nonce` (`Nonce`);
 
 ALTER TABLE `GameRooms`
   DROP COLUMN `ServerIp`,
@@ -138,21 +155,23 @@ ALTER TABLE `GameRooms`
   MODIFY `MapID` int(11) NOT NULL,
   MODIFY `LevelMin` int(11) NOT NULL DEFAULT 0,
   MODIFY `LevelMax` int(11) NOT NULL DEFAULT 0,
-  MODIFY `IsPermanentGame` tinyint(4) NOT NULL DEFAULT 0,
+  MODIFY `IsPermanentGame` tinyint(4) NOT NULL DEFAULT 0;
+ALTER TABLE `GameRooms`
   ADD COLUMN `PhotonServerId` int(11) NOT NULL AFTER `Number`,
   ADD COLUMN `Password` varchar(255) DEFAULT NULL AFTER `Name`,
-  ADD KEY `FK_e49fa14d4bf573ff080cc1880bb` (`PhotonServerId`),
-  ADD KEY `FK_8a1b1b09091fbe0ecc441e5aea6` (`MapID`),
-  ADD CONSTRAINT `FK_8a1b1b09091fbe0ecc441e5aea6` FOREIGN KEY (`MapID`) REFERENCES `Maps` (`MapId`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_e49fa14d4bf573ff080cc1880bb` FOREIGN KEY (`PhotonServerId`) REFERENCES `PhotonServers` (`PhotonId`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD KEY `GameRooms_ibfk_2` (`PhotonServerId`),
+  ADD KEY `GameRooms_ibfk_1` (`MapID`),
+  ADD CONSTRAINT `GameRooms_ibfk_1` FOREIGN KEY (`MapID`) REFERENCES `Maps` (`MapId`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `GameRooms_ibfk_2` FOREIGN KEY (`PhotonServerId`) REFERENCES `PhotonServers` (`PhotonId`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `GameSessions`
   DROP INDEX `Cmid`,
   DROP FOREIGN KEY `GameSessions_ibfk_1`,
-  MODIFY `Cmid` int(11) NOT NULL,
+  MODIFY `Cmid` int(11) NOT NULL;
+ALTER TABLE `GameSessions`
   ADD COLUMN `Channel` int(11) NOT NULL AFTER `Cmid`,
-  ADD KEY `FK_9f643db350272daf741470ed6f7` (`Cmid`),
-  ADD CONSTRAINT `FK_9f643db350272daf741470ed6f7` FOREIGN KEY (`Cmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD KEY `GameSessions_ibfk_1` (`Cmid`),
+  ADD CONSTRAINT `GameSessions_ibfk_1` FOREIGN KEY (`Cmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `GroupInvitations`
   DROP INDEX `InviterCmid`,
@@ -168,13 +187,14 @@ ALTER TABLE `GroupInvitations`
   MODIFY `InviterCmid` int(11) NOT NULL,
   MODIFY `GroupId` int(11) NOT NULL,
   MODIFY `InviteeCmid` int(11) NOT NULL,
-  MODIFY `Message` text NOT NULL,
-  ADD KEY `FK_47aafb15c4f734a6deff97728aa` (`InviterCmid`),
-  ADD KEY `FK_a3abba37559fdab5b3742205ed6` (`GroupId`),
-  ADD KEY `FK_d1991257f3cc450ba158bd95e3e` (`InviteeCmid`),
-  ADD CONSTRAINT `FK_47aafb15c4f734a6deff97728aa` FOREIGN KEY (`InviterCmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_a3abba37559fdab5b3742205ed6` FOREIGN KEY (`GroupId`) REFERENCES `Clans` (`GroupId`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_d1991257f3cc450ba158bd95e3e` FOREIGN KEY (`InviteeCmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE;
+  MODIFY `Message` text NOT NULL;
+ALTER TABLE `GroupInvitations`
+  ADD KEY `GroupInvitations_ibfk_1` (`InviterCmid`),
+  ADD KEY `GroupInvitations_ibfk_2` (`GroupId`),
+  ADD KEY `GroupInvitations_ibfk_3` (`InviteeCmid`),
+  ADD CONSTRAINT `GroupInvitations_ibfk_1` FOREIGN KEY (`InviterCmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `GroupInvitations_ibfk_2` FOREIGN KEY (`GroupId`) REFERENCES `Clans` (`GroupId`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `GroupInvitations_ibfk_3` FOREIGN KEY (`InviteeCmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 UPDATE `ItemTransactions` SET `Credits`=0 WHERE `Credits` IS NULL;
 UPDATE `ItemTransactions` SET `IsAdminAction`=0 WHERE `IsAdminAction` IS NULL;
@@ -188,12 +208,12 @@ ALTER TABLE `ItemTransactions`
   MODIFY `Cmid` int(11) NOT NULL,
   MODIFY `IsAdminAction` tinyint(4) NOT NULL DEFAULT 0,
   MODIFY `ItemId` int(11) NOT NULL,
-  MODIFY `Duration` int(11) NOT NULL,
-  ADD KEY `FK_c58cb8b3961108149a964636944` (`Cmid`),
-  ADD CONSTRAINT `FK_c58cb8b3961108149a964636944` FOREIGN KEY (`Cmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE;
+  MODIFY `Duration` int(11) NOT NULL;
+ALTER TABLE `ItemTransactions`
+  ADD KEY `ItemTransactions_ibfk_1` (`Cmid`),
+  ADD CONSTRAINT `ItemTransactions_ibfk_1` FOREIGN KEY (`Cmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `MapSettings`
-  DROP FOREIGN KEY `MapSettings_ibfk_1`,
   MODIFY `KillsMin` int(11) NOT NULL,
   MODIFY `KillsMax` int(11) NOT NULL,
   MODIFY `KillsCurrent` int(11) NOT NULL,
@@ -202,8 +222,7 @@ ALTER TABLE `MapSettings`
   MODIFY `PlayersCurrent` int(11) NOT NULL,
   MODIFY `TimeMin` int(11) NOT NULL,
   MODIFY `TimeMax` int(11) NOT NULL,
-  MODIFY `TimeCurrent` int(11) NOT NULL,
-  ADD CONSTRAINT `FK_4e26a349e1617c2eca5b58a0ffb` FOREIGN KEY (`MapId`) REFERENCES `Maps` (`MapId`) ON DELETE CASCADE ON UPDATE CASCADE;
+  MODIFY `TimeCurrent` int(11) NOT NULL;
 
 UPDATE `Maps` SET `FileName` = '{\"4.3.10\":\"SpaceCity-39cc09a30cead812868d2ec3f39c43d7050f18d2-HD.unity3d\",\"4.7.1\":\"SpaceCity-39cc09a30cead812868d2ec3f39c43d7050f18d2-HD.unity3d\"}' WHERE `Maps`.`MapId` = 64;
 UPDATE `Maps` SET `FileName` = '{\"4.3.10\":\"SpacePortAlpha-f5a000d702f88da661050a3741e4c10000f277e8-HD.unity3d\",\"4.7.1\":\"SpacePortAlpha-f5a000d702f88da661050a3741e4c10000f277e8-HD.unity3d\"}' WHERE `Maps`.`MapId` = 65;
@@ -217,10 +236,8 @@ ALTER TABLE `Maps`
   MODIFY `FileName` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '{}' CHECK (json_valid(`FileName`));
 
 ALTER TABLE `MemberWallets`
-  DROP FOREIGN KEY `MemberWallets_ibfk_1`,
   MODIFY `Credits` int(11) NOT NULL DEFAULT 0,
-  MODIFY `Points` int(11) NOT NULL DEFAULT 0,
-  ADD CONSTRAINT `FK_562e6a2e181137f50346db98413` FOREIGN KEY (`Cmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE;
+  MODIFY `Points` int(11) NOT NULL DEFAULT 0;
 
 ALTER TABLE `ModerationActions`
   DROP INDEX `SourceCmid`,
@@ -233,11 +250,12 @@ ALTER TABLE `ModerationActions`
   MODIFY `SourceCmid` int(11) NOT NULL,
   MODIFY `TargetCmid` int(11) NOT NULL,
   MODIFY `ActionDate` datetime(6) NOT NULL DEFAULT current_timestamp(6),
-  MODIFY `Reason` text NOT NULL,
-  ADD KEY `FK_8d45e979b6bdc6183a2342c7553` (`SourceCmid`),
-  ADD KEY `FK_3a1a62c93b3e2344d7daf770903` (`TargetCmid`),
-  ADD CONSTRAINT `FK_3a1a62c93b3e2344d7daf770903` FOREIGN KEY (`TargetCmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_8d45e979b6bdc6183a2342c7553` FOREIGN KEY (`SourceCmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE;
+  MODIFY `Reason` text NOT NULL;
+ALTER TABLE `ModerationActions`
+  ADD KEY `ModerationActions_ibfk_1` (`SourceCmid`),
+  ADD KEY `ModerationActions_ibfk_2` (`TargetCmid`),
+  ADD CONSTRAINT `ModerationActions_ibfk_1` FOREIGN KEY (`SourceCmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `ModerationActions_ibfk_2` FOREIGN KEY (`TargetCmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `PhotonServers`
   MODIFY `IP` varchar(255) NOT NULL,
@@ -245,20 +263,17 @@ ALTER TABLE `PhotonServers`
   MODIFY `Name` varchar(255) NOT NULL,
   MODIFY `Region` int(11) NOT NULL,
   MODIFY `UsageType` int(11) NOT NULL,
-  MODIFY `Guid` varchar(36) NOT NULL AFTER `PhotonId`,
+  MODIFY `Guid` varchar(36) NOT NULL AFTER `PhotonId`;
+ALTER TABLE `PhotonServers`
   ADD COLUMN `Passphrase` varchar(255) NOT NULL AFTER `Guid`,
   ADD COLUMN `Enabled` tinyint(4) NOT NULL DEFAULT 1 AFTER `Name`,
   ADD COLUMN `ApiVersion` varchar(255) NOT NULL AFTER `Enabled`;
 
 ALTER TABLE `PlayerInventoryItems`
-  DROP FOREIGN KEY `PlayerInventoryItems_ibfk_1`,
-  MODIFY `AmountRemaining` int(11) NOT NULL DEFAULT 0,
-  ADD CONSTRAINT `FK_57d2dd36d7e513f782982717570` FOREIGN KEY (`Cmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE;
+  MODIFY `AmountRemaining` int(11) NOT NULL DEFAULT 0;
 
 ALTER TABLE `PlayerLoadouts`
-  DROP FOREIGN KEY `PlayerLoadouts_ibfk_1`,
-  MODIFY `Type` int(11) DEFAULT 0,
-  ADD CONSTRAINT `FK_d88acdc55d79a666ee66f2975f7` FOREIGN KEY (`Cmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE;
+  MODIFY `Type` int(11) DEFAULT 0;
 
 ALTER TABLE `PlayerMachines`
   DROP PRIMARY KEY,
@@ -268,7 +283,8 @@ ALTER TABLE `PlayerMachines`
   MODIFY `SystemDeviceType` varchar(255) DEFAULT NULL,
   MODIFY `SystemCoreCount` varchar(255) DEFAULT NULL,
   RENAME COLUMN `SystemProcessorType` TO `SystemProcessorModel`,
-  RENAME COLUMN `GPUModelID` TO `GPUDeviceID`,
+  RENAME COLUMN `GPUModelID` TO `GPUDeviceID`;
+ALTER TABLE `PlayerMachines`
   ADD COLUMN `SystemVendor` varchar(255) DEFAULT NULL AFTER `SystemIdentifier`,
   ADD COLUMN `SystemProcessorVendor` varchar(255) DEFAULT NULL AFTER `SystemOperatingSystem`,
   ADD COLUMN `SystemThreadCount` varchar(255) DEFAULT NULL AFTER `SystemCoreCount`,
@@ -276,17 +292,15 @@ ALTER TABLE `PlayerMachines`
   ADD COLUMN `ParadiseVersion` varchar(255) DEFAULT NULL,
   ADD COLUMN `ParadiseBuild` varchar(255) DEFAULT NULL,
   ADD PRIMARY KEY (`Cmid`,`SystemIdentifier`),
-  ADD CONSTRAINT `FK_2a8baa4a4575878b7b0b9192ad9` FOREIGN KEY (`Cmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `PlayerMachines_ibfk_1` FOREIGN KEY (`Cmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 UPDATE `PlayerStatistics` SET `Xp`=0 WHERE `Xp` IS NULL;
 UPDATE `PlayerStatistics` SET `Level`=0 WHERE `Level` IS NULL;
 ALTER TABLE `PlayerStatistics`
-  DROP FOREIGN KEY `PlayerStatistics_ibfk_1`,
   MODIFY `Xp` int(11) NOT NULL DEFAULT 0,
   MODIFY `Level` int(11) NOT NULL DEFAULT 0,
   MODIFY `PersonalRecord` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '{}' CHECK (json_valid(`PersonalRecord`)),
-  MODIFY `WeaponStatistics` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '{}' CHECK (json_valid(`WeaponStatistics`)),
-  ADD CONSTRAINT `FK_a4bbd6f4c3ee5327dee8b955833` FOREIGN KEY (`Cmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE;
+  MODIFY `WeaponStatistics` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '{}' CHECK (json_valid(`WeaponStatistics`));
 
 ALTER TABLE `PointDeposits`
   DROP INDEX `Cmid`,
@@ -295,9 +309,10 @@ ALTER TABLE `PointDeposits`
   MODIFY `Points` int(11) NOT NULL DEFAULT 0,
   MODIFY `Cmid` int(11) NOT NULL DEFAULT 0,
   MODIFY `IsAdminAction` tinyint(4) NOT NULL DEFAULT 0,
-  MODIFY `DepositType` int(11) NOT NULL,
-  ADD KEY `FK_a77255f3b0f6b803b4b36afa285` (`Cmid`),
-  ADD CONSTRAINT `FK_a77255f3b0f6b803b4b36afa285` FOREIGN KEY (`Cmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE;
+  MODIFY `DepositType` int(11) NOT NULL;
+ALTER TABLE `PointDeposits`
+  ADD KEY `PointDeposits_ibfk_1` (`Cmid`),
+  ADD CONSTRAINT `PointDeposits_ibfk_1` FOREIGN KEY (`Cmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `PrivateMessages`
   DROP INDEX `FromCmid`,
@@ -312,11 +327,12 @@ ALTER TABLE `PrivateMessages`
   MODIFY `IsRead` tinyint(4) NOT NULL DEFAULT 0,
   MODIFY `HasAttachment` tinyint(4) NOT NULL DEFAULT 0,
   MODIFY `IsDeletedBySender` tinyint(4) NOT NULL DEFAULT 0,
-  MODIFY `IsDeletedByReceiver` tinyint(4) NOT NULL DEFAULT 0,
-  ADD KEY `FK_2ff5646b5811c95f3242b7e0b0b` (`FromCmid`),
-  ADD KEY `FK_14b3aa9d9bb63c2587154e817ab` (`ToCmid`),
-  ADD CONSTRAINT `FK_14b3aa9d9bb63c2587154e817ab` FOREIGN KEY (`ToCmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_2ff5646b5811c95f3242b7e0b0b` FOREIGN KEY (`FromCmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE;
+  MODIFY `IsDeletedByReceiver` tinyint(4) NOT NULL DEFAULT 0;
+ALTER TABLE `PrivateMessages`
+  ADD KEY `PrivateMessages_ibfk_1` (`FromCmid`),
+  ADD KEY `PrivateMessages_ibfk_2` (`ToCmid`),
+  ADD CONSTRAINT `PrivateMessages_ibfk_1` FOREIGN KEY (`FromCmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `PrivateMessages_ibfk_2` FOREIGN KEY (`ToCmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `PublicProfiles`
   DROP COLUMN `GroupTag`,
@@ -333,22 +349,11 @@ ALTER TABLE `ShopBundleItems`
   MODIFY `BundleId` int(11) NOT NULL,
   MODIFY `ItemId` int(11) NOT NULL,
   MODIFY `Amount` int(11) NOT NULL DEFAULT 1,
-  MODIFY `Duration` int(11) NOT NULL,
-  ADD KEY `FK_94f89da4f3ac28389891cebb87d` (`BundleId`),
-  ADD CONSTRAINT `FK_94f89da4f3ac28389891cebb87d` FOREIGN KEY (`BundleId`) REFERENCES `ShopBundles` (`Id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
-ALTER TABLE `ShopBundles`
-  MODIFY `ApplicationId` int(11) NOT NULL,
-  MODIFY `Name` varchar(255) NOT NULL,
-  MODIFY `IsOnSale` tinyint(4) NOT NULL DEFAULT 0,
-  MODIFY `IsPromoted` tinyint(4) NOT NULL DEFAULT 0,
-  MODIFY `USDPrice` int(11) DEFAULT 0,
-  MODIFY `USDPromoPrice` int(11) DEFAULT NULL,
-  MODIFY `Credits` int(11) NOT NULL DEFAULT 0,
-  MODIFY `Points` int(11) NOT NULL DEFAULT 0,
-  MODIFY `Category` int(11) NOT NULL DEFAULT 0,
-  MODIFY `Availability` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '[]' CHECK (json_valid(`Availability`)),
-  MODIFY `IsDefault` tinyint(4) NOT NULL DEFAULT 0;
+  MODIFY `Duration` int(11) NOT NULL;
+ALTER TABLE `ShopBundleItems` AUTO_INCREMENT=0;
+ALTER TABLE `ShopBundleItems`
+  ADD KEY `ShopBundleItems_ibfk_1` (`BundleId`),
+  ADD CONSTRAINT `ShopBundleItems_ibfk_1` FOREIGN KEY (`BundleId`) REFERENCES `ShopBundles` (`Id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 UPDATE `ShopFunctionalItems` SET `LevelLock`=0 WHERE `LevelLock` IS NULL;
 UPDATE `ShopFunctionalItems` SET `IsConsumable`=0 WHERE `IsConsumable` IS NULL;
@@ -388,19 +393,20 @@ ALTER TABLE `ShopItemPrices`
   MODIFY `Discount` int(11) NOT NULL DEFAULT 0,
   MODIFY `Amount` int(11) NOT NULL DEFAULT 1,
   MODIFY `PackType` int(11) NOT NULL DEFAULT 0,
-  MODIFY `Duration` int(11) NOT NULL DEFAULT 0,
+  MODIFY `Duration` int(11) NOT NULL DEFAULT 0;
+ALTER TABLE `ShopItemPrices`
   ADD COLUMN `FunctionalItemID` int(11) DEFAULT NULL,
   ADD COLUMN `GearItemID` int(11) DEFAULT NULL,
   ADD COLUMN `QuickItemID` int(11) DEFAULT NULL,
   ADD COLUMN `WeaponItemID` int(11) DEFAULT NULL,
-  ADD KEY `FK_8a3f91abc2e736970a59d0edd50` (`FunctionalItemID`),
-  ADD KEY `FK_96d61b6c279bb4e1f7bec5028de` (`GearItemID`),
-  ADD KEY `FK_c2fa20bcf5e3b22dd8c9e100012` (`QuickItemID`),
-  ADD KEY `FK_8f80515f0b8c8d3f84ead37d96c` (`WeaponItemID`),
-  ADD CONSTRAINT `FK_8a3f91abc2e736970a59d0edd50` FOREIGN KEY (`FunctionalItemID`) REFERENCES `ShopFunctionalItems` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_8f80515f0b8c8d3f84ead37d96c` FOREIGN KEY (`WeaponItemID`) REFERENCES `ShopWeaponItems` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_96d61b6c279bb4e1f7bec5028de` FOREIGN KEY (`GearItemID`) REFERENCES `ShopGearItems` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_c2fa20bcf5e3b22dd8c9e100012` FOREIGN KEY (`QuickItemID`) REFERENCES `ShopQuickItems` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD KEY `ShopItemPrices_ibfk_1` (`FunctionalItemID`),
+  ADD KEY `ShopItemPrices_ibfk_2` (`GearItemID`),
+  ADD KEY `ShopItemPrices_ibfk_3` (`QuickItemID`),
+  ADD KEY `ShopItemPrices_ibfk_4` (`WeaponItemID`),
+  ADD CONSTRAINT `ShopItemPrices_ibfk_1` FOREIGN KEY (`FunctionalItemID`) REFERENCES `ShopFunctionalItems` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `ShopItemPrices_ibfk_2` FOREIGN KEY (`GearItemID`) REFERENCES `ShopGearItems` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `ShopItemPrices_ibfk_3` FOREIGN KEY (`QuickItemID`) REFERENCES `ShopQuickItems` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `ShopItemPrices_ibfk_4` FOREIGN KEY (`WeaponItemID`) REFERENCES `ShopWeaponItems` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 UPDATE `ShopQuickItems` SET `LevelLock`=0 WHERE `LevelLock` IS NULL;
 UPDATE `ShopQuickItems` SET `IsConsumable`=0 WHERE `IsConsumable` IS NULL;
@@ -430,13 +436,18 @@ ALTER TABLE `ShopWeaponItems`
 ALTER TABLE `SteamMembers`
   DROP KEY `Cmid`,
   DROP FOREIGN KEY `SteamMembers_ibfk_1`,
-  MODIFY `Cmid` int(11) NOT NULL,
-  ADD UNIQUE KEY `IDX_fa989cc903927a0c125e4fa424` (`Cmid`),
-  ADD CONSTRAINT `FK_fa989cc903927a0c125e4fa4248` FOREIGN KEY (`Cmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE;
+  MODIFY `Cmid` int(11) NOT NULL;
+ALTER TABLE `SteamMembers`
+  ADD UNIQUE KEY `Cmid` (`Cmid`),
+  ADD CONSTRAINT `SteamMembers_ibfk_1` FOREIGN KEY (`Cmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
+ALTER TABLE `UserAccounts`
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ALTER TABLE `UserAccounts`
   MODIFY `EmailAddress` varchar(255) NOT NULL,
   MODIFY `Password` varchar(255) NOT NULL,
   MODIFY `Channel` int(11) NOT NULL,
-  MODIFY `TutorialStep` int(11) NOT NULL DEFAULT 1,
-  ADD CONSTRAINT `FK_b8e28f359cc2ac5f55f808fb754` FOREIGN KEY (`Cmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE;
+  MODIFY `Locale` varchar(255) DEFAULT NULL,
+  MODIFY `TutorialStep` int(11) NOT NULL DEFAULT 1;
+ALTER TABLE `UserAccounts`
+  ADD CONSTRAINT `UserAccounts_ibfk_1` FOREIGN KEY (`Cmid`) REFERENCES `PublicProfiles` (`Cmid`) ON DELETE CASCADE ON UPDATE CASCADE;
