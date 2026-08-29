@@ -55,6 +55,6 @@ export class MapSettings extends BaseEntity {
   TimeCurrent: number;
 
   @ManyToOne(() => Map, (map) => map.Settings, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'MapId', referencedColumnName: 'MapId' })
+  @JoinColumn({ name: 'MapId', referencedColumnName: 'MapId', foreignKeyConstraintName: 'MapSettings_ibfk_1' })
   Map: Relation<Map>;
 }

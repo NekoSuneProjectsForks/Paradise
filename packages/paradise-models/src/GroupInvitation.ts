@@ -25,7 +25,11 @@ export class GroupInvitation extends BaseEntity {
   InviterCmid: number;
 
   @ManyToOne(() => PublicProfile, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'InviterCmid', referencedColumnName: 'Cmid' })
+  @JoinColumn({
+    name: 'InviterCmid',
+    referencedColumnName: 'Cmid',
+    foreignKeyConstraintName: 'GroupInvitations_ibfk_1'
+  })
   Inviter: Relation<PublicProfile>;
 
   get InviterName(): string {
@@ -36,7 +40,7 @@ export class GroupInvitation extends BaseEntity {
   GroupId: number;
 
   @ManyToOne(() => Clan, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'GroupId', referencedColumnName: 'GroupId' })
+  @JoinColumn({ name: 'GroupId', referencedColumnName: 'GroupId', foreignKeyConstraintName: 'GroupInvitations_ibfk_2' })
   Group: Relation<Clan>;
 
   get GroupName(): string {
@@ -54,7 +58,11 @@ export class GroupInvitation extends BaseEntity {
   InviteeCmid: number;
 
   @ManyToOne(() => PublicProfile, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'InviteeCmid', referencedColumnName: 'Cmid' })
+  @JoinColumn({
+    name: 'InviteeCmid',
+    referencedColumnName: 'Cmid',
+    foreignKeyConstraintName: 'GroupInvitations_ibfk_3'
+  })
   Invitee: Relation<PublicProfile>;
 
   get InviteeName(): string {

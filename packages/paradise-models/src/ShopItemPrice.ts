@@ -53,27 +53,31 @@ export class ShopItemPrice extends BaseEntity {
   FunctionalItemID: number | null;
 
   @ManyToOne(() => ShopFunctionalItem, (item) => item.Prices, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'FunctionalItemID', referencedColumnName: 'ID' })
+  @JoinColumn({
+    name: 'FunctionalItemID',
+    referencedColumnName: 'ID',
+    foreignKeyConstraintName: 'ShopItemPrices_ibfk_1'
+  })
   FunctionalItem?: Relation<ShopFunctionalItem>;
 
   @Column('int', { nullable: true })
   GearItemID: number | null;
 
   @ManyToOne(() => ShopGearItem, (item) => item.Prices, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'GearItemID', referencedColumnName: 'ID' })
+  @JoinColumn({ name: 'GearItemID', referencedColumnName: 'ID', foreignKeyConstraintName: 'ShopItemPrices_ibfk_2' })
   GearItem?: Relation<ShopGearItem>;
 
   @Column({ nullable: true })
   QuickItemID: number | null;
 
   @ManyToOne(() => ShopQuickItem, (item) => item.Prices, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'QuickItemID', referencedColumnName: 'ID' })
+  @JoinColumn({ name: 'QuickItemID', referencedColumnName: 'ID', foreignKeyConstraintName: 'ShopItemPrices_ibfk_3' })
   QuickItem?: Relation<ShopQuickItem>;
 
   @Column({ nullable: true })
   WeaponItemID: number | null;
 
   @ManyToOne(() => ShopWeaponItem, (item) => item.Prices, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'WeaponItemID', referencedColumnName: 'ID' })
+  @JoinColumn({ name: 'WeaponItemID', referencedColumnName: 'ID', foreignKeyConstraintName: 'ShopItemPrices_ibfk_4' })
   WeaponItem?: Relation<ShopWeaponItem>;
 }

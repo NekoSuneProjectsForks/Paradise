@@ -74,7 +74,7 @@ export class CurrencyDeposit extends BaseEntity {
   BundleId: number | null;
 
   @ManyToOne(() => ShopBundle, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'BundleId', referencedColumnName: 'Id' })
+  @JoinColumn({ name: 'BundleId', referencedColumnName: 'Id', foreignKeyConstraintName: 'CurrencyDeposits_ibfk_2' })
   Bundle: Relation<ShopBundle | null>;
 
   get BundleName(): string {
@@ -82,6 +82,6 @@ export class CurrencyDeposit extends BaseEntity {
   }
 
   @ManyToOne(() => PublicProfile, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid' })
+  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid', foreignKeyConstraintName: 'CurrencyDeposits_ibfk_1' })
   PublicProfile: Relation<PublicProfile>;
 }

@@ -36,6 +36,6 @@ export class MemberWallet extends BaseEntity {
   PointsExpiration: Date | null;
 
   @OneToOne(() => PublicProfile, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid' })
+  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid', foreignKeyConstraintName: 'MemberWallets_ibfk_1' })
   PublicProfile: Relation<PublicProfile>;
 }

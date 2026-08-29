@@ -43,7 +43,11 @@ export class ModerationAction extends BaseEntity {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE'
   })
-  @JoinColumn({ name: 'SourceCmid', referencedColumnName: 'Cmid' })
+  @JoinColumn({
+    name: 'SourceCmid',
+    referencedColumnName: 'Cmid',
+    foreignKeyConstraintName: 'ModerationActions_ibfk_1'
+  })
   Source: Relation<PublicProfile>;
 
   get SourceName(): string {
@@ -57,7 +61,11 @@ export class ModerationAction extends BaseEntity {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE'
   })
-  @JoinColumn({ name: 'TargetCmid', referencedColumnName: 'Cmid' })
+  @JoinColumn({
+    name: 'TargetCmid',
+    referencedColumnName: 'Cmid',
+    foreignKeyConstraintName: 'ModerationActions_ibfk_2'
+  })
   Target: Relation<PublicProfile>;
 
   get TargetName(): string {

@@ -84,6 +84,6 @@ export class PlayerMachine extends BaseEntity {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE'
   })
-  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid' })
+  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid', foreignKeyConstraintName: 'PlayerMachines_ibfk_1' })
   PublicProfile: Relation<PublicProfile>;
 }

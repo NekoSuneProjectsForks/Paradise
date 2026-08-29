@@ -39,7 +39,7 @@ export class PrivateMessage extends BaseEntity {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE'
   })
-  @JoinColumn({ name: 'FromCmid', referencedColumnName: 'Cmid' })
+  @JoinColumn({ name: 'FromCmid', referencedColumnName: 'Cmid', foreignKeyConstraintName: 'PrivateMessages_ibfk_1' })
   From: Relation<PublicProfile>;
 
   get FromName(): string {
@@ -53,7 +53,7 @@ export class PrivateMessage extends BaseEntity {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE'
   })
-  @JoinColumn({ name: 'ToCmid', referencedColumnName: 'Cmid' })
+  @JoinColumn({ name: 'ToCmid', referencedColumnName: 'Cmid', foreignKeyConstraintName: 'PrivateMessages_ibfk_2' })
   To: Relation<PublicProfile>;
 
   @CreateDateColumn()

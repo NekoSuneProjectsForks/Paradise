@@ -36,24 +36,32 @@ export class ActivePlayer extends BaseEntity {
   CommServerId: number | null;
 
   @ManyToOne(() => PhotonServer, (photonServer) => photonServer.CommPeers, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'CommServerId', referencedColumnName: 'PhotonId' })
+  @JoinColumn({
+    name: 'CommServerId',
+    referencedColumnName: 'PhotonId',
+    foreignKeyConstraintName: 'ActivePlayers_ibfk_2'
+  })
   CommServer: PhotonServer | null;
 
   @Column('int', { nullable: true })
   GameServerId: number | null;
 
   @ManyToOne(() => PhotonServer, (photonServer) => photonServer.GamePeers, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'GameServerId', referencedColumnName: 'PhotonId' })
+  @JoinColumn({
+    name: 'GameServerId',
+    referencedColumnName: 'PhotonId',
+    foreignKeyConstraintName: 'ActivePlayers_ibfk_3'
+  })
   GameServer: PhotonServer | null;
 
   @Column('int', { nullable: true })
   GameRoomId: number | null;
 
   @ManyToOne(() => GameRoom, (gameRoom) => gameRoom.Players, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'GameRoomId', referencedColumnName: 'Number' })
+  @JoinColumn({ name: 'GameRoomId', referencedColumnName: 'Number', foreignKeyConstraintName: 'ActivePlayers_ibfk_4' })
   GameRoom: Relation<GameRoom> | null;
 
   @OneToOne(() => PublicProfile, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid' })
+  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid', foreignKeyConstraintName: 'ActivePlayers_ibfk_1' })
   PublicProfile: Relation<PublicProfile>;
 }

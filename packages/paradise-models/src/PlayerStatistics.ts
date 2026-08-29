@@ -64,6 +64,6 @@ export class PlayerStatistics extends BaseEntity {
   WeaponStatistics: PlayerWeaponStatisticsView;
 
   @OneToOne(() => PublicProfile, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid' })
+  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid', foreignKeyConstraintName: 'PlayerStatistics_ibfk_1' })
   PublicProfile: Relation<PublicProfile>;
 }

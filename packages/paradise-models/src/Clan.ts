@@ -85,7 +85,7 @@ export class Clan extends BaseEntity {
   OwnerCmid: number;
 
   @OneToOne(() => PublicProfile, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'OwnerCmid', referencedColumnName: 'Cmid' })
+  @JoinColumn({ name: 'OwnerCmid', referencedColumnName: 'Cmid', foreignKeyConstraintName: 'Clans_ibfk_1' })
   Owner: Relation<PublicProfile>;
 
   get OwnerName(): string {

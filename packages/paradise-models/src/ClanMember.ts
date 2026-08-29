@@ -48,11 +48,11 @@ export class ClanMember extends BaseEntity {
   Lastlogin: Date;
 
   @ManyToOne(() => Clan, (clan) => clan.Members, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'GroupId' })
+  @JoinColumn({ name: 'GroupId', foreignKeyConstraintName: 'ClanMembers_ibfk_1' })
   Group: Relation<Clan>;
 
   @OneToOne(() => PublicProfile, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid' })
+  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid', foreignKeyConstraintName: 'ClanMembers_ibfk_2' })
   PublicProfile: Relation<PublicProfile>;
 
   get Name(): string {

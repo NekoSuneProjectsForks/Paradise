@@ -33,6 +33,6 @@ export class SteamMember extends BaseEntity {
   MachineId: string | null;
 
   @OneToOne(() => PublicProfile, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid' })
+  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid', foreignKeyConstraintName: 'SteamMembers_ibfk_1' })
   PublicProfile: Relation<PublicProfile>;
 }

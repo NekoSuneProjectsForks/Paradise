@@ -56,6 +56,6 @@ export class ItemTransaction extends BaseEntity {
   Duration: BuyingDurationType;
 
   @ManyToOne(() => PublicProfile, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid' })
+  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid', foreignKeyConstraintName: 'ItemTransactions_ibfk_1' })
   PublicProfile: Relation<PublicProfile>;
 }

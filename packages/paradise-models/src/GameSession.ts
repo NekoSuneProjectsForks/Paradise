@@ -41,7 +41,7 @@ export class GameSession extends BaseEntity {
   ExpireTime: Date | null;
 
   @ManyToOne(() => PublicProfile, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid' })
+  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid', foreignKeyConstraintName: 'GameSessions_ibfk_1' })
   PublicProfile: Relation<PublicProfile>;
 
   extendExpireTime(): void {

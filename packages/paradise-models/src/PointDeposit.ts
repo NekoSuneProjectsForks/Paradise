@@ -49,6 +49,6 @@ export class PointDeposit extends BaseEntity {
   DepositType: PointsDepositType;
 
   @ManyToOne(() => PublicProfile, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid' })
+  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid', foreignKeyConstraintName: 'PointDeposits_ibfk_1' })
   PublicProfile: Relation<PublicProfile>;
 }

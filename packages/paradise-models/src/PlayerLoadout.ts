@@ -118,6 +118,6 @@ export class PlayerLoadout extends BaseEntity {
   SkinColor: string | null;
 
   @OneToOne(() => PublicProfile, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid' })
+  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid', foreignKeyConstraintName: 'PlayerLoadouts_ibfk_1' })
   PublicProfile: Relation<PublicProfile>;
 }

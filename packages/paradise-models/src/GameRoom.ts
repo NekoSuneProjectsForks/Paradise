@@ -37,7 +37,11 @@ export class GameRoom extends BaseEntity {
   PhotonServerId: number;
 
   @ManyToOne(() => PhotonServer, (photonServer) => photonServer.Rooms, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'PhotonServerId', referencedColumnName: 'PhotonId' })
+  @JoinColumn({
+    name: 'PhotonServerId',
+    referencedColumnName: 'PhotonId',
+    foreignKeyConstraintName: 'GameRooms_ibfk_2'
+  })
   PhotonServer: Relation<PhotonServer>;
 
   @Column('varchar', { length: 18 })
@@ -72,7 +76,7 @@ export class GameRoom extends BaseEntity {
   MapID: number;
 
   @ManyToOne(() => Map, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'MapID', referencedColumnName: 'MapId' })
+  @JoinColumn({ name: 'MapID', referencedColumnName: 'MapId', foreignKeyConstraintName: 'GameRooms_ibfk_1' })
   Map: Relation<Map>;
 
   @Column('int', { default: 0 })

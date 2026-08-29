@@ -33,6 +33,6 @@ export class DiscordUser extends BaseEntity {
   Completed: boolean;
 
   @OneToOne(() => PublicProfile, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid' })
+  @JoinColumn({ name: 'Cmid', referencedColumnName: 'Cmid', foreignKeyConstraintName: 'DiscordUsers_ibfk_1' })
   PublicProfile: Relation<PublicProfile>;
 }

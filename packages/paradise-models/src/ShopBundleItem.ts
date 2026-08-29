@@ -29,7 +29,7 @@ export class ShopBundleItem extends BaseEntity {
   BundleId: number;
 
   @ManyToOne(() => ShopBundle, (shopBundle) => shopBundle.BundleItemViews, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'BundleId', referencedColumnName: 'Id' })
+  @JoinColumn({ name: 'BundleId', referencedColumnName: 'Id', foreignKeyConstraintName: 'ShopBundleItems_ibfk_1' })
   Bundle: Relation<ShopBundle>;
 
   @Column('int')

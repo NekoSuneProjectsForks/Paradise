@@ -23,14 +23,14 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   type Relation
 } from 'typeorm';
 import { PublicProfile } from './PublicProfile';
 
 @Entity('ContactRequests')
 export class ContactRequest extends BaseEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn('int')
   RequestId: number;
 
   @Column('int')
@@ -40,7 +40,11 @@ export class ContactRequest extends BaseEntity {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE'
   })
-  @JoinColumn({ name: 'InitiatorCmid', referencedColumnName: 'Cmid' })
+  @JoinColumn({
+    name: 'InitiatorCmid',
+    referencedColumnName: 'Cmid',
+    foreignKeyConstraintName: 'ContactRequests_ibfk_1'
+  })
   Initiator: Relation<PublicProfile>;
 
   get InitiatorName(): string {
@@ -54,7 +58,11 @@ export class ContactRequest extends BaseEntity {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE'
   })
-  @JoinColumn({ name: 'ReceiverCmid', referencedColumnName: 'Cmid' })
+  @JoinColumn({
+    name: 'ReceiverCmid',
+    referencedColumnName: 'Cmid',
+    foreignKeyConstraintName: 'ContactRequests_ibfk_2'
+  })
   Receiver: Relation<PublicProfile>;
 
   @Column('text')
