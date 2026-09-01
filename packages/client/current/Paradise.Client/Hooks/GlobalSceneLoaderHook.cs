@@ -35,6 +35,8 @@ namespace Paradise.Client {
 		public static bool Start_Prefix(GlobalSceneLoader __instance) {
 			traverse = ParadiseTraverse<GlobalSceneLoader>.Create(__instance);
 
+			ApplicationDataManager.ApplicationOptions.Initialize();
+
 			if (!ParadiseClient.Settings.HasKey(ParadisePrefs.Key.TelemetryChoice) || !ParadiseClient.Settings.TelemetryChoiceMade) {
 				PopupSystem.Show(new ParadisePopupDialog {
 					Title = ParadiseLocalizedStrings.TelemetryPopupTitle,
@@ -43,13 +45,11 @@ namespace Paradise.Client {
 					OkCaption = ParadiseLocalizedStrings.Allow,
 					OkAction = () => {
 						ParadiseClient.Settings.SetKey(ParadisePrefs.Key.TelemetryChoice, ParadisePrefs.TelemetryChoice.Yes);
-						ParadiseClient.Settings.SaveSettings();
 						__instance.StartCoroutine(Start());
 					},
 					CancelCaption = ParadiseLocalizedStrings.Disallow,
 					CancelAction = () => {
 						ParadiseClient.Settings.SetKey(ParadisePrefs.Key.TelemetryChoice, ParadisePrefs.TelemetryChoice.No);
-						ParadiseClient.Settings.SaveSettings();
 						__instance.StartCoroutine(Start());
 					},
 					AuxCaption = ParadiseLocalizedStrings.PrivacyPolicy,
