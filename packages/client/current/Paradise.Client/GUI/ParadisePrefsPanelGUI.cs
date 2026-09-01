@@ -164,7 +164,7 @@ namespace Paradise.Client {
 
 				GUI.enabled = webServicesDirty && !HasInvalidWebServerURLs;
 				if (GUILayout.Button(ParadiseLocalizedStrings.Save, BlueStonez.buttondark_small, GUILayout.Width(40f), GUILayout.Height(20f))) {
-					SaveWebServiceSettings();
+					SaveWebServiceSettings(true);
 				}
 				GUI.enabled = true;
 
@@ -277,7 +277,7 @@ namespace Paradise.Client {
 
 				GUI.enabled = fileServersDirty && !HasInvalidFileServerURLs;
 				if (GUILayout.Button(ParadiseLocalizedStrings.Save, BlueStonez.buttondark_small, GUILayout.Width(40f), GUILayout.Height(20f))) {
-					SaveFileServerSettings();
+					SaveFileServerSettings(true);
 				}
 				GUI.enabled = true;
 
@@ -417,7 +417,7 @@ namespace Paradise.Client {
 
 					GUI.enabled = updateDirty;
 					if (GUILayout.Button(ParadiseLocalizedStrings.Save, BlueStonez.buttondark_small, GUILayout.Width(40f), GUILayout.Height(20f))) {
-						SaveUpdateSettings();
+						SaveUpdateSettings(true);
 					}
 					GUI.enabled = true;
 
@@ -467,34 +467,56 @@ namespace Paradise.Client {
 			SaveUpdateSettings();
 		}
 
-		private static void SaveWebServiceSettings() {
+		private static void SaveWebServiceSettings(bool showWarning = false) {
 			if (webServicesDirty) {
 				ParadiseClient.Settings.SetKey(ParadisePrefs.Key.WebServiceBaseUrls, WebServiceBaseUrls);
 				ParadiseClient.Settings.SetKey(ParadisePrefs.Key.WebServiceUrlIndex, WebServiceUrlIndex);
 				ParadiseClient.Settings.SetKey(ParadisePrefs.Key.WebServiceEndpoint, WebServiceEndpoint);
 				ParadiseClient.Settings.SetKey(ParadisePrefs.Key.WebServiceSuffix, WebServiceSuffix);
 				ParadiseClient.Settings.SetKey(ParadisePrefs.Key.WebServicePrefix, WebServicePrefix);
+
+				if (showWarning) {
+					ShowServerChangeWarning();
+				}
 			}
 
 			webServicesDirty = false;
 		}
 
-		private static void SaveFileServerSettings() {
+		private static void SaveFileServerSettings(bool showWarning = false) {
 			if (fileServersDirty) {
 				ParadiseClient.Settings.SetKey(ParadisePrefs.Key.FileServerUrls, FileServerUrls);
 				ParadiseClient.Settings.SetKey(ParadisePrefs.Key.FileServerUrlIndex, FileServerUrlIndex);
 				ParadiseClient.Settings.SetKey(ParadisePrefs.Key.ImagePathEndpoint, ImagePathEndpoint);
+
+				if (showWarning) {
+					ShowServerChangeWarning();
+				}
 			}
 
 			fileServersDirty = false;
 		}
 
-		private static void SaveUpdateSettings() {
+		private static void SaveUpdateSettings(bool showWarning = false) {
 			if (updateDirty) {
 				ParadiseClient.Settings.SetKey(ParadisePrefs.Key.UpdateEndpoint, UpdateEndpoint);
+
+				if (showWarning) {
+					ShowServerChangeWarning();
+				}
 			}
 
 			updateDirty = false;
+		}
+
+		private static void ShowServerChangeWarning() {
+			PopupSystem.Show(new ParadisePopupDialog {
+				Size = ParadisePopupDialog.PopupSize.Regular,
+				Title = LocalizedStrings.Warning,
+				Text = ParadiseLocalizedStrings.ServerChangesAppliedAfterRestart,
+				AlertType = PopupSystem.AlertType.OK,
+				Depth = (GuiDepth)ParadiseGuiDepth.UpdatePopup,
+			});
 		}
 	}
 }

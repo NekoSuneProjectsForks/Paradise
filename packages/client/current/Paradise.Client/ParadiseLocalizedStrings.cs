@@ -75,6 +75,7 @@ namespace Paradise.Client {
 		public static string ReportIssue = "Report Issue";
 		public static string ResolutionSet = "Resolution has been set to {0:N0}x{1:N0}.\nDo you want to keep this setting?";
 		public static string Save = "Save";
+		public static string ServerChangesAppliedAfterRestart = "Server changes will be applied after a game restart.";
 		public static string TelemetryPopupText = "We would like to collect UberStrike error logs and details about your hardware. This data is completely anonymous, and you can always choose to enable or disable data collection in the Paradise settings if you change your mind.";
 		public static string TelemetryPopupTitle = "Allow telemetry";
 		public static string ThisIsATestBuild = "This is a test build, do not distribute!";
