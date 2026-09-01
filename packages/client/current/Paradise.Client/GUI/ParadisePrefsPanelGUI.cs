@@ -24,6 +24,8 @@ using UnityEngine;
 
 namespace Paradise.Client {
 	internal class ParadisePrefsPanelGUI {
+		private static readonly DateTime unixTimestamp = new DateTime(1970,1,1,0,0,0, DateTimeKind.Utc);
+
 		private static bool showAdvancedSettings;
 
 		private static List<string> WebServiceBaseUrls;
@@ -395,7 +397,7 @@ namespace Paradise.Client {
 				GUILayout.Space(ParadiseGUITools.ITEM_SPACING_H);
 
 				var lastUpdate = ParadiseClient.Settings.LastUpdateCheckTimeStamp;
-				GUILayout.Label(string.Format(ParadiseLocalizedStrings.UpdateLastChecked, lastUpdate == DateTime.MinValue ? ParadiseLocalizedStrings.UpdateLastCheckedNever : lastUpdate.ToString(ParadiseLocalizedStrings.UpdateLastCheckedDateFormat)), BlueStonez.label_interparkbold_11pt_left, GUILayout.Height(26f));
+				GUILayout.Label(string.Format(ParadiseLocalizedStrings.UpdateLastChecked, lastUpdate <= unixTimestamp ? ParadiseLocalizedStrings.UpdateLastCheckedNever : lastUpdate.ToString(ParadiseLocalizedStrings.UpdateLastCheckedDateFormat)), BlueStonez.label_interparkbold_11pt_left, GUILayout.Height(26f));
 
 				GUILayout.EndHorizontal();
 
