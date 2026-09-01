@@ -415,9 +415,9 @@ namespace Paradise.Client {
 					GUILayout.BeginHorizontal();
 					GUILayout.FlexibleSpace();
 
-					GUI.enabled = fileServersDirty && !HasInvalidFileServerURLs;
+					GUI.enabled = updateDirty;
 					if (GUILayout.Button(ParadiseLocalizedStrings.Save, BlueStonez.buttondark_small, GUILayout.Width(40f), GUILayout.Height(20f))) {
-						SaveFileServerSettings();
+						SaveUpdateSettings();
 					}
 					GUI.enabled = true;
 
