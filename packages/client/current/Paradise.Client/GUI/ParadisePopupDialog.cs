@@ -303,4 +303,25 @@ namespace Paradise.Client {
 			GUI.EndGroup();
 		}
 	}
+
+	public class ParadiseCountdownPopupDialog : ParadisePopupDialog {
+		private float _endTime;
+
+		public ParadiseCountdownPopupDialog(float seconds) {
+			this._endTime = Time.time + seconds;
+		}
+
+		protected override void DrawPopupWindow() {
+			var timeLeft = Mathf.Max(0, _endTime - Time.time);
+
+			if (timeLeft <= 0f) {
+				CancelAction?.Invoke();
+				PopupSystem.HideMessage(this);
+			}
+
+			GUI.Label(new Rect(17f, 55f, _size.x - 34f, 40f), Text, PopupSkin.label);
+
+			GUI.Label(new Rect(17f, ParadiseGUITools.PANEL_TITLE_HEIGHT, this._size.x - 32f, this._size.y - ParadiseGUITools.PANEL_TITLE_HEIGHT), Math.Ceiling(timeLeft).ToString("N0"), BlueStonez.label_interparkbold_48pt);
+		}
+	}
 }

@@ -561,56 +561,36 @@ namespace Paradise.Client {
 
 		[HarmonyPatch("ShowScreenResChangeConfirmation"), HarmonyPrefix]
 		public static bool ShowScreenResChangeConfirmation_Prefix(int oldRes, int newRes) {
-			traverse.SetField("_screenResChangeDelay", 15f);
 			_newScreenResIndex = newRes;
 			_oldScreenResIndex = oldRes;
 
-			return false;
-		}
+			var newScreenRes = ScreenResolutionManager.Resolutions[_newScreenResIndex];
 
-		[HarmonyPatch("DrawScreenResChangePanel"), HarmonyPrefix]
-		public static bool DrawScreenResChangePanel_Prefix() {
-			var _screenResChangeDelay = traverse.GetField<float>("_screenResChangeDelay");
+			PopupSystem.Show(new ParadiseCountdownPopupDialog(15.0f) {
+				Size = ParadisePopupDialog.PopupSize.Regular,
+				Title = LocalizedStrings.ChangingScreenResolution,
+				Text = string.Format(ParadiseLocalizedStrings.ResolutionSet, newScreenRes.width, newScreenRes.height),
+				AlertType = PopupSystem.AlertType.OKCancel,
+				OkCaption = ParadiseLocalizedStrings.Yes,
+				OkAction = () => {
+					if (_newScreenResIndex >= 0) {
+						ScreenResolutionManager.SetResolution(_newScreenResIndex, Screen.fullScreen);
+					}
 
-			var rect = new Rect {
-				x = (Screen.width - 320f) / 2,
-				y = (Screen.height - 240f) / 2,
-				width = 320f,
-				height = 240f
-			};
-
-			GUI.depth = (int)ParadiseGuiDepth.ScreenResChangePanel;
-			GUI.BeginGroup(rect, string.Empty, BlueStonez.window_standard_grey38);
-			GUI.Label(new Rect(0f, 0f, rect.width, ParadiseGUITools.PANEL_TITLE_HEIGHT), LocalizedStrings.ChangingScreenResolution, BlueStonez.tab_strip);
-			GUI.Label(new Rect(16f, ParadiseGUITools.PANEL_TITLE_HEIGHT, rect.width - 32f, rect.height - ParadiseGUITools.PANEL_TITLE_HEIGHT - 32f), Math.Ceiling(_screenResChangeDelay).ToString("N0"), BlueStonez.label_interparkbold_48pt);
-			GUI.Label(new Rect(10f, ParadiseGUITools.PANEL_TITLE_HEIGHT + 8f, rect.width - 20f, 40f), string.Format(ParadiseLocalizedStrings.ResolutionSet, Screen.width, Screen.height), BlueStonez.label_interparkbold_13pt);
-
-
-			if (GUITools.Button(new Rect(rect.width * 0.5f - 125f, rect.height - 40f, 120f, 32f), new GUIContent(ParadiseLocalizedStrings.Yes), BlueStonez.button)) {
-				if (_newScreenResIndex >= 0) {
-					ScreenResolutionManager.SetResolution(_newScreenResIndex, Screen.fullScreen);
-				}
-
-				_oldScreenResIndex = -1;
-				_newScreenResIndex = -1;
-
-				GuiLockController.ReleaseLock(GuiDepth.Popup);
-				traverse.SetField("_screenResChangeDelay", 0f);
-			}
-
-			if (GUITools.Button(new Rect(rect.width * 0.5f + 5f, rect.height - 40f, 120f, 32f), new GUIContent(ParadiseLocalizedStrings.No), BlueStonez.button)) {
-				if (_oldScreenResIndex >= 0) {
-					var resolution = ScreenResolutionManager.Resolutions[_oldScreenResIndex];
-					Screen.SetResolution(resolution.width, resolution.height, Screen.fullScreen);
-				} else {
-					Screen.SetResolution((int)defaultResolution.x, (int)defaultResolution.y, Screen.fullScreen);
-				}
-
-				GuiLockController.ReleaseLock(GuiDepth.Popup);
-				traverse.SetField("_screenResChangeDelay", 0f);
-			}
-
-			GUI.EndGroup();
+					_oldScreenResIndex = -1;
+					_newScreenResIndex = -1;
+				},
+				CancelCaption = ParadiseLocalizedStrings.No,
+				CancelAction = () => {
+					if (_oldScreenResIndex >= 0) {
+						var resolution = ScreenResolutionManager.Resolutions[_oldScreenResIndex];
+						Screen.SetResolution(resolution.width, resolution.height, Screen.fullScreen);
+					} else {
+						Screen.SetResolution((int)defaultResolution.x, (int)defaultResolution.y, Screen.fullScreen);
+					}
+				},
+				Depth = (GuiDepth)ParadiseGuiDepth.UpdatePopup,
+			});
 
 			return false;
 		}
