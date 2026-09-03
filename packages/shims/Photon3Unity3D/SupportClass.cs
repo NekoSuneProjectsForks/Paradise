@@ -22,7 +22,7 @@ using System.Threading;
 
 namespace ExitGames.Client.Photon {
 	public class SupportClass {
-		protected internal static IntegerMillisecondsDelegate IntegerMilliseconds = () => Environment.TickCount;
+		protected internal static IntegerMillisecondsDelegate IntegerMilliseconds = () => Environment.TickCount & int.MaxValue;
 
 		public delegate int IntegerMillisecondsDelegate();
 

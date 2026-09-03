@@ -218,7 +218,7 @@ namespace Photon.SocketServer {
 			if (message.Code == TimeSyncOpCode) {
 				try {
 					var response = WireMessage.OperationResponse(TimeSyncOpCode, 0, null, new Dictionary<byte, object> {
-						{ 0, Environment.TickCount }
+						{ 0, Environment.TickCount & int.MaxValue }
 					});
 
 					peer.Send(WireCodec.Encode(response), 0, DeliveryMethod.ReliableOrdered);

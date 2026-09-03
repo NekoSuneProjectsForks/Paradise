@@ -18,6 +18,7 @@
 using System;
 using UberStrike.Core.Models;
 using UberStrike.Core.Types;
+using UberStrike.Realtime.UnitySdk;
 using static Paradise.Realtime.Server.Game.BaseGameRoom;
 
 namespace Paradise.Realtime.Server.Game {
@@ -31,7 +32,7 @@ namespace Paradise.Realtime.Server.Game {
 			Room.PlayerKilled += OnPlayerKilled;
 			Room.PlayerRespawned += OnPlayerRespawned;
 
-			Room.RoundStartTime = Environment.TickCount;
+			Room.RoundStartTime = SystemTime.Running;
 
 			if (Room.MetaData.TimeLimit > 0) {
 				Room.RoundEndTime = Room.RoundStartTime + (Room.MetaData.TimeLimit * 1000);
@@ -64,7 +65,7 @@ namespace Paradise.Realtime.Server.Game {
 		public override void OnUpdate() {
 			Room.PowerUpManager.Update();
 
-			if (Room.MetaData.TimeLimit > 0 && Room.RoundEndTime > 0 && Environment.TickCount > Room.RoundEndTime) {
+			if (Room.MetaData.TimeLimit > 0 && Room.RoundEndTime > 0 && SystemTime.Running > Room.RoundEndTime) {
 				Room.HasRoundEnded = true;
 			}
 		}

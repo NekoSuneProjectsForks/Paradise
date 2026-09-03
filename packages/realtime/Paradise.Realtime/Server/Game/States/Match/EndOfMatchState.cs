@@ -18,6 +18,7 @@
 using System;
 using System.Threading.Tasks;
 using UberStrike.Core.Types;
+using UberStrike.Realtime.UnitySdk;
 using static Paradise.Realtime.Server.Game.BaseGameRoom;
 
 namespace Paradise.Realtime.Server.Game {
@@ -28,7 +29,7 @@ namespace Paradise.Realtime.Server.Game {
 			Room.PlayerJoined += OnPlayerJoined;
 			//Room.PlayerLeft += OnPlayerLeft;
 
-			Room.RoundEndTime = Environment.TickCount;
+			Room.RoundEndTime = SystemTime.Running;
 			Room.RoundDurations.Add(TimeSpan.FromMilliseconds(Room.RoundEndTime - Room.RoundStartTime));
 
 			if (Room.MetaData.GameMode == GameModeType.DeathMatch) {

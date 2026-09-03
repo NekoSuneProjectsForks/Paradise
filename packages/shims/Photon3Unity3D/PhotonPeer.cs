@@ -60,7 +60,7 @@ namespace ExitGames.Client.Photon {
 		public long BytesIn => manager.Statistics.BytesReceived;
 		public long BytesOut => manager.Statistics.BytesSent;
 
-		public int ServerTimeInMilliSeconds => Environment.TickCount + serverTimeOffset;
+		public int ServerTimeInMilliSeconds => (Environment.TickCount & int.MaxValue) + serverTimeOffset;
 
 		public bool Connect(string serverAddress, string applicationName) {
 			ServerAddress = serverAddress;
@@ -196,7 +196,7 @@ namespace ExitGames.Client.Photon {
 				case WireMessageType.OperationResponse:
 					if (message.Code == TimeSyncOpCode) {
 						if (timeSyncPending && message.Parameters.TryGetValue(0, out var tick) && tick is int serverTick) {
-							var now = Environment.TickCount;
+							var now = Environment.TickCount & int.MaxValue;
 
 							// Estimate the server's tick "now" as serverTick + half the round-trip, so the
 							// offset maps our local clock onto the server's: offset = serverTick - (T0+T1)/2.
@@ -235,7 +235,7 @@ namespace ExitGames.Client.Photon {
 			if (serverPeer == null || serverPeer.ConnectionState != ConnectionState.Connected) return;
 
 			try {
-				timeSyncSentTick = Environment.TickCount;
+				timeSyncSentTick = Environment.TickCount & int.MaxValue;
 				timeSyncPending = true;
 
 				var wire = WireMessage.Operation(TimeSyncOpCode, new Dictionary<byte, object> {

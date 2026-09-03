@@ -904,12 +904,12 @@ namespace Paradise.Realtime.Server.Game {
 			var state = peer.Actor.ActorInfo.PlayerState;
 
 			if (on) {
-				peer.Shooting.StartTime = Environment.TickCount;
+				peer.Shooting.StartTime = SystemTime.Running;
 				peer.Shooting.WeaponID = peer.Actor.ActorInfo.CurrentWeaponID;
 
 				state |= PlayerStates.Shooting;
 			} else {
-				peer.Shooting.EndTime = Environment.TickCount;
+				peer.Shooting.EndTime = SystemTime.Running;
 
 				if (ShopManager.WeaponItems.TryGetValue(peer.Shooting.WeaponID, out var weapon)) {
 					var shootTime = TimeSpan.FromMilliseconds(peer.Shooting.EndTime - peer.Shooting.StartTime);
