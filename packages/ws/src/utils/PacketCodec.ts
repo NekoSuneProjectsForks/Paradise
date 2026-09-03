@@ -340,7 +340,7 @@ export default class PacketCodec {
           GameRoomDataProxy.Deserialize(payloadBytes),
           EndOfMatchDataProxy.Deserialize(payloadBytes),
           DictionaryProxy.Deserialize<number, StatsCollection>(
-            bytes,
+            payloadBytes,
             Int32Proxy.Deserialize,
             StatsCollectionProxy.Deserialize
           )
