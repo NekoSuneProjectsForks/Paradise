@@ -17,12 +17,14 @@
 
 using HarmonyLib;
 using UberStrike.Core.Types;
+using UnityEngine;
 
 namespace Paradise.Client {
 	/// <summary>
 	/// <br>• Changes "n Kills Remaining" to "n Rounds Remaining" for Team Elimination.</br>
 	/// <br>• Displays the appropriate gamemode hint in Team Elimination.</br>
 	/// <br>• Allows the "n Kills/Rounds Remaining" label to be updated using the same value (thus preventing "STARTS IN" to be always displayed).</br>
+	/// <br>• Fixes the round timer displaying time and kills remaining from a previous round.</br>
 	/// </summary>
 	[HarmonyPatch(typeof(HUDStatusPanel))]
 	public static class HUDStatusPanelHook {
@@ -63,6 +65,16 @@ namespace Paradise.Client {
 				return false;
 
 			return true;
+		}
+
+		[HarmonyPatch("Start"), HarmonyPostfix]
+		public static void Start_Postfix(HUDStatusPanel __instance) {
+			UnityEngine.Debug.Log($"HUDStatusPanel Start TimeLimit: {GameState.Current.RoomData.TimeLimit}");
+
+			var traverse = new ParadiseTraverse(__instance);
+
+			traverse.GetField<UILabel>("statusLabel").text = (string)traverse.InvokeMethod("GetRemainingKillString", GameState.Current.RoomData.KillLimit);
+			traverse.GetField<UILabel>("timerLabel").text = (string)traverse.InvokeMethod("GetClockString", GameState.Current.RoomData.TimeLimit);
 		}
 
 
