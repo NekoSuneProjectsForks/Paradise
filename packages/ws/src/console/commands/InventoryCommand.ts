@@ -290,7 +290,7 @@ export default class InventoryCommand extends ConsoleCommand {
     }
 
     const amount = await ConsoleHelper.promptNumber({
-      message: 'Enter amount:',
+      message: 'Enter amount (-1 = permanent):',
       defaultValue: -1,
       required: false
     });
