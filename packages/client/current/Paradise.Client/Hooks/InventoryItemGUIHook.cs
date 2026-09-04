@@ -33,7 +33,7 @@ namespace Paradise.Client {
 
 		private static readonly Dictionary<InventoryItemGUI, ParadiseTraverse<InventoryItemGUI>> traverseByInstance = new Dictionary<InventoryItemGUI, ParadiseTraverse<InventoryItemGUI>>();
 
-		private static readonly List<int> defaultItemIds = new List<int> { 1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1084, 1086, 1087, 1088, 1089 };
+		private static readonly List<int> defaultItemIds = new List<int> { 1000, 1001, 1002, 1003, 1004, 1084, 1086, 1087, 1088, 1089 };
 
 		static InventoryItemGUIHook() {
 			Log.Info($"[{nameof(InventoryItemGUIHook)}] hooking {nameof(InventoryItemGUI)}");
