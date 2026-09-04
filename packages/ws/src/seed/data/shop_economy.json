@@ -10628,7 +10628,7 @@
       ],
       "ItemProperties": {},
       "CustomProperties": {
-        "Sticky": 1
+        "Sticky": "1"
       },
       "AccuracySpread": 0,
       "CombatRange": 300,
@@ -10701,7 +10701,7 @@
       ],
       "ItemProperties": {},
       "CustomProperties": {
-        "Sticky": 1
+        "Sticky": "1"
       },
       "AccuracySpread": 0,
       "CombatRange": 300,
