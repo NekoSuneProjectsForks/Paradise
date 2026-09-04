@@ -224,9 +224,6 @@ ALTER TABLE `MapSettings`
   MODIFY `TimeMax` int(11) NOT NULL,
   MODIFY `TimeCurrent` int(11) NOT NULL;
 
-UPDATE `Maps` SET `FileName` = '{\"4.3.10\":\"SpaceCity-39cc09a30cead812868d2ec3f39c43d7050f18d2-HD.unity3d\",\"4.7.1\":\"SpaceCity-39cc09a30cead812868d2ec3f39c43d7050f18d2-HD.unity3d\"}' WHERE `Maps`.`MapId` = 64;
-UPDATE `Maps` SET `FileName` = '{\"4.3.10\":\"SpacePortAlpha-f5a000d702f88da661050a3741e4c10000f277e8-HD.unity3d\",\"4.7.1\":\"SpacePortAlpha-f5a000d702f88da661050a3741e4c10000f277e8-HD.unity3d\"}' WHERE `Maps`.`MapId` = 65;
-UPDATE `Maps` SET `FileName` = '{\"4.3.10\":\"UberZone-3d65324112d322a4dc2a155c9795d4b7ec08ee3a-HD.unity3d\",\"4.7.1\":\"UberZone-3d65324112d322a4dc2a155c9795d4b7ec08ee3a-HD.unity3d\"}' WHERE `Maps`.`MapId` = 66;
 ALTER TABLE `Maps`
   DROP COLUMN `ParadiseFileName`,
   MODIFY `DisplayName` varchar(255) NOT NULL,
