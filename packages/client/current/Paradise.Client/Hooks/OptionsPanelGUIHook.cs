@@ -40,8 +40,6 @@ namespace Paradise.Client {
 		private static int resX = Screen.width;
 		private static int resY = Screen.height;
 
-		private static float targetFPS = 0;
-
 		[HarmonyPatch("Awake"), HarmonyPostfix]
 		public static void Awake_Postfix(OptionsPanelGUI __instance) {
 			if (traverse == null) {

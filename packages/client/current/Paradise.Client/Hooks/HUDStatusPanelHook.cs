@@ -31,13 +31,13 @@ namespace Paradise.Client {
 		[HarmonyPatch("GetRemainingKillString"), HarmonyPostfix]
 		public static void GetRemainingKillString_Postfix(HUDStatusPanel __instance, int remainingKills, ref string __result) {
 			if (GameState.Current.GameMode == GameModeType.EliminationMode) {
-				__result = (string)AccessTools.Method(typeof(HUDStatusPanel), "GetRemainingRoundsString").Invoke(__instance, new object[] { remainingKills });
+				__result = (string)ParadiseTraverse.InvokeMethod(__instance, "GetRemainingRoundsString", remainingKills);
 			}
 		}
 
 		[HarmonyPatch("set_KillsRemaining"), HarmonyPostfix]
 		public static void set_KillsRemaining_Postfix(HUDStatusPanel __instance, int value) {
-			Traverse.Create(__instance).Field<UILabel>("statusLabel").Value.text = (string)AccessTools.Method(typeof(HUDStatusPanel), "GetRemainingKillString").Invoke(__instance, new object[] { value });
+			ParadiseTraverse.GetField<UILabel>(__instance, "statusLabel").text = (string)ParadiseTraverse.InvokeMethod(__instance, "GetRemainingKillString", value);
 		}
 
 		[HarmonyPatch(typeof(HUDNotifications), "GetGameModeHint"), HarmonyPostfix]
@@ -69,12 +69,8 @@ namespace Paradise.Client {
 
 		[HarmonyPatch("Start"), HarmonyPostfix]
 		public static void Start_Postfix(HUDStatusPanel __instance) {
-			UnityEngine.Debug.Log($"HUDStatusPanel Start TimeLimit: {GameState.Current.RoomData.TimeLimit}");
-
-			var traverse = new ParadiseTraverse(__instance);
-
-			traverse.GetField<UILabel>("statusLabel").text = (string)traverse.InvokeMethod("GetRemainingKillString", GameState.Current.RoomData.KillLimit);
-			traverse.GetField<UILabel>("timerLabel").text = (string)traverse.InvokeMethod("GetClockString", GameState.Current.RoomData.TimeLimit);
+			ParadiseTraverse.GetField<UILabel>(__instance, "statusLabel").text = (string)ParadiseTraverse.InvokeMethod(__instance, "GetRemainingKillString", GameState.Current.RoomData.KillLimit);
+			ParadiseTraverse.GetField<UILabel>(__instance, "timerLabel").text = (string)ParadiseTraverse.InvokeMethod(__instance, "GetClockString", GameState.Current.RoomData.TimeLimit);
 		}
 
 
