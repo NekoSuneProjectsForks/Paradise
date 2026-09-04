@@ -113,6 +113,14 @@ namespace Paradise.Client {
 		}
 
 		private void DrawShopItems() {
+			if (GameState.Current.IsMultiplayer && PlayerDataManager.AccessLevel == MemberAccessLevel.Admin) {
+				GUI.contentColor = Color.red;
+				GUILayout.Label(ParadiseLocalizedStrings.DebugShopItemAddForbidden, BlueStonez.label_interparkbold_11pt);
+				GUI.contentColor = Color.white;
+
+				GUILayout.Space(ParadiseGUITools.ITEM_SPACING_V);
+			}
+
 			var selection = GUILayout.Toolbar(typeSelection.Index, typeSelection.GuiContent, BlueStonez.tab_medium, GUILayout.Height(32f));
 			if (selection != typeSelection.Index) {
 				typeSelection.SetIndex(selection);
@@ -167,7 +175,7 @@ namespace Paradise.Client {
 
 				var shopItem = item.Value;
 
-				GUI.enabled = !Singleton<InventoryManager>.Instance.Contains(shopItem.View.ID);
+				GUI.enabled = !GameState.Current.IsMultiplayer && !Singleton<InventoryManager>.Instance.Contains(shopItem.View.ID);
 				if (GUILayout.Button($"{shopItem.Name} ({shopItem.View.ID})", BlueStonez.buttondark_small, GUILayout.Height(ParadiseGUITools.BUTTON_HEIGHT))) {
 					if (PlayerDataManager.AccessLevel == MemberAccessLevel.Admin) {
 						traverse.GetField<IDictionary<int, InventoryItem>>("_inventoryItems").Add(shopItem.View.ID, new InventoryItem(shopItem) {

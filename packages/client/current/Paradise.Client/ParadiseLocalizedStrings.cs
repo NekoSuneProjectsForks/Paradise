@@ -40,6 +40,7 @@ namespace Paradise.Client {
 		public static string ClientUpdateSteam = "Please update from the Steam store.";
 		public static string ConsoleCaps = "CONSOLE";
 		public static string CustomResolution = "Custom Resolution";
+		public static string DebugShopItemAddForbidden = "Items cannot be added to the Inventory while being in a game room.";
 		public static string DeleteCaps = "DELETE";
 		public static string Disallow = "Disallow";
 		public static string Discord = "Discord";
