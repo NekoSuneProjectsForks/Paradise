@@ -739,7 +739,7 @@ namespace Paradise.Realtime.Server.Game {
 		}
 
 		private void ExplosionDamage(GamePeer peer, int target, byte slot, byte distance, Vector3 force) {
-			if (State.CurrentStateId != GameStateId.MatchRunning)
+			if (State.CurrentStateId != GameStateId.WaitingForPlayers && State.CurrentStateId != GameStateId.MatchRunning)
 				return;
 			if ((peer.Actor.ActorInfo.PlayerState & PlayerStates.Dead) != 0)
 				return;
@@ -788,6 +788,10 @@ namespace Paradise.Realtime.Server.Game {
 
 					player.Actor.Damage.AddDamage(byteAngle, shortDamage, (byte)BodyPart.Body, 0, 0);
 					player.Actor.ActorInfo.Health -= Math.Min(shortDamage, player.Actor.ActorInfo.Health);
+
+					if (target != peer.Actor.Cmid) {
+						player.GameEventSender.SendPlayerHit(force);
+					}
 
 					if (State.CurrentStateId == GameStateId.MatchRunning) {
 						if (player.Actor.Cmid.CompareTo(peer.Actor.Cmid) != 0) {
