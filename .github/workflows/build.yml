@@ -53,6 +53,7 @@ jobs:
           unzip -j /tmp/rue.zip \
             "RuntimeUnityEditor.Core.dll" \
             "RuntimeUnityEditor.Core.xml" \
+            "mcs.dll" \
             -d ./packages/assemblies
 
           curl -fL "https://nsis.sourceforge.io/mediawiki/images/5/5a/NSISunzU.zip" -o /tmp/nsisunz.zip

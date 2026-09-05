@@ -94,6 +94,9 @@ $(ParadiseBuild)
     <Reference Include="RuntimeUnityExplorer.Core">
       <HintPath>..\..\..\assemblies\RuntimeUnityEditor.Core.dll</HintPath>
     </Reference>
+    <Reference Include="mcs">
+      <HintPath>..\..\..\assemblies\mcs.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
