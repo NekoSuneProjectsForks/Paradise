@@ -16,6 +16,7 @@
  */
 
 using HarmonyLib;
+using System.Collections.Generic;
 using UberStrike.Core.Models.Views;
 using UberStrike.Core.Types;
 using UberStrike.Realtime.UnitySdk;
@@ -42,6 +43,8 @@ namespace Paradise.Client {
 				traverse = ParadiseTraverse<WeaponController>.Create(__instance);
 			}
 
+			traverse.GetField<Dictionary<LoadoutSlotType, IUnityItem>>("_loadoutWeapons").Clear();
+
 			for (int i = 0; i < _weapons.Length; i++) {
 				if (_weapons[i] != null && _weapons[i].Decorator != null) {
 					UnityEngine.Object.Destroy(_weapons[i].Decorator.gameObject);
@@ -56,9 +59,7 @@ namespace Paradise.Client {
 				if (GameFlags.IsFlagSet(GameFlags.GAME_FLAGS.MeleeOnly, GameState.Current.RoomData.GameFlags) && GameState.Current.RoomData.GameMode != GameModeType.None && loadoutSlotType != LoadoutSlotType.WeaponMelee) {
 					traverse.InvokeMethod("SetSlotWeapon", loadoutSlotType, null);
 				} else {
-					InventoryItem inventoryItem;
-
-					if (Singleton<LoadoutManager>.Instance.TryGetItemInSlot(loadoutSlotType, out inventoryItem)) {
+					if (Singleton<LoadoutManager>.Instance.TryGetItemInSlot(loadoutSlotType, out var inventoryItem)) {
 						WeaponSlot weaponSlot = new WeaponSlot(loadoutSlotType, inventoryItem.Item, attachPoint, __instance);
 						traverse.InvokeMethod("AddGameLogicToWeapon", weaponSlot);
 
