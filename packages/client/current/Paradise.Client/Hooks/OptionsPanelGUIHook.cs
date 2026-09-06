@@ -37,8 +37,8 @@ namespace Paradise.Client {
 
 		private static readonly Vector2 defaultResolution = new Vector2(989, 560);
 		private static bool useCustomResolution = ScreenResolutionManager.CurrentResolutionIndex == -1;
-		private static int resX = Screen.width;
-		private static int resY = Screen.height;
+		private static int resX = Screen.currentResolution.width;
+		private static int resY = Screen.currentResolution.height;
 
 		[HarmonyPatch("Awake"), HarmonyPostfix]
 		public static void Awake_Postfix(OptionsPanelGUI __instance) {
@@ -523,6 +523,9 @@ namespace Paradise.Client {
 				if (GUILayout.Button(ParadiseLocalizedStrings.Apply, BlueStonez.buttondark_small, GUILayout.Width(80f), GUILayout.Height(22f))) {
 					Screen.SetResolution(resX, resY, Screen.fullScreen);
 
+					resX = Screen.currentResolution.width;
+					resY = Screen.currentResolution.height;
+
 					traverse.InvokeMethod("ShowScreenResChangeConfirmation", ScreenResolutionManager.CurrentResolutionIndex, -1);
 				}
 
@@ -562,12 +565,10 @@ namespace Paradise.Client {
 			_newScreenResIndex = newRes;
 			_oldScreenResIndex = oldRes;
 
-			var newScreenRes = ScreenResolutionManager.Resolutions[_newScreenResIndex];
-
 			PopupSystem.Show(new ParadiseCountdownPopupDialog(15.0f) {
 				Size = ParadisePopupDialog.PopupSize.Regular,
 				Title = LocalizedStrings.ChangingScreenResolution,
-				Text = string.Format(ParadiseLocalizedStrings.ResolutionSet, newScreenRes.width, newScreenRes.height),
+				Text = string.Format(ParadiseLocalizedStrings.ResolutionSet, Screen.currentResolution.width, Screen.currentResolution.height),
 				AlertType = PopupSystem.AlertType.OKCancel,
 				OkCaption = ParadiseLocalizedStrings.Yes,
 				OkAction = () => {
