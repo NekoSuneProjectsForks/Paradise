@@ -710,6 +710,7 @@ namespace Paradise.Client {
 				Text = ParadiseLocalizedStrings.UpdateCompleteText,
 				AlertType = PopupSystem.AlertType.OK,
 				OkAction = () => {
+					Caching.CleanCache();
 					System.Diagnostics.Process.Start(Path.Combine(Directory.GetCurrentDirectory(), "UberStrike.exe")).WaitForExit(1000);
 					Application.Quit();
 				},
