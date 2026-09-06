@@ -42,9 +42,9 @@ namespace Paradise.Client {
 				GUILayout.Space(ParadiseGUITools.LIST_ITEM_SPACING);
 				ParadiseGUITools.DrawTextField("Server Time", commPeer.ServerTimeInMilliSeconds);
 				GUILayout.Space(ParadiseGUITools.LIST_ITEM_SPACING);
-				ParadiseGUITools.DrawTextField("Inbound Traffic", ParadiseGUITools.FormatSize(commPeer.BytesIn));
+				ParadiseGUITools.DrawTextField("Inbound Traffic", ParadiseUtils.FormatSize(commPeer.BytesIn));
 				GUILayout.Space(ParadiseGUITools.LIST_ITEM_SPACING);
-				ParadiseGUITools.DrawTextField("Outbound Traffic", ParadiseGUITools.FormatSize(commPeer.BytesOut));
+				ParadiseGUITools.DrawTextField("Outbound Traffic", ParadiseUtils.FormatSize(commPeer.BytesOut));
 				GUI.enabled = true;
 			});
 
@@ -68,9 +68,9 @@ namespace Paradise.Client {
 				GUILayout.Space(ParadiseGUITools.LIST_ITEM_SPACING);
 				ParadiseGUITools.DrawTextField("Server Time", gamePeer.ServerTimeInMilliSeconds);
 				GUILayout.Space(ParadiseGUITools.LIST_ITEM_SPACING);
-				ParadiseGUITools.DrawTextField("Inbound Traffic", ParadiseGUITools.FormatSize(gamePeer.BytesIn));
+				ParadiseGUITools.DrawTextField("Inbound Traffic", ParadiseUtils.FormatSize(gamePeer.BytesIn));
 				GUILayout.Space(ParadiseGUITools.LIST_ITEM_SPACING);
-				ParadiseGUITools.DrawTextField("Outbound Traffic", ParadiseGUITools.FormatSize(gamePeer.BytesOut));
+				ParadiseGUITools.DrawTextField("Outbound Traffic", ParadiseUtils.FormatSize(gamePeer.BytesOut));
 				GUILayout.Space(ParadiseGUITools.LIST_ITEM_SPACING);
 				GUILayout.Toggle(Singleton<GameStateController>.Instance.Client.IsInsideRoom, "Is In Room", GUILayout.Height(22f));
 				GUI.enabled = true;

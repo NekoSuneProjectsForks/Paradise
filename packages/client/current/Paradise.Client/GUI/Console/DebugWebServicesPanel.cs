@@ -41,15 +41,15 @@ namespace Paradise.Client {
 		public void Draw() {
 			ParadiseGUITools.DrawGroup("Web Services", delegate {
 				GUILayout.Space(ParadiseGUITools.LIST_ITEM_SPACING);
-				ParadiseGUITools.DrawTextField("Inbound Traffic", ParadiseGUITools.FormatSize(WebServiceStatistics.TotalBytesIn));
+				ParadiseGUITools.DrawTextField("Inbound Traffic", ParadiseUtils.FormatSize(WebServiceStatistics.TotalBytesIn));
 				GUILayout.Space(ParadiseGUITools.LIST_ITEM_SPACING);
-				ParadiseGUITools.DrawTextField("Outbound Traffic", ParadiseGUITools.FormatSize(WebServiceStatistics.TotalBytesOut));
+				ParadiseGUITools.DrawTextField("Outbound Traffic", ParadiseUtils.FormatSize(WebServiceStatistics.TotalBytesOut));
 
 				foreach (var keyValuePair in WebServiceStatistics.Data) {
 					GUILayout.Space(ParadiseGUITools.LIST_ITEM_SPACING);
 
 					var statistic = keyValuePair.Value;
-					ParadiseGUITools.DrawTextField(keyValuePair.Key, $"count: {statistic.Counter}/{statistic.FailCounter} | time: {statistic.Time:F2} | data: {ParadiseGUITools.FormatSize(statistic.IncomingBytes)}/{ParadiseGUITools.FormatSize(statistic.OutgoingBytes)}");
+					ParadiseGUITools.DrawTextField(keyValuePair.Key, $"count: {statistic.Counter}/{statistic.FailCounter} | time: {statistic.Time:F2} | data: {ParadiseUtils.FormatSize(statistic.IncomingBytes)}/{ParadiseUtils.FormatSize(statistic.OutgoingBytes)}");
 				}
 			});
 
