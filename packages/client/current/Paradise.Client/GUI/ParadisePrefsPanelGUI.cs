@@ -432,6 +432,30 @@ namespace Paradise.Client {
 						UpdateEndpoint = updateEndpoint;
 						updateDirty = true;
 					}
+
+					GUILayout.Space(ParadiseGUITools.ITEM_SPACING_V);
+					GUILayout.BeginHorizontal();
+
+					if (GUILayout.Button(ParadiseLocalizedStrings.CacheClearTitle, BlueStonez.buttondark_small, GUILayout.Width(120f), GUILayout.Height(26f))) {
+						PopupSystem.Show(new ParadisePopupDialog {
+							Size = ParadisePopupDialog.PopupSize.Regular,
+							Title = ParadiseLocalizedStrings.CacheClearTitle,
+							Text = ParadiseLocalizedStrings.CacheClearDescription,
+							AlertType = PopupSystem.AlertType.OKCancel,
+							OkCaption = ParadiseLocalizedStrings.Yes,
+							OkAction = () => {
+								Caching.CleanCache();
+							},
+							CancelCaption = ParadiseLocalizedStrings.No,
+							Depth = (GuiDepth)ParadiseGuiDepth.UpdatePopup,
+						});
+					}
+
+					GUILayout.Space(ParadiseGUITools.ITEM_SPACING_H);
+
+					GUILayout.Label(string.Format(ParadiseLocalizedStrings.CacheSpaceUsed, ParadiseUtils.FormatSize(Caching.spaceOccupied)), BlueStonez.label_interparkbold_11pt_left, GUILayout.Height(26f));
+
+					GUILayout.EndHorizontal();
 				}
 			});
 			#endregion
