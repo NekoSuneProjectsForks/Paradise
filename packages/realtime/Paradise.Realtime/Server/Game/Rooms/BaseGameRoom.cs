@@ -428,6 +428,8 @@ namespace Paradise.Realtime.Server.Game {
 			player.Actor.ActorInfo.Gear[5] = player.Loadout.LowerBody;
 			player.Actor.ActorInfo.Gear[6] = player.Loadout.Boots;
 
+			player.Actor.ActorInfo.Health = 100;
+
 			byte armorPointCapacity = 0;
 			foreach (var armor in player.Actor.ActorInfo.Gear) {
 				if (armor == 0)
@@ -438,7 +440,6 @@ namespace Paradise.Realtime.Server.Game {
 				}
 			}
 
-			player.Actor.ActorInfo.Health = 100;
 			player.Actor.ActorInfo.ArmorPointCapacity = armorPointCapacity;
 
 			if (!GameFlags.IsFlagSet(GameFlags.GAME_FLAGS.NoArmor, MetaData.GameFlags)) {
@@ -493,6 +494,18 @@ namespace Paradise.Realtime.Server.Game {
 				player.Actor.ActorInfo.PlayerState = PlayerStates.None;
 
 				player.Actor.ActorInfo.Health = 100;
+
+				byte armorPointCapacity = 0;
+				foreach (var armor in player.Actor.ActorInfo.Gear) {
+					if (armor == 0)
+						continue;
+
+					if (ShopManager.GearItems.TryGetValue(armor, out var gear)) {
+						armorPointCapacity = (byte)Math.Min(200, armorPointCapacity + gear.ArmorPoints);
+					}
+				}
+
+				player.Actor.ActorInfo.ArmorPointCapacity = armorPointCapacity;
 
 				if (!GameFlags.IsFlagSet(GameFlags.GAME_FLAGS.NoArmor, MetaData.GameFlags)) {
 					player.Actor.ActorInfo.ArmorPoints = player.Actor.ActorInfo.ArmorPointCapacity;
