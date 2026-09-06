@@ -60,7 +60,7 @@ namespace Paradise.Realtime.Server.Game {
 			}
 
 			Task t = Task.Run(async () => {
-				await Task.Delay(500);
+				await Task.Delay(1000);
 
 				MatchStartCountdown = new Countdown(Room.Loop, GameServerApplication.Instance.Configuration.GameplaySettings.MatchCountdownTime, 0);
 				MatchStartCountdown.Counted += OnCountdownCounted;
@@ -108,7 +108,7 @@ namespace Paradise.Realtime.Server.Game {
 		}
 
 		private void OnPlayerLeft(object sender, PlayerLeftEventArgs args) {
-			if (!Room.CanStartMatch) {
+			if (!Room.CanStartMatch || Room.Players.Count == 0) {
 				MatchStartCountdown?.Stop();
 				//Room.State.SetState(GameStateId.EndOfMatch);
 			}
