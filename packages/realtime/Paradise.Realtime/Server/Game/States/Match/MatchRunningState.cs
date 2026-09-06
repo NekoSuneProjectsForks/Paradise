@@ -115,7 +115,7 @@ namespace Paradise.Realtime.Server.Game {
 		}
 
 		private void OnPlayerLeft(object sender, PlayerLeftEventArgs args) {
-			if (!Room.CanStartMatch) {
+			if (!Room.CanStartMatch || Room.Players.Count == 0) {
 				Room.HasRoundEnded = true;
 			}
 		}
@@ -145,7 +145,6 @@ namespace Paradise.Realtime.Server.Game {
 		}
 
 		private void OnPlayerRespawned(object sender, PlayerRespawnedEventArgs args) {
-			Log.Debug("OnPlayerRespawned");
 			if (Room.MetaData.GameMode == GameModeType.EliminationMode) return;
 
 			Room.SpawnPlayer(args.Player, false);
