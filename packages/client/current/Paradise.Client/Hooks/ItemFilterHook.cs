@@ -18,13 +18,24 @@
 using Cmune.DataCenter.Common.Entities;
 using HarmonyLib;
 using System;
+using UberStrike.Core.Types;
 
 namespace Paradise.Client {
 	[HarmonyPatch]
 	public static class ItemFilterHook {
-		//[HarmonyPatch(typeof(InventoryItemFilter), "CanPass"), HarmonyPostfix]
+		[HarmonyPatch(typeof(InventoryItemFilter), "CanPass"), HarmonyPostfix]
 		public static void InventoryItemFilter_CanPass_Postfix(ref bool __result, IUnityItem item) {
-			__result = __result && CheckRank(item);
+			switch (ParadiseTraverse.GetField<SelectionGroup<LoadoutArea>>(ShopPageGUI.Instance, "_loadoutAreaSelection").Current) {
+				case LoadoutArea.Weapons:
+					__result = __result && item.View.ItemType == UberstrikeItemType.Weapon;
+					break;
+				case LoadoutArea.Gear:
+					__result = __result && item.View.ItemType == UberstrikeItemType.Gear;
+					break;
+				case LoadoutArea.QuickItems:
+					__result = __result && item.View.ItemType == UberstrikeItemType.QuickUse;
+					break;
+			}
 		}
 
 		[HarmonyPatch(typeof(ItemByClassFilter), "CanPass"), HarmonyPostfix]
