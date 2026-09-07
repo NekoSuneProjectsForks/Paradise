@@ -27,6 +27,9 @@ namespace Paradise.Client {
 		public static string AutomaticUpdatesDisabledTitle = "Automatic Updates disabled";
 		public static string AutomaticUpdatesDisabledText = "You have disabled automatic updates. If you want to play UberStrike, you may need to update the Paradise runtime.\n\nPlease enable automatic updates in order to receive updates.";
 		public static string BundleError = "Bundle Error";
+		public static string CacheClearDescription = "Are you sure you want to clear cached files?";
+		public static string CacheClearTitle = "Clear Cache";
+		public static string CacheSpaceUsed = "{0} used";
 		public static string CheckConnection = "There was a problem loading UberStrike. Please check your internet connection and try again.";
 		public static string CheckingForUpdates = "Checking for updates...\n";
 		public static string CheckingFilesForUpdates = "Checking files for updates...\n{0}";
