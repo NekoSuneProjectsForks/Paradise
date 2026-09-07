@@ -86,8 +86,8 @@
         "KillsMax": 20,
         "KillsCurrent": 10,
         "PlayersMin": 2,
-        "PlayersMax": 16,
-        "PlayersCurrent": 16,
+        "PlayersMax": 8,
+        "PlayersCurrent": 8,
         "TimeMin": 60,
         "TimeMax": 900,
         "TimeCurrent": 300
@@ -249,6 +249,17 @@
       "4.7.1": ""
     },
     "Settings": {
+      "1": {
+        "KillsMin": 1,
+        "KillsMax": 50,
+        "KillsCurrent": 10,
+        "PlayersMin": 2,
+        "PlayersMax": 16,
+        "PlayersCurrent": 16,
+        "TimeMin": 60,
+        "TimeMax": 900,
+        "TimeCurrent": 300
+      },
       "2": {
         "KillsMin": 1,
         "KillsMax": 50,

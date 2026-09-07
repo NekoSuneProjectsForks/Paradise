@@ -303,7 +303,16 @@ export default class ApplicationWebService extends BaseWebService {
           acc.push({
             ...cur,
             SceneName: cur.SceneName[appVersion] || cur.SceneName.default,
-            FileName: cur.FileName?.[appVersion]
+            FileName: cur.FileName?.[appVersion],
+            Settings: cur.Settings.reduce((acc: { [key: number]: any }, cur) => {
+              acc[cur.GameModeType!] = {
+                ...cur,
+                MapId: undefined,
+                GameModeType: undefined
+              };
+
+              return acc;
+            }, {})
           });
 
           return acc;

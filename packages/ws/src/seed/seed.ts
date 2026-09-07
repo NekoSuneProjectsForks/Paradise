@@ -187,9 +187,8 @@ const runDatabaseOperations = async (
     await Promise.all(priceModels.map(({ data }) => action(ShopItemPrice, data, ['ID', 'Currency', 'Duration'])));
   }
 
-  await action(Map, maps, ['MapId']);
-
-  await action(MapSettings, getMapSettings(maps as any), ['MapId', 'GameModeType']);
+  await action(Map, [...maps], ['MapId']);
+  await action(MapSettings, getMapSettings([...maps] as any), ['MapId', 'GameModeType']);
 
   await action(ShopBundle, bundles, ['Id']);
   await action(ShopBundleItem, bundleItems, ['id']);
