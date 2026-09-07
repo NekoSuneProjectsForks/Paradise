@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Cmune.DataCenter.Common.Entities;
 using RuntimeUnityEditor.Core;
-using RuntimeUnityEditor.Core.Utils;
 using RuntimeUnityEditor.Core.Utils.Abstractions;
 using System;
 using System.Collections.Generic;
@@ -76,73 +76,68 @@ namespace Paradise.Client {
 
 	internal class DebugToolsInitSettings : InitSettings {
 		private readonly DebugTools _instance;
+		private readonly DebugToolsLogger _logger;
+		private readonly RuntimeUnityEditorSettings _settings = new RuntimeUnityEditorSettings();
 
-		private readonly RuntimeUnityEditorSettings Settings = new RuntimeUnityEditorSettings();
-
+		public override MonoBehaviour PluginMonoBehaviour => _instance;
+		public override ILoggerWrapper LoggerWrapper => _logger;
+		public override string ConfigPath => Application.persistentDataPath;
 
 		public DebugToolsInitSettings(DebugTools instance) {
 			_instance = instance;
-			LoggerWrapper = new Logger();
+			_logger = new DebugToolsLogger();
+			Debug.Log(ConfigPath);
 		}
 
 		protected override Action<T> RegisterSetting<T>(string category, string name, T defaultValue, string description, Action<T> onValueUpdated) {
-			if (!Settings.Get<T>(category, name, out var setting)) {
+			if (!_settings.Get<T>(category, name, out var setting)) {
 				setting = new RuntimeUnityEditorSettings.Setting<T>(defaultValue);
-				Settings.Add(category, name, setting);
+				_settings.Add(category, name, setting);
 			}
 
 			setting.OnChanged = onValueUpdated;
 			onValueUpdated(setting.Value);
 
-			return (newValue) => { setting.Value = newValue; onValueUpdated(newValue); };
-		}
-
-		public override MonoBehaviour PluginMonoBehaviour => _instance;
-		public override ILoggerWrapper LoggerWrapper { get; }
-		public override string ConfigPath => @"C:\Users\Public\Desktop";
-
-		internal class Logger : ILoggerWrapper {
-			public void Log(RuntimeUnityEditor.Core.Utils.Abstractions.LogLevel logLevel, object content) {
-				UnityEngine.Debug.Log(content);
-			}
+			return (newValue) => {
+				setting.Value = newValue; onValueUpdated(newValue);
+			};
 		}
 	}
 
 	internal class DebugTools : MonoBehaviour {
 		private static RuntimeUnityEditorCore Instance { get; set; }
 
-		private MethodInfo UpdateImp;
-		private MethodInfo LateUpdateImp;
-		private MethodInfo OnGUIImp;
-
 		void Awake() {
-			if (RuntimeUnityEditorCore.IsInitialized()) {
-				UnityEngine.Debug.Log(Instance.ShowHotkey);
-				return;
-			}
-
 			var constructor = typeof(RuntimeUnityEditorCore).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(InitSettings) }, null);
 			var initSettings = new DebugToolsInitSettings(this);
 
 			if (constructor != null) {
 				Instance = (RuntimeUnityEditorCore)constructor.Invoke(new[] { initSettings });
-
-				UpdateImp = typeof(RuntimeUnityEditorCore).GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic);
-				LateUpdateImp = typeof(RuntimeUnityEditorCore).GetMethod("LateUpdate", BindingFlags.Instance | BindingFlags.NonPublic);
-				OnGUIImp = typeof(RuntimeUnityEditorCore).GetMethod("OnGUI", BindingFlags.Instance | BindingFlags.NonPublic);
 			}
 		}
 
 		private void Update() {
-			UpdateImp?.Invoke(Instance, null);
+			if (Instance != null && PlayerDataManager.AccessLevel >= MemberAccessLevel.SeniorQA) {
+				ParadiseTraverse.InvokeMethod(Instance, "Update");
+			}
 		}
 
 		private void LateUpdate() {
-			LateUpdateImp?.Invoke(Instance, null);
+			if (Instance != null) {
+				ParadiseTraverse.InvokeMethod(Instance, "LateUpdate");
+			}
 		}
 
 		private void OnGUI() {
-			OnGUIImp?.Invoke(Instance, null);
+			if (Instance != null) {
+				ParadiseTraverse.InvokeMethod(Instance, "OnGUI");
+			}
+		}
+	}
+
+	internal class DebugToolsLogger : ILoggerWrapper {
+		public void Log(RuntimeUnityEditor.Core.Utils.Abstractions.LogLevel logLevel, object content) {
+			UnityEngine.Debug.Log(content);
 		}
 	}
 }
