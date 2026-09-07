@@ -227,7 +227,7 @@ export default class ParadiseWebService extends BaseWebService {
             if (!transaction && !item) {
               Int32Proxy.Serialize(outputStream, BuyItemResult.InvalidData);
               // eslint-disable-next-line no-else-return
-            } else if (item) {
+            } else if (!transaction && item) {
               // Allow removing items added by the "inventory" command
               await PlayerInventoryItem.delete({
                 Cmid: publicProfile.Cmid,
