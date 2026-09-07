@@ -317,7 +317,8 @@ export default class ShopWebService extends BaseWebService {
 
                     if (currencyType === UberStrikeCurrencyType.Credits) {
                       const price = item.Prices.find(
-                        (_: ShopItemPrice) => _.Currency === UberStrikeCurrencyType.Credits
+                        (_: ShopItemPrice) =>
+                          _.Currency === UberStrikeCurrencyType.Credits && _.Duration === durationType
                       );
 
                       if (!price) {
@@ -341,7 +342,8 @@ export default class ShopWebService extends BaseWebService {
                       }
                     } else if (currencyType === UberStrikeCurrencyType.Points) {
                       const price = item.Prices.find(
-                        (_: ShopItemPrice) => _.Currency === UberStrikeCurrencyType.Points
+                        (_: ShopItemPrice) =>
+                          _.Currency === UberStrikeCurrencyType.Points && _.Duration === durationType
                       );
 
                       if (!price) {

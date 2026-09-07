@@ -245,7 +245,9 @@ export default class ShopWebService extends BaseWebService {
                   Int32Proxy.Serialize(outputStream, BuyItemResult.InvalidLevel);
                 } else {
                   if (currencyType === UberStrikeCurrencyType.Credits) {
-                    const price = item.Prices.find((_: ShopItemPrice) => _.Currency === UberStrikeCurrencyType.Credits);
+                    const price = item.Prices.find(
+                      (_: ShopItemPrice) => _.Currency === UberStrikeCurrencyType.Credits && _.Duration === durationType
+                    );
 
                     if (!price) {
                       Int32Proxy.Serialize(outputStream, BuyItemResult.IsNotForSale);
@@ -266,7 +268,9 @@ export default class ShopWebService extends BaseWebService {
                       });
                     }
                   } else if (currencyType === UberStrikeCurrencyType.Points) {
-                    const price = item.Prices.find((_: ShopItemPrice) => _.Currency === UberStrikeCurrencyType.Points);
+                    const price = item.Prices.find(
+                      (_: ShopItemPrice) => _.Currency === UberStrikeCurrencyType.Points && _.Duration === durationType
+                    );
 
                     if (!price) {
                       Int32Proxy.Serialize(outputStream, BuyItemResult.IsNotForSale);
