@@ -180,14 +180,25 @@ export default class ParadiseWebService extends BaseWebService {
       const cmid = Int32Proxy.Deserialize(bytes);
       const channel = EnumProxy.Deserialize<ChannelType>(bytes);
       const version = StringProxy.Deserialize(bytes);
+      const paradiseVersion = StringProxy.Deserialize(bytes);
+      const paradiseBuild = StringProxy.Deserialize(bytes);
       const exceptionMessage = StringProxy.Deserialize(bytes);
       const stackTrace = StringProxy.Deserialize(bytes);
       const exceptionData = StringProxy.Deserialize(bytes);
 
-      this.debugEndpointData({ cmid, channel, version, exceptionMessage, stackTrace, exceptionData });
+      this.debugEndpointData({
+        cmid,
+        channel,
+        version,
+        paradiseVersion,
+        paradiseBuild,
+        exceptionMessage,
+        stackTrace,
+        exceptionData
+      });
 
       Log.write(
-        { cmid, channel, version, exceptionMessage, stackTrace, exceptionData },
+        { cmid, channel, version, paradiseVersion, paradiseBuild, exceptionMessage, stackTrace, exceptionData },
         LogLevel.ERROR,
         LogChannel.Console
       );

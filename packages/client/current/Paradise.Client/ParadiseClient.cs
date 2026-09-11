@@ -76,7 +76,7 @@ namespace Paradise.Client {
 
 			if (ApplicationDataManager.IsOnline) {
 				if (lastExceptionSent + 3f <= Time.time) {
-					ParadiseWebServiceClient.RecordException(PlayerDataManager.Cmid, ApplicationDataManager.Channel, ApplicationDataManager.Version, logString, stackTrace, DebugLogMessages.Console.ToHTML(), () => { });
+					ParadiseWebServiceClient.RecordException(PlayerDataManager.Cmid, ApplicationDataManager.Channel, ApplicationDataManager.Version, ParadiseConstants.Version, ParadiseConstants.Build, logString, stackTrace, DebugLogMessages.Console.ToHTML(), () => { });
 					lastExceptionSent = Time.time;
 				}
 			}

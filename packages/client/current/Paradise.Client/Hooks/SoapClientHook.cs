@@ -138,7 +138,7 @@ namespace Paradise.Client {
 						}
 					}
 				} catch (Exception ex) {
-					ParadiseWebServiceClient.RecordException(PlayerDataManager.Cmid, ApplicationDataManager.Channel, ApplicationDataManager.Version, ex.Message, ex.StackTrace, DebugLogMessages.Console.ToHTML(), () => { });
+					ParadiseWebServiceClient.RecordException(PlayerDataManager.Cmid, ApplicationDataManager.Channel, ApplicationDataManager.Version, ParadiseConstants.Version, ParadiseConstants.Build, ex.Message, ex.StackTrace, DebugLogMessages.Console.ToHTML(), () => { });
 					if (exceptionHandler != null) {
 						exceptionHandler(ex);
 					} else {

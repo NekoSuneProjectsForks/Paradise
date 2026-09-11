@@ -99,7 +99,7 @@ namespace Paradise.Client {
 			}
 		}
 
-		public static Coroutine RecordException(int cmid, ChannelType channel, string version, string exceptionMessage, string stackTrace, string exceptionData, Action callback) {
+		public static Coroutine RecordException(int cmid, ChannelType channel, string version, string paradiseVersion, string paradiseBuild, string exceptionMessage, string stackTrace, string exceptionData, Action callback) {
 			if (!ParadiseClient.Settings.AllowTelemetry)
 				return null;
 
@@ -107,6 +107,8 @@ namespace Paradise.Client {
 				Int32Proxy.Serialize(memoryStream, cmid);
 				EnumProxy<ChannelType>.Serialize(memoryStream, channel);
 				StringProxy.Serialize(memoryStream, version);
+				StringProxy.Serialize(memoryStream, paradiseVersion);
+				StringProxy.Serialize(memoryStream, paradiseBuild);
 				StringProxy.Serialize(memoryStream, exceptionMessage);
 				StringProxy.Serialize(memoryStream, stackTrace);
 				StringProxy.Serialize(memoryStream, exceptionData);
