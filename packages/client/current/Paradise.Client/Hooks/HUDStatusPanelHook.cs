@@ -61,16 +61,20 @@ namespace Paradise.Client {
 
 		[HarmonyPatch("OnUpdateRemainingSeconds"), HarmonyPrefix]
 		public static bool HUDStatusPanel_OnUpdateRemainingSeconds_Prefix() {
+			if (!GameState.Current.IsMatchRunning) return true;
+
 			if (GameState.Current.RoomData.TimeLimit == 0)
 				return false;
 
 			return true;
 		}
 
-		[HarmonyPatch("Start"), HarmonyPostfix]
-		public static void Start_Postfix(HUDStatusPanel __instance) {
+		[HarmonyPatch("SetupGameMode"), HarmonyPostfix]
+		public static void SetupGameMode_Postfix(HUDStatusPanel __instance, bool isTeamGame) {
 			ParadiseTraverse.GetField<UILabel>(__instance, "statusLabel").text = (string)ParadiseTraverse.InvokeMethod(__instance, "GetRemainingKillString", GameState.Current.RoomData.KillLimit);
 			ParadiseTraverse.GetField<UILabel>(__instance, "timerLabel").text = (string)ParadiseTraverse.InvokeMethod(__instance, "GetClockString", GameState.Current.RoomData.TimeLimit);
+
+			ParadiseTraverse.InvokeMethod(__instance, "StopPulse");
 		}
 
 
