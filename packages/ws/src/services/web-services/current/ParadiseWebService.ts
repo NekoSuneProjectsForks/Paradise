@@ -16,6 +16,7 @@
  */
 
 import ParadiseService from '@/ParadiseService';
+import { Log, LogChannel, LogLevel } from '@/utils';
 import { ApiVersion } from '@/utils/enums';
 import {
   GameRoom,
@@ -184,6 +185,12 @@ export default class ParadiseWebService extends BaseWebService {
       const exceptionData = StringProxy.Deserialize(bytes);
 
       this.debugEndpointData({ cmid, channel, version, exceptionMessage, stackTrace, exceptionData });
+
+      Log.write(
+        { cmid, channel, version, exceptionMessage, stackTrace, exceptionData },
+        LogLevel.ERROR,
+        LogChannel.Console
+      );
 
       Int32Proxy.Serialize(outputStream, 0);
 

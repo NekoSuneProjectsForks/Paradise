@@ -65,7 +65,7 @@ program
 
     const settings = new ParadiseServiceSettings(settingsFile);
 
-    Log.setupLogging(settings.LogSettings);
+    Log.setupLog(settings.LogSettings);
 
     if (logLevel >= 0) Log.maxLogLevel = logLevel;
     if (debug) Log.maxLogLevel = LogLevel.DEBUG;

@@ -34,6 +34,9 @@ export type LogSettings = {
   LogToFile: boolean;
 
   LogPath: string;
+  LogName: string;
+  MaxFileSize: string;
+  MaxRetention: string;
   LogLevel: keyof typeof LogLevel;
 
   LokiSettings: LokiSettings;
@@ -63,6 +66,9 @@ export class ParadiseServiceSettings {
     LogToFile: true,
 
     LogPath: 'logs',
+    LogName: 'Paradise.WebServices-%DATE%.log',
+    MaxFileSize: '512k',
+    MaxRetention: '14d',
     LogLevel: 'INFO',
 
     LokiSettings: {

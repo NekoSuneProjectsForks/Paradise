@@ -27,7 +27,10 @@ LogSettings:
   LogToFile: true
 
   LogPath: 'logs'
-  LogLevel: 'INFO' # "NONE" | "OK" | "INFO" | "WARN" | "ERROR" | "FATAL" | "DEBUG"
+  LogName: 'Paradise.WebServices-%DATE%.log'
+  MaxFileSize: '512k'
+  MaxRetention: '14d'
+  LogLevel: 'INFO' # "FATAL" | "ERROR" | "WARN" | "OK" | "INFO" | "DEBUG"
 
   # Loki Settings (external log)
   LokiSettings:

@@ -31,7 +31,7 @@ namespace Paradise.Client {
 		public static readonly ILog Log = LogManager.GetLogger(nameof(ParadiseClient));
 		public static ParadisePrefs Settings { get; private set; } = new ParadisePrefs();
 
-		private static bool _isExceptionSent = false;
+		private static float lastExceptionSent;
 
 		static ParadiseClient() {
 			AppDomain.CurrentDomain.AssemblyResolve += (sender, e) => {
@@ -75,10 +75,9 @@ namespace Paradise.Client {
 				return;
 
 			if (ApplicationDataManager.IsOnline) {
-				if (!_isExceptionSent) {
-					_isExceptionSent = true;
-
+				if (lastExceptionSent + 3f <= Time.time) {
 					ParadiseWebServiceClient.RecordException(PlayerDataManager.Cmid, ApplicationDataManager.Channel, ApplicationDataManager.Version, logString, stackTrace, DebugLogMessages.Console.ToHTML(), () => { });
+					lastExceptionSent = Time.time;
 				}
 			}
 		}

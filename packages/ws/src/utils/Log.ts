@@ -18,13 +18,12 @@
 import type { LogSettings } from '@/ParadiseServiceSettings';
 import chalk from 'chalk';
 import util from 'util';
-import winston from 'winston';
+import winston, { type Logger as WinstonLogger } from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
 import LokiTransport from 'winston-loki';
 
 export enum LogLevel {
-  NONE,
-  FATAL,
+  FATAL = 1,
   ERROR,
   WARN,
   OK,
@@ -32,159 +31,147 @@ export enum LogLevel {
   DEBUG
 }
 
-const logger = winston.createLogger({
-  level: Bun.env.NODE_ENV === 'production' ? 'INFO' : 'DEBUG',
-  levels: Object.keys(LogLevel)
-    .filter((key) => !(parseInt(key, 10) >= 0))
-    .reduce((acc: any, cur: any) => {
-      acc[cur] = LogLevel[cur];
-      return acc;
-    }, {})
-});
+export enum LogChannel {
+  Console = 1 << 0,
+  File = 1 << 1,
+  Loki = 1 << 2
+}
 
-const consoleTransport = new winston.transports.Console({
-  format: winston.format.combine(
-    winston.format.colorize(),
-    winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
-    winston.format.printf(
-      ({ timestamp, level, message }) =>
-        `[${timestamp}] [${level}] ${level.indexOf('FATAL') >= 0 ? chalk.red(message) : message}`
-    )
-  )
-});
-
-logger.add(consoleTransport);
-
-winston.addColors({
-  NONE: '',
-  OK: 'green',
-  INFO: 'blue',
-  WARN: 'yellow',
-  ERROR: 'red',
-  FATAL: 'redBG white',
-  DEBUG: 'magenta'
-});
+const DEFAULT_CHANNELS: LogChannel = LogChannel.Console | LogChannel.File | LogChannel.Loki;
 
 export default class Log {
-  private static _maxLogLevel: LogLevel | undefined = LogLevel.INFO;
+  private static consoleLogger: WinstonLogger | undefined;
+  private static fileLogger: WinstonLogger | undefined;
+  private static lokiLogger: WinstonLogger | undefined;
 
-  static set maxLogLevel(level: LogLevel | undefined) {
-    console.log('set level', level);
-    this._maxLogLevel = level;
+  static maxLogLevel: LogLevel = LogLevel.INFO;
+
+  static get Console(): WinstonLogger | undefined {
+    return this.consoleLogger;
   }
 
-  static setupLogging(settings: LogSettings) {
+  static get File(): WinstonLogger | undefined {
+    return this.fileLogger;
+  }
+
+  static get Loki(): WinstonLogger | undefined {
+    return this.lokiLogger;
+  }
+
+  static {
+    winston.addColors({
+      FATAL: 'redBG white',
+      ERROR: 'red',
+      WARN: 'yellow',
+      OK: 'green',
+      INFO: 'blue',
+      DEBUG: 'magenta'
+    });
+  }
+
+  static setupLog(settings: LogSettings) {
     if (settings.LogLevel) {
-      this._maxLogLevel = LogLevel[settings.LogLevel];
+      this.maxLogLevel = LogLevel[settings.LogLevel];
     }
 
-    consoleTransport.silent = !settings.LogToConsole;
+    const levels = Object.keys(LogLevel)
+      .filter((key) => isNaN(Number(key)))
+      .reduce(
+        (acc: Record<string, number>, cur) => ({
+          ...acc,
+          [cur]: LogLevel[cur as keyof typeof LogLevel]
+        }),
+        {}
+      );
+
+    if (settings.LogToConsole) {
+      this.consoleLogger = winston.createLogger({
+        level: Bun.env.DEBUG === '1' ? 'DEBUG' : LogLevel[this.maxLogLevel],
+        levels,
+        transports: [
+          new winston.transports.Console({
+            format: winston.format.combine(
+              winston.format.colorize(),
+              winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
+              winston.format.printf(
+                ({ timestamp, level, message }) =>
+                  `[${timestamp}] [${level}] ${level.indexOf('FATAL') >= 0 ? chalk.red(message) : message}`
+              )
+            )
+          })
+        ]
+      });
+    }
 
     if (settings.LogToFile) {
-      logger.add(
-        new DailyRotateFile({
-          filename: 'Paradise.WebServices-%DATE%.log',
-          datePattern: 'YYYY-MM-DD',
-          maxSize: '512k',
-          maxFiles: '10d',
-          dirname: settings.LogPath ?? 'logs',
-          createSymlink: true,
-          symlinkName: 'Paradise.WebServices.log',
-          options: {
-            flags: 'w'
-          },
-          auditFile: './logs/.audit.json',
-          format: winston.format.combine(
-            winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
-            winston.format.printf(({ timestamp, level, message }) => `[${timestamp}] [${level}] ${message}`)
-          )
-        })
-      );
+      this.fileLogger = winston.createLogger({
+        level: Bun.env.DEBUG === '1' ? 'DEBUG' : LogLevel[this.maxLogLevel],
+        levels,
+        transports: [
+          new DailyRotateFile({
+            filename: settings.LogName ?? 'Paradise.WebServices-%DATE%.log',
+            datePattern: 'YYYY-MM-DD',
+            maxSize: settings.MaxFileSize ?? '512k',
+            maxFiles: settings.MaxRetention ?? '14d',
+            dirname: settings.LogPath ?? 'logs',
+            createSymlink: true,
+            symlinkName: 'Paradise.WebServices.log',
+            options: {
+              flags: 'a' // Open for append
+            },
+            auditFile: './logs/.audit.json',
+            format: winston.format.combine(
+              winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
+              winston.format.printf(({ timestamp, level, message }) => `[${timestamp}] [${level}] ${message}`)
+            )
+          })
+        ]
+      });
     }
 
     if (settings.LokiSettings.Enabled) {
-      logger.add(
-        new LokiTransport({
-          labels: {
-            service_name: settings.LokiSettings.ServiceName
-          },
-          host: settings.LokiSettings.Server
-        })
-      );
+      this.lokiLogger = winston.createLogger({
+        level: Bun.env.DEBUG === '1' ? 'DEBUG' : LogLevel[this.maxLogLevel],
+        levels,
+        transports: [
+          new LokiTransport({
+            host: settings.LokiSettings.Server,
+            labels: {
+              service_name: settings.LokiSettings.ServiceName
+            },
+            format: winston.format.combine(
+              winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
+              winston.format.printf(({ timestamp, level, message }) => String(message))
+            )
+          })
+        ]
+      });
     }
   }
 
-  /**
-   * Print a success message to stdout.
-   *
-   * @param message The message to print to stdout
-   *
-   * @example
-   * ```ts
-   * import { Log } from "@/utils";
-   *
-   * Log.success("Hello world.") // [1970-01-01 01:00:00.000] [OK] Hello world.
-   * ```
-   */
-  static success(message: any): void {
-    this.write(message, LogLevel.OK);
+  static write(
+    message: any,
+    level: LogLevel = LogLevel.INFO,
+    channel: LogChannel = LogChannel.Console | LogChannel.File
+  ) {
+    if ((channel & LogChannel.Console) === LogChannel.Console && this.consoleLogger) {
+      this.write_internal(message, level, this.consoleLogger);
+    }
+
+    if ((channel & LogChannel.File) === LogChannel.File && this.fileLogger) {
+      this.write_internal(message, level, this.fileLogger);
+    }
+
+    if ((channel & LogChannel.Loki) === LogChannel.Loki && this.lokiLogger) {
+      this.write_internal(message, level, this.lokiLogger);
+    }
   }
 
-  /**
-   * Print an informative message to stdout.
-   *
-   * @param message The message to print to stdout
-   *
-   * @example
-   * ```ts
-   * import { Log } from "@/utils";
-   *
-   * Log.info("This is an info text.") // [1970-01-01 01:00:00.000] [INFO] This is an info text.
-   * ```
-   */
-  static info(message: any): void {
-    this.write(message, LogLevel.INFO);
-  }
-
-  /**
-   * Print a warning message to stdout.
-   *
-   * @param message The message to print to stdout
-   *
-   * @example
-   * ```ts
-   * import { Log } from "@/utils";
-   *
-   * Log.warn("I have a bad feeling about this.") // [1970-01-01 01:00:00.000] [WARN] I have a bad feeling about this.
-   * ```
-   */
-  static warn(message: any): void {
-    this.write(message, LogLevel.WARN);
-  }
-
-  /**
-   * Print an error message to stdout.
-   *
-   * @param message The message to print to stdout
-   *
-   * @example
-   * ```ts
-   * import { Log } from "@/utils";
-   *
-   * Log.error("Oh fiddlesticks, what now?") // [1970-01-01 01:00:00.000] [ERROR] Oh fiddlesticks, what now?
-   * ```
-   */
-  static error(message: string | any, error?: any): void {
-    if (message instanceof Error) {
-      this.write(message.message, LogLevel.ERROR);
-
-      if (message.stack) this.write(message.stack, LogLevel.DEBUG);
-    } else if (error && error instanceof Error) {
-      this.write(`${message}: ${error.message}`, LogLevel.ERROR);
-
-      if (error.stack) this.write(error.stack, LogLevel.DEBUG);
+  private static write_internal(message: any, level: LogLevel = LogLevel.INFO, logger: WinstonLogger): void {
+    if (message instanceof Object) {
+      logger.log(LogLevel[level], JSON.stringify(message, null, 2));
     } else {
-      this.write(message, LogLevel.ERROR);
+      logger.log(LogLevel[level], message);
     }
   }
 
@@ -202,16 +189,91 @@ export default class Log {
    */
   static fatal(message: string | any, error?: any): void {
     if (message instanceof Error) {
-      this.write(message.message, LogLevel.FATAL);
+      this.write(message.message, LogLevel.FATAL, DEFAULT_CHANNELS);
 
-      if (message.stack) this.write(message.stack, LogLevel.DEBUG);
+      if (message.stack) this.write(message.stack, LogLevel.DEBUG, DEFAULT_CHANNELS);
     } else if (error && error instanceof Error) {
-      this.write(`${message}: ${error.message}`, LogLevel.FATAL);
+      this.write(`${message}: ${error.message}`, LogLevel.FATAL, DEFAULT_CHANNELS);
 
-      if (error.stack) this.write(error.stack, LogLevel.DEBUG);
+      if (error.stack) this.write(error.stack, LogLevel.DEBUG, DEFAULT_CHANNELS);
     } else {
-      this.write(message, LogLevel.FATAL);
+      this.write(message, LogLevel.FATAL, DEFAULT_CHANNELS);
     }
+  }
+
+  /**
+   * Print an error message to stdout.
+   *
+   * @param message The message to print to stdout
+   *
+   * @example
+   * ```ts
+   * import { Log } from "@/utils";
+   *
+   * Log.error("Oh fiddlesticks, what now?") // [1970-01-01 01:00:00.000] [ERROR] Oh fiddlesticks, what now?
+   * ```
+   */
+  static error(message: string | any, error?: any): void {
+    if (message instanceof Error) {
+      this.write(message.message, LogLevel.ERROR, DEFAULT_CHANNELS);
+
+      if (message.stack) this.write(message.stack, LogLevel.DEBUG, DEFAULT_CHANNELS);
+    } else if (error && error instanceof Error) {
+      this.write(`${message}: ${error.message}`, LogLevel.ERROR, DEFAULT_CHANNELS);
+
+      if (error.stack) this.write(error.stack, LogLevel.DEBUG, DEFAULT_CHANNELS);
+    } else {
+      this.write(message, LogLevel.ERROR, DEFAULT_CHANNELS);
+    }
+  }
+
+  /**
+   * Print a warning message to stdout.
+   *
+   * @param message The message to print to stdout
+   *
+   * @example
+   * ```ts
+   * import { Log } from "@/utils";
+   *
+   * Log.warn("I have a bad feeling about this.") // [1970-01-01 01:00:00.000] [WARN] I have a bad feeling about this.
+   * ```
+   */
+  static warn(message: any): void {
+    this.write(message, LogLevel.WARN, DEFAULT_CHANNELS);
+  }
+
+  /**
+   * Print a success message to stdout.
+   *
+   * @param message The message to print to stdout
+   *
+   * @example
+   * ```ts
+   * import { Log } from "@/utils";
+   *
+   * Log.success("Hello world.") // [1970-01-01 01:00:00.000] [OK] Hello world.
+   * ```
+   */
+  static success(message: any): void {
+    this.write(message, LogLevel.OK, DEFAULT_CHANNELS);
+  }
+
+  // #region Log Functions
+  /**
+   * Print an informative message to stdout.
+   *
+   * @param message The message to print to stdout
+   *
+   * @example
+   * ```ts
+   * import { Log } from "@/utils";
+   *
+   * Log.info("This is an info text.") // [1970-01-01 01:00:00.000] [INFO] This is an info text.
+   * ```
+   */
+  static info(message: any): void {
+    this.write(message, LogLevel.INFO, DEFAULT_CHANNELS);
   }
 
   /**
@@ -227,22 +289,9 @@ export default class Log {
    * ```
    */
   static debug(message: any): void {
-    this.write(message, LogLevel.DEBUG);
+    this.write(message, LogLevel.DEBUG, DEFAULT_CHANNELS);
   }
-
-  private static write(message: any, level: LogLevel = LogLevel.INFO): void {
-    if (
-      this._maxLogLevel === undefined ||
-      level <= this._maxLogLevel ||
-      (level === LogLevel.DEBUG && Bun.env.DEBUG === '1')
-    ) {
-      if (message instanceof Object) {
-        logger.log(LogLevel[level], JSON.stringify(message, null, 2));
-      } else {
-        logger.log(LogLevel[level], message);
-      }
-    }
-  }
+  // #endregion
 
   static inspect(object: any): void {
     console.log(

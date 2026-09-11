@@ -20,8 +20,6 @@ using UnityEngine;
 
 namespace Paradise.Client {
 	internal class ParadiseApplicationManager : MonoBehaviour {
-		private DateTime lastExceptionRecord;
-
 		void Awake() {
 			DontDestroyOnLoad(gameObject);
 		}
