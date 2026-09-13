@@ -200,7 +200,7 @@ export default class ParadiseWebService extends BaseWebService {
       Log.write(
         { cmid, channel, version, paradiseVersion, paradiseBuild, exceptionMessage, stackTrace, exceptionData },
         LogLevel.ERROR,
-        LogChannel.Console
+        LogChannel.Console | LogChannel.File | LogChannel.Loki
       );
 
       Int32Proxy.Serialize(outputStream, 0);

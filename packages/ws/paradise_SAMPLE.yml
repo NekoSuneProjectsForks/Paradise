@@ -36,7 +36,7 @@ LogSettings:
   LokiSettings:
     Enabled: false
     Server: 'http://127.0.0.1:3100'
-    ServiceName: 'paradise'
+    ServiceName: 'paradise-ws'
 
 # Gameplay Settings
 GameplaySettings:

@@ -141,7 +141,7 @@ export default class Log {
             },
             format: winston.format.combine(
               winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
-              winston.format.printf(({ timestamp, level, message }) => String(message))
+              winston.format.json()
             )
           })
         ]
