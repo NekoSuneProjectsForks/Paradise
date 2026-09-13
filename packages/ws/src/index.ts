@@ -20,7 +20,7 @@ import { program } from 'commander';
 import path from 'path';
 import seedrandom from 'seedrandom';
 import ParadiseService from './ParadiseService';
-import { ParadiseServiceSettings } from './ParadiseServiceSettings';
+import { ParadiseServiceSettings, type LogSettings } from './ParadiseServiceSettings';
 import runSeed from './seed/seed';
 import { Log, LogLevel, UpdateGenerator } from './utils';
 
@@ -83,6 +83,14 @@ program
   .description('Generates YAML definitions for automatic game updates')
   // .option('--fallback', 'Generate fallback definitions for pre-v2 update clients')
   .action((options, command) => {
+    Log.setupLog({
+      LogToConsole: true,
+      LogToFile: false,
+      LokiSettings: {
+        Enabled: false
+      }
+    } as LogSettings);
+
     UpdateGenerator.generate(path.join(process.cwd(), 'wwwroot/updates/v2'));
   });
 
