@@ -69,7 +69,7 @@ namespace Paradise.Realtime.Host {
 			var pwd = AppDomain.CurrentDomain.BaseDirectory;
 			var path = Path.Combine(pwd, PhotonDomainManager.Log4NetConfigFilename);
 
-			GlobalContext.Properties["Photon:UnmanagedLogDirectory"] = Path.Combine(pwd, "logs");;
+			GlobalContext.Properties["Photon:UnmanagedLogDirectory"] = Path.Combine(pwd, "logs");
 
 			var fileInfo = new FileInfo(path);
 			if (fileInfo.Exists) {

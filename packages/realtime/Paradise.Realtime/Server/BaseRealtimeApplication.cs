@@ -61,15 +61,15 @@ namespace Paradise.Realtime.Server {
 				HandleException(e.ExceptionObject as Exception);
 			};
 
+			var pwd = AppDomain.CurrentDomain.BaseDirectory;
+			var path = Path.Combine(pwd, "Paradise.Realtime.log4net.config");
+
 			GlobalContext.Properties["Photon:ApplicationLogPath"] = Path.Combine(BinaryPath, "logs");
+			GlobalContext.Properties["Photon:ServerType"] = $"{ServerType}".ToLower();
 
-			using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Paradise.Realtime.log4net.config")) {
-				using (StreamReader reader = new StreamReader(stream)) {
-					var logConfig = new XmlDocument();
-					logConfig.LoadXml(reader.ReadToEnd());
-
-					XmlConfigurator.Configure(logConfig.DocumentElement);
-				}
+			var fileInfo = new FileInfo(path);
+			if (fileInfo.Exists) {
+				XmlConfigurator.ConfigureAndWatch(fileInfo);
 			}
 
 			try {

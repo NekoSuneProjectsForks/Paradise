@@ -184,7 +184,7 @@ namespace Paradise {
 						SocketConnection.ConnectAsync();
 
 						if (!ConnectionWaitHandle.WaitOne(TimeSpan.FromSeconds(CONNECT_TIMEOUT))) {
-							Log.Info($"Failed to establish connection within {CONNECT_TIMEOUT} second(s), retrying in {RECONNECT_INTERVAL} second(s). (Attempt {connectionAttempts})");
+							Log.Error($"Failed to establish connection within {CONNECT_TIMEOUT} second(s), retrying in {RECONNECT_INTERVAL} second(s). (Attempt {connectionAttempts})");
 							SocketConnection.Close();
 						} else {
 							return;
@@ -198,7 +198,7 @@ namespace Paradise {
 					if (maxAttempts == 0 || connectionAttempts < maxAttempts) {
 						await Task.Delay(TimeSpan.FromSeconds(RECONNECT_INTERVAL));
 					} else {
-						Log.Info($"Failed to establish connection within {maxAttempts} attempts(s).");
+						Log.Fatal($"Failed to establish connection within {maxAttempts} attempts(s).");
 						return;
 					}
 				}
