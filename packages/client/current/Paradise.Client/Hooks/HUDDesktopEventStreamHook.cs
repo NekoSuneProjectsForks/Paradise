@@ -45,13 +45,13 @@ namespace Paradise.Client {
 				string killString;
 
 				if (weapon == UberstrikeItemClass.WeaponMelee) {
-					killString = $"[{weaponName}] smacked";
+					killString = $"[ {weaponName} ] smacked";
 				} else if (bodyPart == BodyPart.Head) {
-					killString = $"[{weaponName}] headshot";
+					killString = $"[ {weaponName} ] headshot";
 				} else if (bodyPart == BodyPart.Nuts) {
-					killString = $"[{weaponName}] nutshot";
+					killString = $"[ {weaponName} ] nutshot";
 				} else {
-					killString = $"[{weaponName}] killed";
+					killString = $"[ {weaponName} ] killed";
 				}
 
 				GameData.Instance.OnHUDStreamMessage.Fire(shooter, killString, target);
