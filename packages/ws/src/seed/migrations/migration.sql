@@ -279,6 +279,8 @@ ALTER TABLE `PlayerMachines`
   MODIFY `Cmid` int(11) NOT NULL FIRST,
   MODIFY `SystemDeviceType` varchar(255) DEFAULT NULL,
   MODIFY `SystemCoreCount` varchar(255) DEFAULT NULL,
+  MODIFY `SystemMemory`BIGINT(20) DEFAULT NULL,
+  MODIFY `GPUMemory`BIGINT(20) DEFAULT NULL,
   RENAME COLUMN `SystemProcessorType` TO `SystemProcessorModel`,
   RENAME COLUMN `GPUModelID` TO `GPUDeviceID`;
 ALTER TABLE `PlayerMachines`
