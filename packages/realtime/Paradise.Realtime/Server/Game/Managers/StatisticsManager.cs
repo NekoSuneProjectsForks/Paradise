@@ -251,7 +251,7 @@ namespace Paradise.Realtime.Server.Game {
 		}
 
 		public double GetKillDeathRatio(GamePeer player) {
-			return Statistics[player.Actor.Cmid]?.KillDeathRatio ?? 1;
+			return Math.Max(0, Statistics[player.Actor.Cmid]?.KillDeathRatio ?? 1);
 		}
 
 		public double GetAccuracy(GamePeer player) {

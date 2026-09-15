@@ -30,7 +30,7 @@ namespace Paradise.Realtime.Server.Game {
 		public StatsCollection CurrentLifeStatistics { get; private set; } = new StatsCollection();
 		public List<StatsCollection> PerLifeStatistics { get; private set; } = new List<StatsCollection>();
 
-		public short Kills => (short)MatchStatistics.GetKills();
+		public short Kills => (short)Math.Max(0, MatchStatistics.GetKills());
 		public short Deaths => (short)MatchStatistics.Deaths;
 		public short Suicides => (short)MatchStatistics.Suicides;
 		public double KillDeathRatio => Kills / Math.Max(1, (int)Deaths);
