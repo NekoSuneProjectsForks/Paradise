@@ -140,12 +140,18 @@ namespace Paradise.Realtime.Server.Game {
 			}
 
 			public void SendAllPlayerDeltas(List<GameActorInfoDelta> allDeltas) {
-				using (var bytes = new MemoryStream()) {
-					foreach (var delta in allDeltas) {
+				List<GameActorInfoDelta> deltas;
+
+				lock (allDeltas) {
+					deltas = new List<GameActorInfoDelta>(allDeltas);
+
+					foreach (var delta in deltas) {
 						delta.UpdateDeltaMask();
 					}
+				}
 
-					ListProxy<GameActorInfoDelta>.Serialize(bytes, allDeltas, GameActorInfoDeltaProxy.Serialize);
+				using (var bytes = new MemoryStream()) {
+					ListProxy<GameActorInfoDelta>.Serialize(bytes, deltas, GameActorInfoDeltaProxy.Serialize);
 
 					SendEvent((byte)IGameRoomEventsType.AllPlayerDeltas, bytes);
 				}
