@@ -23,7 +23,7 @@ using UberStrike.Core.Types;
 namespace Paradise.Client {
 	[HarmonyPatch]
 	public static class ItemFilterHook {
-		[HarmonyPatch(typeof(InventoryItemFilter), "CanPass"), HarmonyPostfix]
+		// [HarmonyPatch(typeof(InventoryItemFilter), "CanPass"), HarmonyPostfix]
 		public static void InventoryItemFilter_CanPass_Postfix(ref bool __result, IUnityItem item) {
 			switch (ParadiseTraverse.GetField<SelectionGroup<LoadoutArea>>(ShopPageGUI.Instance, "_loadoutAreaSelection").Current) {
 				case LoadoutArea.Weapons:
