@@ -34,6 +34,7 @@ JunkHashes:
   -
 
 GameplaySettings:
+  TickRate: 64
   MatchCountdownTime: 5
   PlayerRespawnTime: 5
   AllowFriendlyFire: false

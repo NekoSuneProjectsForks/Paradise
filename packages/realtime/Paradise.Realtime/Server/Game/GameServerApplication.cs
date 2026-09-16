@@ -34,7 +34,7 @@ namespace Paradise.Realtime.Server.Game {
 
 		public static new GameServerApplication Instance => (GameServerApplication)ApplicationBase.Instance;
 		public override ServerType ServerType => ServerType.Game;
-		public GameRoomManager RoomManager { get; private set; } = new GameRoomManager();
+		public GameRoomManager RoomManager { get; private set; }
 
 		private static readonly ProfanityFilter.ProfanityFilter ProfanityFilter = new ProfanityFilter.ProfanityFilter();
 
@@ -76,6 +76,8 @@ namespace Paradise.Realtime.Server.Game {
 			}
 
 			PhotonId = Configuration.GameApplicationSettings.PhotonId;
+
+			RoomManager = new GameRoomManager();
 
 			Log.Info($"Starting GameServer[{Identifier}]...");
 		}

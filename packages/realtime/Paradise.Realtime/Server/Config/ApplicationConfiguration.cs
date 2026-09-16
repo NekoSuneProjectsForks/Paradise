@@ -144,6 +144,9 @@ namespace Paradise.Realtime.Server {
 
 	public class GameplaySettings {
 		[YamlMember]
+		public int TickRate = 64;
+
+		[YamlMember]
 		public int MatchCountdownTime = 5;
 
 		[YamlMember]

@@ -24,15 +24,13 @@ using UberStrike.Core.Types;
 
 namespace Paradise.Realtime.Server.Game {
 	public class GameRoomManager : IDisposable {
-		public const int TICK_RATE = 64;
-
 		protected static readonly ILog Log = LogManager.GetLogger(nameof(GameRoomManager));
 
 		private static readonly ProfanityFilter.ProfanityFilter ProfanityFilter = new ProfanityFilter.ProfanityFilter();
 
 		private bool isDisposed;
 
-		private readonly BalancingLoopScheduler LoopScheduler = new BalancingLoopScheduler(TICK_RATE);
+		private readonly BalancingLoopScheduler LoopScheduler = new BalancingLoopScheduler(GameServerApplication.Instance.Configuration.GameplaySettings.TickRate);
 
 		public Dictionary<int, BaseGameRoom> Rooms { get; private set; } = new Dictionary<int, BaseGameRoom>();
 
