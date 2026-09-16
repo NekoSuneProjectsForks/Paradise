@@ -28,9 +28,9 @@ namespace Paradise.Realtime.Server.Game {
 		public override void OnEnter() {
 			// Only allow respawn when not in Team Elimination
 			if (Peer.Room.MetaData.GameMode != GameModeType.EliminationMode) {
-				Peer.Actor.NextRespawnTime = DateTime.UtcNow.AddSeconds(GameServerApplication.Instance.Configuration.GameplaySettings.PlayerRespawnTime);
+				Peer.Actor.NextRespawnTime = DateTime.UtcNow.AddSeconds(Math.Max(1, GameServerApplication.Instance.Configuration.GameplaySettings.PlayerRespawnTime));
 
-				RespawnCountdown = new Countdown(Room.Loop, GameServerApplication.Instance.Configuration.GameplaySettings.PlayerRespawnTime, 0);
+				RespawnCountdown = new Countdown(Room.Loop, Math.Max(GameServerApplication.Instance.Configuration.GameplaySettings.PlayerRespawnTime, 1), 0);
 				RespawnCountdown.Counted += OnRespawnCountdownCounted;
 				RespawnCountdown.Completed += OnRespawnCountdownCompleted;
 
