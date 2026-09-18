@@ -135,6 +135,29 @@ export default class ParadiseWebService extends BaseWebService {
       const gpuMemory = Int64Proxy.Deserialize(bytes);
       const gpuDriverVersion = StringProxy.Deserialize(bytes);
 
+      this.debugEndpointData({
+        clientVersion,
+        paradiseVersion,
+        paradiseBuild,
+        cmid,
+        systemIdentifer,
+        systemVendor,
+        systemModel,
+        systemDeviceType,
+        systemOperatingSystem,
+        systemProcessorVendor,
+        systemProcessorModel,
+        systemCoreCount,
+        systemThreadCount,
+        systemMemory,
+        gpuVendor,
+        gpuModel,
+        gpuVendorId,
+        gpuDeviceId,
+        gpuMemory,
+        gpuDriverVersion
+      });
+
       await PlayerMachine.save({
         Cmid: cmid,
         SystemIdentifier: systemIdentifer,

@@ -57,36 +57,34 @@ namespace Paradise.Client {
 		}
 
 		public static Coroutine RecordPlayerMachineData() {
-			if (!ParadiseClient.Settings.AllowTelemetry)
+			if (!ParadiseClient.Settings.AllowTelemetry || Application.platform != RuntimePlatform.WindowsPlayer)
 				return null;
 
 			using (MemoryStream memoryStream = new MemoryStream()) {
-				var csProductInfo = QueryWMI("CSProduct", "UUID,Vendor,Name");
-				var osInfo = QueryWMI("OS", "Caption,Version,OSArchitecture");
-				var cpuInfo = QueryWMI("CPU", "Manufacturer,Name,NumberOfCores,NumberOfLogicalProcessors");
-				var memoryInfo = QueryWMI("ComputerSystem", "TotalPhysicalMemory");
-				var gpuInfo = QueryWMIGPUInfo();
+				var machineInfo = OSInfoProvider.GetMachineInfo();
+				var cpuInfo = OSInfoProvider.GetCPUInfo();
+				var gpuInfo = OSInfoProvider.GetGPUInfo();
 
 				StringProxy.Serialize(memoryStream, PlayerPrefs.GetString("Version"));
 				StringProxy.Serialize(memoryStream, ParadiseConstants.Version);
 				StringProxy.Serialize(memoryStream, ParadiseConstants.Build);
 				Int32Proxy.Serialize(memoryStream, PlayerDataManager.Cmid);
-				StringProxy.Serialize(memoryStream, csProductInfo["UUID"]);
-				StringProxy.Serialize(memoryStream, csProductInfo["Vendor"]);
-				StringProxy.Serialize(memoryStream, csProductInfo["Name"]);
+				StringProxy.Serialize(memoryStream, machineInfo.UUID);
+				StringProxy.Serialize(memoryStream, machineInfo.Vendor);
+				StringProxy.Serialize(memoryStream, machineInfo.Model);
 				StringProxy.Serialize(memoryStream, SystemInfo.deviceType.ToString());
-				StringProxy.Serialize(memoryStream, $"{osInfo["Caption"]} {osInfo["OSArchitecture"]} ({osInfo["Version"]})");
-				StringProxy.Serialize(memoryStream, cpuInfo["Manufacturer"]);
-				StringProxy.Serialize(memoryStream, cpuInfo["Name"].Trim());
-				Int32Proxy.Serialize(memoryStream, int.Parse(cpuInfo["NumberOfCores"]));
-				Int32Proxy.Serialize(memoryStream, int.Parse(cpuInfo["NumberOfLogicalProcessors"]));
-				Int64Proxy.Serialize(memoryStream, Int64.Parse(memoryInfo["TotalPhysicalMemory"]));
-				StringProxy.Serialize(memoryStream, gpuInfo["AdapterCompatibility"]);
-				StringProxy.Serialize(memoryStream, gpuInfo["Caption"]);
-				StringProxy.Serialize(memoryStream, $"{SystemInfo.graphicsDeviceVendorID:x4}");
-				StringProxy.Serialize(memoryStream, $"{SystemInfo.graphicsDeviceID:x4}");
-				Int64Proxy.Serialize(memoryStream, Int64.Parse(gpuInfo["AdapterRAM"]));
-				StringProxy.Serialize(memoryStream, gpuInfo["DriverVersion"]);
+				StringProxy.Serialize(memoryStream, machineInfo.OperatingSystem);
+				StringProxy.Serialize(memoryStream, cpuInfo.Vendor);
+				StringProxy.Serialize(memoryStream, cpuInfo.Model);
+				Int32Proxy.Serialize(memoryStream, cpuInfo.Cores);
+				Int32Proxy.Serialize(memoryStream, cpuInfo.Threads);
+				Int64Proxy.Serialize(memoryStream, cpuInfo.Memory);
+				StringProxy.Serialize(memoryStream, gpuInfo.Vendor);
+				StringProxy.Serialize(memoryStream, gpuInfo.Model);
+				StringProxy.Serialize(memoryStream, gpuInfo.VendorId);
+				StringProxy.Serialize(memoryStream, gpuInfo.DeviceId);
+				Int64Proxy.Serialize(memoryStream, gpuInfo.Memory);
+				StringProxy.Serialize(memoryStream, gpuInfo.DriverVersion);
 
 				return Mono.StartCoroutine(MakeRequest(
 					ContractName,
@@ -144,58 +142,6 @@ namespace Paradise.Client {
 
 		private static IEnumerator MakeRequest(string interfaceName, string serviceName, string methodName, byte[] data, Action<byte[]> requestCallback, Action<Exception> exceptionHandler) {
 			return (IEnumerator)MakeRequest_impl.Invoke(null, new object[] { interfaceName, serviceName, methodName, data, requestCallback, exceptionHandler });
-		}
-
-		private static Dictionary<string, string> QueryWMI(string alias, string property) {
-			var process = new Process {
-				StartInfo = new ProcessStartInfo {
-					FileName = "wmic",
-					Arguments = $"{alias} GET {property} /format:LIST",
-					RedirectStandardOutput = true,
-					UseShellExecute = false,
-					CreateNoWindow = true
-				}
-			};
-
-			process.Start();
-
-			var lines = process.StandardOutput.ReadToEnd().Trim().Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-			var dict = new Dictionary<string, string>();
-			foreach (var line in lines) {
-				var parts = line.Split(new[] { '=' }, 2);
-
-				dict[parts[0]] = parts[1];
-			}
-
-			process.WaitForExit();
-
-			return dict;
-		}
-
-		private static Dictionary<string, string> QueryWMIGPUInfo() {
-			var process = new Process {
-				StartInfo = new ProcessStartInfo {
-					FileName = "wmic",
-					Arguments = $"PATH Win32_VideoController WHERE \"AdapterRAM > 0\" GET Caption,DriverVersion,AdapterRAM,AdapterCompatibility /format:list",
-					RedirectStandardOutput = true,
-					UseShellExecute = false,
-					CreateNoWindow = true
-				}
-			};
-
-			process.Start();
-
-			var lines = process.StandardOutput.ReadToEnd().Trim().Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-			var dict = new Dictionary<string, string>();
-			foreach (var line in lines) {
-				var parts = line.Split(new[] { '=' }, 2);
-
-				dict[parts[0]] = parts[1];
-			}
-
-			process.WaitForExit();
-
-			return dict;
 		}
 	}
 }
