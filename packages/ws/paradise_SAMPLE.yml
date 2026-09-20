@@ -40,6 +40,8 @@ LogSettings:
 
 # Gameplay Settings
 GameplaySettings:
+  GarbageCollectInterval: 300
+  ShopFreeStaffItems: false
   ShopRefundFactor: 0.75
 
 #region Web Service Settings

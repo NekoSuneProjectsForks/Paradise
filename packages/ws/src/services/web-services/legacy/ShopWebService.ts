@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import ParadiseService from '@/ParadiseService';
 import { XpPointsUtil } from '@/utils';
 import { ApiVersion } from '@/utils/enums';
 import {
@@ -40,6 +41,7 @@ import {
   BuyingLocationType,
   BuyingRecommendationType,
   ChannelType,
+  MemberAccessLevel,
   PackType,
   UberStrikeCurrencyType
 } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
@@ -244,7 +246,14 @@ export default class ShopWebService extends BaseWebService {
                 } else if (XpPointsUtil.GetLevelForXp(playerStatistics!.Xp) < item.LevelLock) {
                   Int32Proxy.Serialize(outputStream, BuyItemResult.InvalidLevel);
                 } else {
-                  if (currencyType === UberStrikeCurrencyType.Credits) {
+                  let purchased = false;
+
+                  if (
+                    ParadiseService.Instance.ServiceSettings.GameplaySettings.ShopFreeStaffItems &&
+                    publicProfile.AccessLevel > MemberAccessLevel.Default
+                  ) {
+                    purchased = true;
+                  } else if (currencyType === UberStrikeCurrencyType.Credits) {
                     const price = item.Prices.find(
                       (_: ShopItemPrice) => _.Currency === UberStrikeCurrencyType.Credits && _.Duration === durationType
                     );
@@ -266,6 +275,8 @@ export default class ShopWebService extends BaseWebService {
                         WithdrawalDate: new Date(),
                         WithdrawalId: Math.randomInt()
                       });
+
+                      purchased = true;
                     }
                   } else if (currencyType === UberStrikeCurrencyType.Points) {
                     const price = item.Prices.find(
@@ -289,41 +300,49 @@ export default class ShopWebService extends BaseWebService {
                         WithdrawalDate: new Date(),
                         WithdrawalId: Math.randomInt()
                       });
+
+                      purchased = true;
                     }
-                  } else if (
-                    currencyType === UberStrikeCurrencyType.None ||
-                    UberStrikeCurrencyType[currencyType] === undefined
-                  ) {
+                  } else {
                     Int32Proxy.Serialize(outputStream, BuyItemResult.InvalidData);
                   }
 
-                  let expirationDate;
+                  if (purchased) {
+                    let expirationDate;
 
-                  switch (durationType) {
-                    case BuyingDurationType.OneDay:
-                      expirationDate = add(new Date(), { days: 1 });
-                      break;
-                    case BuyingDurationType.SevenDays:
-                      expirationDate = add(new Date(), { days: 7 });
-                      break;
-                    case BuyingDurationType.ThirtyDays:
-                      expirationDate = add(new Date(), { days: 30 });
-                      break;
-                    case BuyingDurationType.NinetyDays:
-                      expirationDate = add(new Date(), { days: 90 });
-                      break;
-                    default:
-                      break;
+                    if (
+                      !ParadiseService.Instance.ServiceSettings.GameplaySettings.ShopFreeStaffItems ||
+                      publicProfile.AccessLevel === MemberAccessLevel.Default
+                    ) {
+                      switch (durationType) {
+                        case BuyingDurationType.OneDay:
+                          expirationDate = add(new Date(), { days: 1 });
+                          break;
+                        case BuyingDurationType.SevenDays:
+                          expirationDate = add(new Date(), { days: 7 });
+                          break;
+                        case BuyingDurationType.ThirtyDays:
+                          expirationDate = add(new Date(), { days: 30 });
+                          break;
+                        case BuyingDurationType.NinetyDays:
+                          expirationDate = add(new Date(), { days: 90 });
+                          break;
+                        default:
+                          break;
+                      }
+                    }
+
+                    await PlayerInventoryItem.create({
+                      Cmid: publicProfile.Cmid,
+                      ItemId: itemId,
+                      AmountRemaining: -1,
+                      ExpirationDate: expirationDate
+                    });
+
+                    Int32Proxy.Serialize(outputStream, BuyItemResult.OK);
+                  } else {
+                    Int32Proxy.Serialize(outputStream, BuyItemResult.InvalidData);
                   }
-
-                  await PlayerInventoryItem.create({
-                    Cmid: publicProfile.Cmid,
-                    ItemId: itemId,
-                    AmountRemaining: -1,
-                    ExpirationDate: expirationDate
-                  });
-
-                  Int32Proxy.Serialize(outputStream, BuyItemResult.OK);
                 }
               }
             }

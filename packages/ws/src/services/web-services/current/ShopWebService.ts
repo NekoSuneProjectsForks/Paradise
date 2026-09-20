@@ -41,6 +41,7 @@ import {
   BuyingRecommendationType,
   BuyItemResult,
   ChannelType,
+  MemberAccessLevel,
   PackType,
   PaymentProviderType,
   UberStrikeCurrencyType
@@ -315,7 +316,12 @@ export default class ShopWebService extends BaseWebService {
                   } else {
                     let purchased = false;
 
-                    if (currencyType === UberStrikeCurrencyType.Credits) {
+                    if (
+                      ParadiseService.Instance.ServiceSettings.GameplaySettings.ShopFreeStaffItems &&
+                      publicProfile.AccessLevel > MemberAccessLevel.Default
+                    ) {
+                      purchased = true;
+                    } else if (currencyType === UberStrikeCurrencyType.Credits) {
                       const price = item.Prices.find(
                         (_: ShopItemPrice) =>
                           _.Currency === UberStrikeCurrencyType.Credits && _.Duration === durationType
@@ -373,21 +379,26 @@ export default class ShopWebService extends BaseWebService {
                     if (purchased) {
                       let expirationDate;
 
-                      switch (durationType) {
-                        case BuyingDurationType.OneDay:
-                          expirationDate = add(new Date(), { days: 1 });
-                          break;
-                        case BuyingDurationType.SevenDays:
-                          expirationDate = add(new Date(), { days: 7 });
-                          break;
-                        case BuyingDurationType.ThirtyDays:
-                          expirationDate = add(new Date(), { days: 30 });
-                          break;
-                        case BuyingDurationType.NinetyDays:
-                          expirationDate = add(new Date(), { days: 90 });
-                          break;
-                        default:
-                          break;
+                      if (
+                        !ParadiseService.Instance.ServiceSettings.GameplaySettings.ShopFreeStaffItems ||
+                        publicProfile.AccessLevel === MemberAccessLevel.Default
+                      ) {
+                        switch (durationType) {
+                          case BuyingDurationType.OneDay:
+                            expirationDate = add(new Date(), { days: 1 });
+                            break;
+                          case BuyingDurationType.SevenDays:
+                            expirationDate = add(new Date(), { days: 7 });
+                            break;
+                          case BuyingDurationType.ThirtyDays:
+                            expirationDate = add(new Date(), { days: 30 });
+                            break;
+                          case BuyingDurationType.NinetyDays:
+                            expirationDate = add(new Date(), { days: 90 });
+                            break;
+                          default:
+                            break;
+                        }
                       }
 
                       await PlayerInventoryItem.insert({

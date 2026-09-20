@@ -44,6 +44,7 @@ export type LogSettings = {
 
 export type GameplaySettings = {
   GarbageCollectInterval: number;
+  ShopFreeStaffItems: boolean;
   ShopRefundFactor: number;
 };
 
@@ -80,6 +81,7 @@ export class ParadiseServiceSettings {
 
   GameplaySettings: GameplaySettings = {
     GarbageCollectInterval: 300, // 5 minutes
+    ShopFreeStaffItems: false,
     ShopRefundFactor: 0.75
   };
 
