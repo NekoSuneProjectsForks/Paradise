@@ -374,7 +374,7 @@ export default class ClanWebService extends BaseWebService {
                 })
               );
             } else if (
-              XpPointsUtil.GetLevelForXp(playerStatistics!.Xp) < 4 &&
+              (!playerStatistics || XpPointsUtil.GetLevelForXp(playerStatistics.Xp) < 4) &&
               publicProfile.AccessLevel !== MemberAccessLevel.Admin
             ) {
               // "Sorry", "You don't fulfill the minimal requirements to create your own clan."
