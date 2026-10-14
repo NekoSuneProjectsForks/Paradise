@@ -20,7 +20,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using UberStrike.Core.Models;
 using UberStrike.Core.Types;
-using UberStrike.Core.Types;
 using static Paradise.Realtime.Server.Game.BaseGameRoom;
 
 namespace Paradise.Realtime.Server.Game {
