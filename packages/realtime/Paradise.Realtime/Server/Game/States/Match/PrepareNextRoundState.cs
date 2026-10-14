@@ -16,7 +16,10 @@
  */
 
 using Paradise.Realtime.Core;
+using System.Linq;
 using System.Threading.Tasks;
+using UberStrike.Core.Models;
+using UberStrike.Core.Types;
 using UberStrike.Core.Types;
 using static Paradise.Realtime.Server.Game.BaseGameRoom;
 
@@ -108,7 +111,11 @@ namespace Paradise.Realtime.Server.Game {
 		}
 
 		private void OnPlayerLeft(object sender, PlayerLeftEventArgs args) {
-			if (!Room.CanStartMatch || Room.Players.Count == 0) {
+			var players = Room.Players;
+			if (!Room.CanStartMatch || players.Count == 0) {
+				Log.Info($"{args.Player.Actor?.Name}({args.Player.Actor?.Cmid}) leaving during PrepareNextRound changed match viability " +
+					$"(canStartMatch={Room.CanStartMatch}, blue={players.Count(p => p.Actor.Team == TeamID.BLUE)}, " +
+					$"red={players.Count(p => p.Actor.Team == TeamID.RED)}, total={players.Count}) - stopping the match-start countdown.");
 				MatchStartCountdown?.Stop();
 				//Room.State.SetState(GameStateId.EndOfMatch);
 			}
