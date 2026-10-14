@@ -220,6 +220,12 @@ export default class ClanWebService extends BaseWebService {
     return null;
   }
 
+  // The WCF contract exposes this operation as CanOwnAClan; keep that wire-level name
+  // as an alias while retaining the existing current-service method name.
+  static async CanOwnAClan(data: number[], outputStream: number[]): Promise<number[] | null> {
+    return this.CanOwnClan(data, outputStream);
+  }
+
   static async CanOwnClan(data: number[], outputStream: number[]): Promise<number[] | null> {
     const isEncrypted = this.isEncrypted(data);
     const bytes = isEncrypted
