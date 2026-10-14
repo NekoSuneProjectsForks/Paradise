@@ -44,6 +44,15 @@ GameplaySettings:
   ShopFreeStaffItems: false
   ShopRefundFactor: 0.75
 
+# Optional community directory reporting. Disabled unless explicitly enabled.
+# The server's public IPv4 and realtime port must be reachable from the internet.
+CommunityDirectory:
+  Enabled: false
+  Url: 'https://directory.example.org'
+  HeartbeatInterval: 30
+  RequestTimeout: 5000
+  MaxPlayerCount: 100
+
 #region Web Service Settings
 WebServicePrefix: 'UberStrike.DataCenter.WebService.CWS.'
 WebServiceSuffix: 'Contract.svc'
