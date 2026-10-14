@@ -428,6 +428,9 @@ export default class ClanWebService extends BaseWebService {
                 })
               );
 
+              // Keep the profile tag in sync with membership so it is available on the next login.
+              await PublicProfile.update(publicProfile.Cmid, { GroupTag: clan.Tag });
+
               await PlayerInventoryItem.delete({
                 ItemId: UberstrikeInventoryItem.ClanLicense,
                 Cmid: steamMember.Cmid
