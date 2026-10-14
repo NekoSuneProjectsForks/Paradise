@@ -771,9 +771,17 @@ export default class ClanWebService extends BaseWebService {
               });
 
               Int32Proxy.Serialize(outputStream, ClanActionResultCode.Success);
+            } else {
+              Int32Proxy.Serialize(outputStream, ClanActionResultCode.Error);
             }
+          } else {
+            Int32Proxy.Serialize(outputStream, ClanActionResultCode.Error);
           }
+        } else {
+          Int32Proxy.Serialize(outputStream, ClanActionResultCode.Error);
         }
+      } else {
+        Int32Proxy.Serialize(outputStream, ClanActionResultCode.Error);
       }
 
       return isEncrypted
