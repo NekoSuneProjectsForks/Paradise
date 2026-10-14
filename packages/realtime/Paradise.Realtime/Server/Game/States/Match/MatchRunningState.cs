@@ -118,7 +118,7 @@ namespace Paradise.Realtime.Server.Game {
 
 		private void OnPlayerLeft(object sender, PlayerLeftEventArgs args) {
 			var players = Room.Players;
-			if (TryEndMatchForRemainingPlayers()) {
+			if (TryEndMatchForRemainingPlayers(Room.MetaData.GameMode == GameModeType.EliminationMode)) {
 				return;
 			}
 
@@ -130,9 +130,9 @@ namespace Paradise.Realtime.Server.Game {
 			}
 		}
 
-		private bool TryEndMatchForRemainingPlayers() {
+		private bool TryEndMatchForRemainingPlayers(bool excludeKilledPlayers = true) {
 			var remainingPlayers = Room.Players
-				.Where(p => !p.Actor.ActorInfo.IsSpectator && p.State.CurrentStateId != PlayerStateId.Killed)
+				.Where(p => !p.Actor.ActorInfo.IsSpectator && (!excludeKilledPlayers || p.State.CurrentStateId != PlayerStateId.Killed))
 				.ToList();
 
 			if (remainingPlayers.Count == 1) {
