@@ -17,6 +17,7 @@
 
 using Paradise.Realtime.Core;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using UberStrike.Core.Models;
 using UberStrike.Core.Types;
@@ -25,6 +26,8 @@ using static Paradise.Realtime.Server.Game.BaseGameRoom;
 namespace Paradise.Realtime.Server.Game {
 	internal class PrepareNextRoundState : BaseMatchState {
 		private Countdown MatchStartCountdown;
+		private CancellationTokenSource _countdownStartCancellation;
+		private bool _countdownStartPending;
 
 		public PrepareNextRoundState(BaseGameRoom room) : base(room) { }
 
@@ -61,15 +64,7 @@ namespace Paradise.Realtime.Server.Game {
 				}
 			}
 
-			Task t = Task.Run(async () => {
-				await Task.Delay(1000);
-
-				MatchStartCountdown = new Countdown(Room.Loop, GameServerApplication.Instance.Configuration.GameplaySettings.MatchCountdownTime, 0);
-				MatchStartCountdown.Counted += OnCountdownCounted;
-				MatchStartCountdown.Completed += OnCountdownCompleted;
-
-				MatchStartCountdown.Restart();
-			});
+			ScheduleCountdownStart();
 
 			GameServerApplication.Instance.SocketClient?.SendSync(PacketType.RoundStarted, Room.MetaData);
 		}
@@ -77,6 +72,8 @@ namespace Paradise.Realtime.Server.Game {
 		public override void OnExit() {
 			Room.PlayerJoined -= OnPlayerJoined;
 			Room.PlayerLeft -= OnPlayerLeft;
+			CancelPendingCountdownStart();
+			StopMatchStartCountdown();
 		}
 
 		public override void OnResume() { }
@@ -85,7 +82,65 @@ namespace Paradise.Realtime.Server.Game {
 			MatchStartCountdown?.Tick();
 		}
 
+		private void ScheduleCountdownStart() {
+			if (_countdownStartPending || MatchStartCountdown?.IsEnabled == true) {
+				return;
+			}
 
+			CancelPendingCountdownStart();
+			var cancellation = new CancellationTokenSource();
+			_countdownStartCancellation = cancellation;
+			_countdownStartPending = true;
+			_ = StartCountdownAfterDelay(cancellation);
+		}
+
+		private async Task StartCountdownAfterDelay(CancellationTokenSource cancellation) {
+			try {
+				await Task.Delay(1000, cancellation.Token);
+			} catch (OperationCanceledException) {
+				return;
+			}
+
+			// Countdown state and game events must be changed on the room loop, not a worker thread.
+			Room.Loop.Enqueue(() => {
+				if (cancellation.IsCancellationRequested ||
+					!ReferenceEquals(_countdownStartCancellation, cancellation)) {
+					return;
+				}
+
+				_countdownStartPending = false;
+				if (!Room.CanStartMatch || Room.Players.Count == 0) {
+					return;
+				}
+
+				MatchStartCountdown = new Countdown(Room.Loop, GameServerApplication.Instance.Configuration.GameplaySettings.MatchCountdownTime, 0);
+				MatchStartCountdown.Counted += OnCountdownCounted;
+				MatchStartCountdown.Completed += OnCountdownCompleted;
+				MatchStartCountdown.Restart();
+			});
+		}
+
+		private void CancelPendingCountdownStart() {
+			_countdownStartPending = false;
+			if (_countdownStartCancellation == null) {
+				return;
+			}
+
+			_countdownStartCancellation.Cancel();
+			_countdownStartCancellation.Dispose();
+			_countdownStartCancellation = null;
+		}
+
+		private void StopMatchStartCountdown() {
+			if (MatchStartCountdown == null) {
+				return;
+			}
+
+			MatchStartCountdown.Counted -= OnCountdownCounted;
+			MatchStartCountdown.Completed -= OnCountdownCompleted;
+			MatchStartCountdown.Stop();
+			MatchStartCountdown = null;
+		}
 
 		#region Handlers
 		private void OnCountdownCounted(int count) {
@@ -101,12 +156,15 @@ namespace Paradise.Realtime.Server.Game {
 		private void OnPlayerJoined(object sender, PlayerJoinedEventArgs args) {
 			args.Player.Actor.PreviousSpawnPoints.Clear();
 
-
 			Room.PreparePlayer(args.Player);
 			Room.SpawnPlayer(args.Player, true);
 
 			args.Player.GameEventSender.SendWaitingForPlayers();
 			args.Player.State.SetState(PlayerStateId.PrepareForMatch);
+
+			if (Room.CanStartMatch) {
+				ScheduleCountdownStart();
+			}
 		}
 
 		private void OnPlayerLeft(object sender, PlayerLeftEventArgs args) {
@@ -115,7 +173,8 @@ namespace Paradise.Realtime.Server.Game {
 				Log.Info("Player left during PrepareNextRound; match viability changed " +
 					$"(canStartMatch={Room.CanStartMatch}, blue={players.Count(p => p.Actor.Team == TeamID.BLUE)}, " +
 					$"red={players.Count(p => p.Actor.Team == TeamID.RED)}, total={players.Count}) - stopping the match-start countdown.");
-				MatchStartCountdown?.Stop();
+				CancelPendingCountdownStart();
+				StopMatchStartCountdown();
 				//Room.State.SetState(GameStateId.EndOfMatch);
 			}
 		}
