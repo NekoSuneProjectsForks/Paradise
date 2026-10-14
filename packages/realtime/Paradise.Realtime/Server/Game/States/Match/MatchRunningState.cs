@@ -119,7 +119,7 @@ namespace Paradise.Realtime.Server.Game {
 		private void OnPlayerLeft(object sender, PlayerLeftEventArgs args) {
 			var players = Room.Players;
 			if (!Room.CanStartMatch || players.Count == 0) {
-				Log.Info($"{args.Player.Actor?.Name}({args.Player.Actor?.Cmid}) leaving mid-match changed match viability " +
+				Log.Info("Player left mid-match; match viability changed " +
 					$"(canStartMatch={Room.CanStartMatch}, blue={players.Count(p => p.Actor.Team == TeamID.BLUE)}, " +
 					$"red={players.Count(p => p.Actor.Team == TeamID.RED)}, total={players.Count}) - ending round early.");
 				Room.HasRoundEnded = true;
