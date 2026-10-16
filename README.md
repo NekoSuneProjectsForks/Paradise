@@ -50,28 +50,7 @@ Find instructions for building each of Paradise's components below:
 - Web UI (coming soon)
 
 ## Moving on from Photon
-
-Paradise versions before 2.2.0 relied on Photon, a proprietary realtime networking service from Exit Games GmbH. Photon’s licensing and deployment model could impose limitations on hosting and platform choices.
-
-The [NekoNexus fork](https://github.com/NekoSune-GameServers-MP-Mods/NekoNexus), maintained by [@NekoSuneVR](https://github.com/NekoSuneVR), replaces the Photon-dependent realtime layer with compatibility shims and translates UberStrike’s realtime events into a custom protocol transported by [LiteNetLib v0.9.5.2](https://github.com/RevenantX/LiteNetLib/tree/v0.9.5.2). With permission from [@NekoSuneVR](https://github.com/NekoSuneVR), this approach is also integrated into Paradise.
-
-### What changes compared with the old Photon system?
-
-| Area | Previous Photon-based approach | LiteNetLib-based integration |
-| --- | --- | --- |
-| Networking transport | Photon SDK and Photon’s realtime service handled network transport and session communication. | LiteNetLib provides the UDP-based networking transport; the project supplies the UberStrike-specific protocol and integration. |
-| Photon API dependencies | Game/server realtime code depended on Photon types, callbacks, and service concepts. | Compatibility shims preserve the interfaces expected by existing code where practical, reducing the need to rewrite every caller at once. |
-| Event delivery | Realtime events were carried through Photon’s networking and event model. | The shim/protocol layer translates UberStrike realtime messages and events to and from the custom protocol. |
-| Hosting and deployment | Hosting was tied to Photon’s service model and its licensing/availability constraints. | Realtime servers can be self-hosted without depending on Photon’s hosted service, subject to the project’s own server requirements. |
-| Platform flexibility | Deployment choices were affected by the old Photon implementation and server runtime constraints. | The LiteNetLib-based server implementation is designed to run independently of Photon and supports non-Windows server hosting. Actual support still depends on each build and deployment target. |
-| Operational responsibility | Photon provided much of the networking service infrastructure. | Server operators are responsible for running and maintaining the realtime server, connectivity, ports, and deployment. LiteNetLib is a transport library, not a hosted replacement service. |
-
-### Why this is a substantial change
-
-This is more than swapping one networking library for another. Removing Photon means replacing the dependency boundary between UberStrike’s realtime game logic and its transport: compatibility shims, custom message/event translation, and server-side networking integration are needed so existing game flows can continue to work. It also shifts deployment from a third-party realtime service to infrastructure that server owners can operate themselves.
-
-LiteNetLib v0.9.5.2 is the transport layer; it does not itself implement UberStrike’s game protocol or automatically provide Photon’s higher-level services. Those behaviours must be handled by the NekoNexus/Paradise integration.
-
+Paradise versions before 2.2.0 relied on Photon, a proprietary realtime networking service developed by Exit Games GmbH. The [NekoNexus fork](https://github.com/NekoSune-GameServers-MP-Mods/NekoNexus), maintained by [@NekoSuneVR](https://github.com/NekoSuneVR), replaces the Photon-dependent realtime layer with compatibility shims and a custom protocol transported by [LiteNetLib v0.9.5.2](https://github.com/RevenantX/LiteNetLib/tree/v0.9.5.2). With permission from @NekoSuneVR, Paradise also integrates this approach, allowing realtime servers to be self-hosted without relying on Photon.
 ## Credits
 _Developers_
 * [@SniperGER](https://github.com/SniperGER)
