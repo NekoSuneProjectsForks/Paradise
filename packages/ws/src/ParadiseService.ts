@@ -218,7 +218,6 @@ export default class ParadiseService {
 
       // #region Web Socket
       this.socketHost = new WebSocketHost(+this.ServiceSettings.SocketPort);
-
       this.socketHost.on('ConnectionRejected', (e: WebSocketConnectionRejectedEventArgs) => {
         Log.warn(
           `[Socket] Rejecting ${ServerType[e.Socket.type]}Server(${e.Socket.identifier}) from ${e.Socket.remoteAddress}. Reason: ${e.Reason}`
