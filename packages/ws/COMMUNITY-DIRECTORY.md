@@ -1,6 +1,6 @@
 # Community directory reporting
 
-Paradise can optionally report its authenticated Comm and Game realtime servers to the UberStrike community directory. Reporting is disabled by default and does not change client patching, Paradise authentication, or gameplay.
+Paradise reports its authenticated Comm and Game realtime servers to the shared UberStrike community directory by default. Set `CommunityDirectory.Enabled: false` to opt out. Reporting failures are non-fatal and do not stop client authentication or gameplay.
 
 ## Enable reporting
 
