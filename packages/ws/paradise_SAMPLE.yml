@@ -44,11 +44,12 @@ GameplaySettings:
   ShopFreeStaffItems: false
   ShopRefundFactor: 0.75
 
-# Optional community directory reporting. Disabled unless explicitly enabled.
-# The server's public IPv4 and realtime port must be reachable from the internet.
+# Shared community directory reporting and in-game server discovery.
+# Public endpoints are listed only after the directory's trusted realtime probe verifies them.
+# Set Enabled to false to opt this Paradise instance out of directory reporting.
 CommunityDirectory:
-  Enabled: false
-  Url: 'https://directory.example.org'
+  Enabled: true
+  Url: 'https://paradise-directory.nekosunevr.co.uk/'
   HeartbeatInterval: 30
   RequestTimeout: 5000
   MaxPlayerCount: 100
