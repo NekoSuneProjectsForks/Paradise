@@ -50,8 +50,7 @@ Find instructions for building each of Paradise's components below:
 - Web UI (coming soon)
 
 ## Moving on from Photon
-Paradise versions before 2.2.0 relied on Photon, a proprietary, paid (or free, but severely limited) realtime server solution developed by Exit Games GmbH. The [NekoNexus fork](https://github.com/NekoSuneVR/NekoNexus) implements shims to replace Photon entirely and translates the game's realtime events to a customized protocol using [LiteNetLib](https://github.com/RevenantX/LiteNetLib/tree/v0.9.5.2). With permission of @NekoSuneVR, Paradise now also implements this solution, enabling developers, server owners and of course players to not worry about any kind of limitation Photon brings with their licensing model. Using this solution, Paradise can now be run completely independent of any platform without relying on Windows to run the realtime servers.
-
+Paradise versions before 2.2.0 relied on Photon, a proprietary realtime networking service developed by Exit Games GmbH. The [NekoNexus fork](https://github.com/NekoSune-GameServers-MP-Mods/NekoNexus), maintained by [@NekoSuneVR](https://github.com/NekoSuneVR), replaces the Photon-dependent realtime layer with compatibility shims and a custom protocol transported by [LiteNetLib v0.9.5.2](https://github.com/RevenantX/LiteNetLib/tree/v0.9.5.2). With permission from @NekoSuneVR, Paradise also integrates this approach, allowing realtime servers to be self-hosted without relying on Photon.
 ## Credits
 _Developers_
 * [@SniperGER](https://github.com/SniperGER)
