@@ -94,8 +94,8 @@ export class ParadiseServiceSettings {
   };
 
   CommunityDirectory: CommunityDirectorySettings = {
-    Enabled: false,
-    Url: '',
+    Enabled: true,
+    Url: 'https://paradise-directory.nekosunevr.co.uk/',
     HeartbeatInterval: 30,
     RequestTimeout: 5000,
     MaxPlayerCount: 100
