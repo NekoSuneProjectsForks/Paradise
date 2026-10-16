@@ -9,7 +9,7 @@ In `paradise.yml`, set the directory URL and enable the integration:
 ```yaml
 CommunityDirectory:
   Enabled: true
-  Url: 'https://directory.example.org'
+  Url: 'https://paradise-directory.nekosunevr.co.uk/'
   HeartbeatInterval: 30
   RequestTimeout: 5000
   MaxPlayerCount: 100
@@ -19,4 +19,4 @@ Use the base HTTPS URL of the directory. HTTP is accepted only for loopback deve
 
 Paradise creates `.paradise-community-directory.key` in its working directory on first report. Keep this file private and preserve it across restarts: it derives the per-server directory credentials. Alternatively, set `PARADISE_COMMUNITY_DIRECTORY_SECRET` to a base64 encoded secret containing at least 32 random bytes, and keep that value stable across restarts. Do not include either secret in source control.
 
-The directory currently requires a trusted realtime probe before returning an entry from its public server-list endpoint. Paradise reporting registers and refreshes server metadata, but does not itself perform that probe. Therefore a reported server may remain `registered_unverified` and not appear in public discovery until the directory has a compatible probe configured.
+The legacy `AuthenticateApplication` response now reads the shared directory's `/api/community/servers` endpoint and adapts verified `game` records to the existing `PhotonView` response. This preserves the game's existing server-browser UI and join flow. The public endpoint only returns records marked `online` by the directory's trusted realtime probe; Paradise heartbeats alone do not mark a server online. If the directory cannot be reached, Paradise falls back to its locally configured game-server records so authentication remains available.
