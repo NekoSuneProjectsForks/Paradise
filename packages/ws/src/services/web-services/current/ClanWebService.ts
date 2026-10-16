@@ -138,7 +138,6 @@ export default class ClanWebService extends BaseWebService {
                   Lastlogin: publicProfile.LastLoginDate
                 });
 
-                await PublicProfile.update(publicProfile.Cmid, { GroupTag: clan.Tag });
                 await GroupInvitation.delete(groupInvitation.GroupInvitationId);
 
                 ClanRequestAcceptViewProxy.Serialize(
@@ -220,13 +219,7 @@ export default class ClanWebService extends BaseWebService {
     return null;
   }
 
-  // The WCF contract exposes this operation as CanOwnAClan; keep that wire-level name
-  // as an alias while retaining the existing current-service method name.
   static async CanOwnAClan(data: number[], outputStream: number[]): Promise<number[] | null> {
-    return this.CanOwnClan(data, outputStream);
-  }
-
-  static async CanOwnClan(data: number[], outputStream: number[]): Promise<number[] | null> {
     const isEncrypted = this.isEncrypted(data);
     const bytes = isEncrypted
       ? this.CryptoPolicy.RijndaelDecrypt(data, this.EncryptionPassPhrase, this.EncryptionInitVector)
@@ -272,7 +265,7 @@ export default class ClanWebService extends BaseWebService {
         ? this.CryptoPolicy.RijndaelEncrypt(outputStream, this.EncryptionPassPhrase, this.EncryptionInitVector)
         : outputStream;
     } catch (error) {
-      this.handleEndpointError('CanOwnClan', error);
+      this.handleEndpointError('CanOwnAClan', error);
     }
 
     return null;
@@ -428,8 +421,6 @@ export default class ClanWebService extends BaseWebService {
                 })
               );
 
-              // Keep the profile tag in sync with membership so it is available on the next login.
-              await PublicProfile.update(publicProfile.Cmid, { GroupTag: clan.Tag });
 
               await PlayerInventoryItem.delete({
                 ItemId: UberstrikeInventoryItem.ClanLicense,
