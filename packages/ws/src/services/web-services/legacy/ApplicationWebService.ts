@@ -16,6 +16,7 @@
  */
 
 import { ApiVersion } from '@/utils/enums';
+import ParadiseService from '@/ParadiseService';
 import { Map, PhotonServer, UserAccount } from '@festivaldev/paradise-models';
 import type { PhotonView } from '@festivaldev/uberstrike-js/Cmune/Core/Models/Views';
 import { BuildType, ChannelType, PhotonUsageType } from '@festivaldev/uberstrike-js/Cmune/DataCenter/Common/Entities';
@@ -108,7 +109,7 @@ export default class ApplicationWebService extends BaseWebService {
           })
         );
       } else {
-        const [gameServers, commServer] = await Promise.all([
+        const [configuredGameServers, commServer] = await Promise.all([
           PhotonServer.find({
             where: {
               UsageType: PhotonUsageType.All,
@@ -127,6 +128,73 @@ export default class ApplicationWebService extends BaseWebService {
             }
           })
         ]);
+
+        // The directory is a discovery source, not a replacement for the legacy
+        // AuthenticateApplication protocol. Only verified, fresh, compatible
+        // public game records are adapted to the PhotonView shape the client expects.
+        const directoryUrl =
+          ParadiseService.Instance.ServiceSettings.CommunityDirectory.Url ||
+          'https://paradise-directory.nekosunevr.co.uk/';
+        let gameServers: PhotonView[] = configuredGameServers as PhotonView[];
+        try {
+          const directoryResponse = await fetch(new URL('/api/community/servers', directoryUrl), {
+            signal: AbortSignal.timeout(
+              Math.max(250, Math.min(10000, ParadiseService.Instance.ServiceSettings.CommunityDirectory.RequestTimeout || 2500))
+            ),
+            headers: { Accept: 'application/json' }
+          });
+          if (!directoryResponse.ok) {
+            throw new Error(`directory returned HTTP ${directoryResponse.status}`);
+          }
+
+          const directoryPayload = (await directoryResponse.json()) as {
+            servers?: Array<{
+              id?: string;
+              name?: string;
+              address?: string;
+              port?: number;
+              region?: string;
+              protocol_version?: string;
+              status?: string;
+              usage_type?: string;
+            }>;
+          };
+          if (!Array.isArray(directoryPayload.servers)) {
+            throw new Error('directory response did not contain a servers array');
+          }
+
+          gameServers = directoryPayload.servers
+            .filter((server) =>
+              server.status === 'online' &&
+              server.usage_type === 'game' &&
+              server.protocol_version === '4.3.10' &&
+              typeof server.id === 'string' &&
+              typeof server.name === 'string' &&
+              typeof server.address === 'string' &&
+              Number.isInteger(server.port) &&
+              (server.port as number) > 0 &&
+              (server.port as number) <= 65535
+            )
+            .map((server, index) => ({
+              PhotonId: Number.parseInt((server.id as string).replaceAll('-', '').slice(-7), 16) || index + 1,
+              Guid: server.id as string,
+              // Game clients connect to the public endpoint; server credentials remain private.
+              Passphrase: '',
+              IP: server.address as string,
+              Port: server.port as number,
+              Name: server.name as string,
+              Enabled: true,
+              ApiVersion: ApiVersion.Legacy,
+              Region: Number.parseInt(server.region || '', 10) || 0,
+              UsageType: PhotonUsageType.All,
+              MinLatency: null,
+              LastResponseTime: null
+            }) as PhotonView[];
+        } catch (error) {
+          // Keep existing local configuration available during directory outages.
+          // A successful empty list is authoritative and must not expose unverified rows.
+          console.warn('[Directory] Could not load community servers; using configured Paradise servers.', error);
+        }
 
         AuthenticateApplicationViewProxy.Serialize(
           outputStream,
