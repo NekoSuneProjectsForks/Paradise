@@ -31,7 +31,6 @@ import { createDataSource } from './Database';
 import DiscordClient from './discord/DiscordClient';
 import { ParadiseServiceSettings } from './ParadiseServiceSettings';
 import { FileServerHost } from './services/file-server';
-import CommunityDirectoryClient from './services/directory/CommunityDirectoryClient';
 import PipeClient from './services/pipe/PipeClient';
 import PipeServer from './services/pipe/PipeServer';
 import {
@@ -66,7 +65,6 @@ export default class ParadiseService {
 
   private webServiceHost: WebServiceHost;
   private fileServerHost: FileServerHost;
-  private communityDirectoryClient: CommunityDirectoryClient;
   private pipeServer: PipeServer;
 
   private pipeClient: PipeClient;
@@ -220,13 +218,6 @@ export default class ParadiseService {
 
       // #region Web Socket
       this.socketHost = new WebSocketHost(+this.ServiceSettings.SocketPort);
-      this.communityDirectoryClient = new CommunityDirectoryClient(this.ServiceSettings.CommunityDirectory);
-      try {
-        this.communityDirectoryClient.start();
-      } catch (error) {
-        Log.error('[Directory] Community directory integration is disabled by invalid settings.', error);
-      }
-
       this.socketHost.on('ConnectionRejected', (e: WebSocketConnectionRejectedEventArgs) => {
         Log.warn(
           `[Socket] Rejecting ${ServerType[e.Socket.type]}Server(${e.Socket.identifier}) from ${e.Socket.remoteAddress}. Reason: ${e.Reason}`
@@ -237,11 +228,9 @@ export default class ParadiseService {
         Log.info(
           `[Socket] ${ServerType[e.Socket.type]}Server(${e.Socket.identifier}) connected from ${e.Socket.remoteAddress}.`
         );
-        void this.communityDirectoryClient?.serverConnected(e.Socket.Info.PhotonId, e.Socket.type);
       });
 
       this.socketHost.on('ClientDisconnected', (e: WebSocketDisconnectedEventArgs) => {
-        this.communityDirectoryClient?.serverDisconnected(e.Socket.Info.PhotonId);
         if (!e.Socket.identifier) return;
 
         Log.info(
@@ -502,7 +491,6 @@ export default class ParadiseService {
     this.fileServerHost?.stop();
     this.pipeServer?.stop();
     this.discordClient?.disconnect();
-    this.communityDirectoryClient?.stop();
     await this.socketHost?.stop();
 
     const runDuration = formatDuration(
