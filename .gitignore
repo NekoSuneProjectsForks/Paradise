@@ -198,7 +198,6 @@ dist
 .DS_Store
 
 # Paradise
-.paradise-community-directory.key
 .old/
 .release/
 .vs
