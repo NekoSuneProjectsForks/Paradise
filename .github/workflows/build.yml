@@ -114,6 +114,8 @@ jobs:
         run: makensis server-arm64.nsi
       - name: Upload artifacts (GitHub)
         uses: actions/upload-artifact@v4
+        with:
+          retention-days: 1
         if: ${{ github.server_url == 'https://github.com' }}
         with:
           name: paradise-server
@@ -159,6 +161,8 @@ jobs:
         run: makensis client.nsi
       - name: Upload artifacts (GitHub)
         uses: actions/upload-artifact@v4
+        with:
+          retention-days: 1
         if: ${{ github.server_url == 'https://github.com' }}
         with:
           name: paradise-client
