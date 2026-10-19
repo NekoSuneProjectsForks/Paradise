@@ -117,7 +117,7 @@ jobs:
         if: ${{ github.server_url == 'https://github.com' }}
         with:
           name: paradise-server
-          retention-days: 14
+          retention-days: 1
           path: |
             .release/server/*.exe
             .release/server/*.zip
@@ -162,7 +162,7 @@ jobs:
         if: ${{ github.server_url == 'https://github.com' }}
         with:
           name: paradise-client
-          retention-days: 14
+          retention-days: 1
           path: |
             .release/client/*.exe
             .release/client/*.zip
