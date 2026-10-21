@@ -16,6 +16,7 @@
  */
 
 using System;
+using System.Linq;
 using UberStrike.Core.Models;
 using UberStrike.Core.Types;
 using UberStrike.Realtime.UnitySdk;
@@ -54,6 +55,7 @@ namespace Paradise.Realtime.Server.Game {
 		}
 
 		public override void OnExit() {
+			Room.MatchEnded -= OnMatchEnded;
 			Room.PlayerJoined -= OnPlayerJoined;
 			Room.PlayerLeft -= OnPlayerLeft;
 			Room.PlayerKilled -= OnPlayerKilled;
@@ -115,9 +117,42 @@ namespace Paradise.Realtime.Server.Game {
 		}
 
 		private void OnPlayerLeft(object sender, PlayerLeftEventArgs args) {
-			if (!Room.CanStartMatch || Room.Players.Count == 0) {
+			var players = Room.Players;
+			if (TryEndMatchForRemainingPlayers(Room.MetaData.GameMode == GameModeType.EliminationMode)) {
+				return;
+			}
+
+			if (!Room.CanStartMatch || players.Count == 0) {
+				Log.Info("Player left mid-match; match viability changed " +
+					$"(canStartMatch={Room.CanStartMatch}, blue={players.Count(p => p.Actor.Team == TeamID.BLUE)}, " +
+					$"red={players.Count(p => p.Actor.Team == TeamID.RED)}, total={players.Count}) - ending round early.");
 				Room.HasRoundEnded = true;
 			}
+		}
+
+		private bool TryEndMatchForRemainingPlayers(bool excludeKilledPlayers = true) {
+			var remainingPlayers = Room.Players
+				.Where(p => !p.Actor.ActorInfo.IsSpectator && (!excludeKilledPlayers || p.State.CurrentStateId != PlayerStateId.Killed))
+				.ToList();
+
+			if (remainingPlayers.Count == 1) {
+				var winner = remainingPlayers[0];
+				Room.WinningCmid = winner.Actor.Cmid;
+				Room.WinningTeam = winner.Actor.Team;
+				Room.HasRoundEnded = true;
+				Log.Info($"Ending match early: player {winner.Actor.Cmid} is the last active player and wins.");
+				return true;
+			}
+
+			if (remainingPlayers.Count == 0) {
+				Room.WinningCmid = 0;
+				Room.WinningTeam = TeamID.NONE;
+				Room.HasRoundEnded = true;
+				Log.Info("Ending match early: no active players remain; there is no winner.");
+				return true;
+			}
+
+			return false;
 		}
 
 		private void OnPlayerKilled(object sender, PlayerKilledEventArgs args) {
@@ -127,6 +162,10 @@ namespace Paradise.Realtime.Server.Game {
 				if (peer.Actor.Cmid.CompareTo(args.VictimCmid) == 0) {
 					peer.State.SetState(PlayerStateId.Killed);
 				}
+			}
+
+			if (Room.MetaData.GameMode == GameModeType.EliminationMode && TryEndMatchForRemainingPlayers()) {
+				return;
 			}
 
 			if (Room.MetaData.GameMode == GameModeType.DeathMatch) {

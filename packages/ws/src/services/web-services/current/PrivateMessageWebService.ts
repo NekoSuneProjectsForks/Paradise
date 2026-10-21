@@ -103,7 +103,8 @@ export default class PrivateMessageWebService extends BaseWebService {
         if (steamMember) {
           const messages = (
             await PrivateMessage.find({
-              where: [{ FromCmid: steamMember.Cmid }, { ToCmid: steamMember.Cmid }]
+              where: [{ FromCmid: steamMember.Cmid }, { ToCmid: steamMember.Cmid }],
+              order: { DateSent: 'ASC', PrivateMessageId: 'ASC' }
             })
           ).reduce((acc: any, curr: PrivateMessage) => {
             const threadId = [curr.FromCmid, curr.ToCmid].sort().join(',');
@@ -131,20 +132,21 @@ export default class PrivateMessageWebService extends BaseWebService {
               const otherCmid = message.FromCmid !== steamMember.Cmid ? message.FromCmid : message.ToCmid;
               const otherProfile = await PublicProfile.findOne({ where: { Cmid: otherCmid } });
 
-              if (otherProfile) {
-                threads.push(
-                  new MessageThreadView({
-                    ThreadId: otherCmid,
-                    ThreadName: otherProfile.Name,
-                    MessageCount: filteredMessages.length,
-                    LastMessagePreview: message.ContentText,
-                    LastUpdate: message.DateSent,
-                    HasNewMessages: filteredMessages.some(
-                      (_: PrivateMessage) => _.ToCmid === steamMember.Cmid && !_.IsRead
-                    )
-                  })
-                );
-              }
+              // System messages use sender Cmid 0 and have no PublicProfile row. Keep those
+              // threads visible, and never pass an empty/null name or preview into the client UI.
+              const threadName = otherProfile?.Name?.trim() || (otherCmid === 0 ? 'System' : 'Unknown player');
+              threads.push(
+                new MessageThreadView({
+                  ThreadId: otherCmid,
+                  ThreadName: threadName,
+                  MessageCount: filteredMessages.length,
+                  LastMessagePreview: message.ContentText ?? '',
+                  LastUpdate: message.DateSent,
+                  HasNewMessages: filteredMessages.some(
+                    (_: PrivateMessage) => _.ToCmid === steamMember.Cmid && !_.IsRead
+                  )
+                })
+              );
             }
           }
 
@@ -240,7 +242,8 @@ export default class PrivateMessageWebService extends BaseWebService {
                 ToCmid: steamMember.Cmid,
                 IsDeletedByReceiver: false
               }
-            ]
+            ],
+            order: { DateSent: 'ASC', PrivateMessageId: 'ASC' }
           });
 
           ListProxy.Serialize<PrivateMessageView>(
@@ -282,11 +285,12 @@ export default class PrivateMessageWebService extends BaseWebService {
             where: {
               ToCmid: steamMember.Cmid,
               FromCmid: otherCmid,
-              IsRead: false
+              IsRead: false,
+              IsDeletedByReceiver: false
             }
           });
 
-          Promise.all(messages.map((message) => PrivateMessage.update(message.PrivateMessageId, { IsRead: true })));
+          await Promise.all(messages.map((message) => PrivateMessage.update(message.PrivateMessageId, { IsRead: true })));
 
           BooleanProxy.Serialize(outputStream, true);
         }
@@ -323,7 +327,7 @@ export default class PrivateMessageWebService extends BaseWebService {
           const sender = await PublicProfile.findOne({ where: { Cmid: steamMember.Cmid } });
           const receiver = await PublicProfile.findOne({ where: { Cmid: receiverCmid } });
 
-          if (sender && receiver) {
+          if (sender && receiver && content.trim().length > 0) {
             const privateMessage = await PrivateMessage.save(
               PrivateMessage.create({
                 PrivateMessageId: Math.randomInt(),
