@@ -44,6 +44,16 @@ GameplaySettings:
   ShopFreeStaffItems: false
   ShopRefundFactor: 0.75
 
+# Shared community directory reporting and in-game server discovery.
+# Public endpoints are listed only after the directory's trusted realtime probe verifies them.
+# Set Enabled to false to opt this Paradise instance out of directory reporting.
+CommunityDirectory:
+  Enabled: true
+  Url: 'https://paradise-directory.nekosunevr.co.uk/'
+  HeartbeatInterval: 30
+  RequestTimeout: 5000
+  MaxPlayerCount: 100
+
 #region Web Service Settings
 WebServicePrefix: 'UberStrike.DataCenter.WebService.CWS.'
 WebServiceSuffix: 'Contract.svc'

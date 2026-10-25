@@ -48,6 +48,14 @@ export type GameplaySettings = {
   ShopRefundFactor: number;
 };
 
+export type CommunityDirectorySettings = {
+  Enabled: boolean;
+  Url: string;
+  HeartbeatInterval: number;
+  RequestTimeout: number;
+  MaxPlayerCount: number;
+};
+
 export class ParadiseServiceSettings {
   ApplicationId: number = 1;
 
@@ -83,6 +91,14 @@ export class ParadiseServiceSettings {
     GarbageCollectInterval: 300, // 5 minutes
     ShopFreeStaffItems: false,
     ShopRefundFactor: 0.75
+  };
+
+  CommunityDirectory: CommunityDirectorySettings = {
+    Enabled: true,
+    Url: 'https://paradise-directory.nekosunevr.co.uk/',
+    HeartbeatInterval: 30,
+    RequestTimeout: 5000,
+    MaxPlayerCount: 100
   };
 
   WebServicePrefix: string = 'UberStrike.DataCenter.WebService.CWS.';
