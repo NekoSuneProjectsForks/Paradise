@@ -110,13 +110,14 @@ export default class ClanWebService extends BaseWebService {
             if (
               groupInvitation &&
               groupInvitation.InviteeCmid === publicProfile.Cmid &&
-              !(await ClanMember.findOne({ where: { Cmid: publicProfile.Cmid } }))
+              !(await ClanMember.findOne({ where: { Cmid: groupInvitation.InviteeCmid } }))
             ) {
               const clan = await Clan.findOne({ where: { GroupId: groupInvitation.GroupId } });
 
               if (clan) {
                 const memberCount = await ClanMember.count({ where: { GroupId: clan.GroupId } });
-                if (clan.MembersLimit != null && memberCount >= clan.MembersLimit) {
+
+                if (clan.MembersLimit && memberCount >= clan.MembersLimit) {
                   ClanRequestAcceptViewProxy.Serialize(
                     outputStream,
                     new ClanRequestAcceptView({
@@ -124,8 +125,13 @@ export default class ClanWebService extends BaseWebService {
                       ClanRequestId: clanInvitationId
                     })
                   );
+
                   return isEncrypted
-                    ? this.CryptoPolicy.RijndaelEncrypt(outputStream, this.EncryptionPassPhrase, this.EncryptionInitVector)
+                    ? this.CryptoPolicy.RijndaelEncrypt(
+                        outputStream,
+                        this.EncryptionPassPhrase,
+                        this.EncryptionInitVector
+                      )
                     : outputStream;
                 }
 
@@ -227,35 +233,40 @@ export default class ClanWebService extends BaseWebService {
 
     try {
       const authToken = StringProxy.Deserialize(bytes);
+
       this.debugEndpointData({ authToken });
 
       let canOwnClan = false;
+
       const session = await ParadiseService.Instance.SessionManager.findSessionForSteamUser(authToken);
-      const steamMember = session ? await session.SteamMember : null;
-      if (steamMember) {
-        const publicProfile = await PublicProfile.findOne({ where: { Cmid: steamMember.Cmid } });
-        const alreadyInClan = await ClanMember.findOne({ where: { Cmid: steamMember.Cmid } });
-        if (publicProfile && !alreadyInClan) {
-          if (publicProfile.AccessLevel === MemberAccessLevel.Admin) {
-            canOwnClan = true;
-          } else {
-            const [friends, statistics, license] = await Promise.all([
-              ContactRequest.find({
-                where: [
-                  { InitiatorCmid: publicProfile.Cmid, Status: ContactRequestStatus.Accepted },
-                  { ReceiverCmid: publicProfile.Cmid, Status: ContactRequestStatus.Accepted }
-                ]
-              }),
-              PlayerStatistics.findOne({ where: { Cmid: publicProfile.Cmid } }),
-              PlayerInventoryItem.findOne({
-                where: { Cmid: publicProfile.Cmid, ItemId: UberstrikeInventoryItem.ClanLicense }
-              })
-            ]);
-            canOwnClan =
-              !!statistics &&
-              XpPointsUtil.GetLevelForXp(statistics.Xp) >= 4 &&
-              friends.length > 0 &&
-              !!license;
+      if (session) {
+        const steamMember = await session.SteamMember;
+
+        if (steamMember) {
+          const publicProfile = await PublicProfile.findOne({ where: { Cmid: steamMember.Cmid } });
+
+          if (publicProfile) {
+            if (!(await ClanMember.findOne({ where: { Cmid: steamMember.Cmid } }))) {
+              if (publicProfile.AccessLevel === MemberAccessLevel.Admin) {
+                canOwnClan = true;
+              } else {
+                const [friends, statistics, license] = await Promise.all([
+                  ContactRequest.find({
+                    where: [
+                      { InitiatorCmid: publicProfile.Cmid, Status: ContactRequestStatus.Accepted },
+                      { ReceiverCmid: publicProfile.Cmid, Status: ContactRequestStatus.Accepted }
+                    ]
+                  }),
+                  PlayerStatistics.findOne({ where: { Cmid: publicProfile.Cmid } }),
+                  PlayerInventoryItem.findOne({
+                    where: { Cmid: publicProfile.Cmid, ItemId: UberstrikeInventoryItem.ClanLicense }
+                  })
+                ]);
+
+                canOwnClan =
+                  friends.length > 0 && !!statistics && XpPointsUtil.GetLevelForXp(statistics.Xp) >= 4 && !!license;
+              }
+            }
           }
         }
       }
@@ -420,7 +431,6 @@ export default class ClanWebService extends BaseWebService {
                   PublicProfile: publicProfile
                 })
               );
-
 
               await PlayerInventoryItem.delete({
                 ItemId: UberstrikeInventoryItem.ClanLicense,
@@ -614,8 +624,23 @@ export default class ClanWebService extends BaseWebService {
         const steamMember = await session.SteamMember;
 
         if (steamMember) {
-          const membership = await ClanMember.findOne({ where: { Cmid: steamMember.Cmid } });
-          Int32Proxy.Serialize(outputStream, membership?.GroupId ?? 0);
+          // const clans = await Clan.find({
+          //   relations: {
+          //     Members: true
+          //   }
+          // });
+
+          // for (const clan of clans) {
+          //   if (await clan.Members.find((_) => _.Cmid === steamMember.Cmid)) {
+          //     Int32Proxy.Serialize(outputStream, clan.GroupId);
+
+          //     break;
+          //   }
+          // }
+
+          const clanMember = await ClanMember.findOne({ where: { Cmid: steamMember.Cmid } });
+
+          Int32Proxy.Serialize(outputStream, clanMember?.GroupId ?? 0);
         }
       }
 
@@ -737,20 +762,22 @@ export default class ClanWebService extends BaseWebService {
 
           if (publicProfile && inviteeProfile) {
             const clan = await Clan.findOne({ where: { GroupId: clanId } });
-            const inviterMembership = await ClanMember.findOne({
-              where: { GroupId: clanId, Cmid: publicProfile.Cmid }
+            const inviterMember = await ClanMember.findOne({ where: { GroupId: clanId, Cmid: publicProfile.Cmid } });
+            const inviteeMember = await ClanMember.findOne({ where: { GroupId: clanId, Cmid: inviteeProfile.Cmid } });
+            const existingInvite = await GroupInvitation.findOne({
+              where: { GroupId: clanId, InviteeCmid: inviteeProfile.Cmid }
             });
-            const inviteeMembership = await ClanMember.findOne({ where: { Cmid: inviteeCmid } });
-            const existingInvitation = await GroupInvitation.findOne({ where: { InviteeCmid: inviteeCmid } });
-            const memberCount = clan ? await ClanMember.count({ where: { GroupId: clanId } }) : 0;
+            const memberCount = clan ? await ClanMember.count({ where: { GroupId: clan.GroupId } }) : 0;
 
             if (
               clan != null &&
-              inviterMembership != null &&
-              (inviterMembership.Position === GroupPosition.Leader || inviterMembership.Position === GroupPosition.Officer) &&
-              inviteeMembership == null &&
-              existingInvitation == null &&
-              (clan.MembersLimit == null || memberCount < clan.MembersLimit)
+              // (await ClanMember.findOne({ where: { GroupId: clanId, Cmid: inviteeCmid } })) == null &&
+              // (await GroupInvitation.findOne({ where: { GroupId: clanId, InviteeCmid: inviteeCmid } })) == null
+              inviterMember &&
+              inviterMember.Position !== GroupPosition.Member &&
+              !inviteeMember &&
+              !existingInvite &&
+              (!clan.MembersLimit || memberCount <= clan.MembersLimit)
             ) {
               await GroupInvitation.insert({
                 InviterCmid: publicProfile.Cmid,
@@ -834,7 +861,7 @@ export default class ClanWebService extends BaseWebService {
                 !memberToKick ||
                 clanMember.Cmid === memberToKick.Cmid ||
                 memberToKick.Position === GroupPosition.Leader ||
-                (clanMember.Position !== GroupPosition.Leader && clanMember.Position !== GroupPosition.Officer) ||
+                clanMember.Position === GroupPosition.Member ||
                 (memberToKick.Position === GroupPosition.Officer && clanMember.Position !== GroupPosition.Leader) ||
                 (memberToKick.Position === GroupPosition.Member &&
                   !(clanMember.Position === GroupPosition.Officer || clanMember.Position === GroupPosition.Leader))
@@ -913,12 +940,13 @@ export default class ClanWebService extends BaseWebService {
 
                   if (successor) {
                     await ClanMember.update(
-                        { GroupId: successor.GroupId, Cmid: successor.Cmid },
-                        { Position: GroupPosition.Leader }
-                      );
+                      { GroupId: successor.GroupId, Cmid: successor.Cmid },
+                      { Position: GroupPosition.Leader }
+                    );
 
                     await Clan.update(clan.GroupId, {
                       OwnerCmid: successor.Cmid,
+                      OwnerName: successor.Name
                     });
                   }
                 }
@@ -1014,7 +1042,8 @@ export default class ClanWebService extends BaseWebService {
                 } else if (!hasClanLicense) {
                   Int32Proxy.Serialize(outputStream, ClanCreationResultCode.RequirementClanLicense);
                 } else {
-                  const successorPreviousPosition = newLeader.Position;
+                  const prevPosition = newLeader.Position;
+
                   await Clan.update(clan.GroupId, {
                     OwnerCmid: newLeaderProfile.Cmid
                   });
@@ -1024,7 +1053,7 @@ export default class ClanWebService extends BaseWebService {
                       GroupId: clanMember.GroupId,
                       Cmid: clanMember.Cmid
                     },
-                    { Position: successorPreviousPosition }
+                    { Position: prevPosition }
                   );
 
                   await ClanMember.update(
@@ -1100,8 +1129,7 @@ export default class ClanWebService extends BaseWebService {
                 clanMember.Cmid === targetClanMember.Cmid ||
                 targetClanMember.Position === GroupPosition.Leader ||
                 clanMember.Position !== GroupPosition.Leader ||
-                (updateMemberPositionData.Position !== GroupPosition.Member &&
-                  updateMemberPositionData.Position !== GroupPosition.Officer)
+                updateMemberPositionData.Position === GroupPosition.Leader
               ) {
                 Int32Proxy.Serialize(outputStream, ClanActionResultCode.Error);
               } else {
