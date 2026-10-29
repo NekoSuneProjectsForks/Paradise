@@ -117,42 +117,13 @@ namespace Paradise.Realtime.Server.Game {
 		}
 
 		private void OnPlayerLeft(object sender, PlayerLeftEventArgs args) {
-			var players = Room.Players;
-			if (TryEndMatchForRemainingPlayers(Room.MetaData.GameMode == GameModeType.EliminationMode)) {
+			if (TryEndMatch(Room.MetaData.GameMode == GameModeType.EliminationMode)) {
 				return;
 			}
 
-			if (!Room.CanStartMatch || players.Count == 0) {
-				Log.Info("Player left mid-match; match viability changed " +
-					$"(canStartMatch={Room.CanStartMatch}, blue={players.Count(p => p.Actor.Team == TeamID.BLUE)}, " +
-					$"red={players.Count(p => p.Actor.Team == TeamID.RED)}, total={players.Count}) - ending round early.");
+			if (!Room.CanStartMatch || Room.Players.Count == 0) {
 				Room.HasRoundEnded = true;
 			}
-		}
-
-		private bool TryEndMatchForRemainingPlayers(bool excludeKilledPlayers = true) {
-			var remainingPlayers = Room.Players
-				.Where(p => !p.Actor.ActorInfo.IsSpectator && (!excludeKilledPlayers || p.State.CurrentStateId != PlayerStateId.Killed))
-				.ToList();
-
-			if (remainingPlayers.Count == 1) {
-				var winner = remainingPlayers[0];
-				Room.WinningCmid = winner.Actor.Cmid;
-				Room.WinningTeam = winner.Actor.Team;
-				Room.HasRoundEnded = true;
-				Log.Info($"Ending match early: player {winner.Actor.Cmid} is the last active player and wins.");
-				return true;
-			}
-
-			if (remainingPlayers.Count == 0) {
-				Room.WinningCmid = 0;
-				Room.WinningTeam = TeamID.NONE;
-				Room.HasRoundEnded = true;
-				Log.Info("Ending match early: no active players remain; there is no winner.");
-				return true;
-			}
-
-			return false;
 		}
 
 		private void OnPlayerKilled(object sender, PlayerKilledEventArgs args) {
@@ -164,22 +135,31 @@ namespace Paradise.Realtime.Server.Game {
 				}
 			}
 
-			if (Room.MetaData.GameMode == GameModeType.EliminationMode && TryEndMatchForRemainingPlayers()) {
-				return;
-			}
+			switch (Room.MetaData.GameMode) {
+				case GameModeType.DeathMatch: {
+					var killsRemaining = (short)Room.MetaData.KillLimit;
 
-			if (Room.MetaData.GameMode == GameModeType.DeathMatch) {
-				short killsRemaining = (short)Room.MetaData.KillLimit;
+					Room.GetCurrentScore(out killsRemaining, out _, out _);
+					foreach (var peer in Room.Peers) {
+						peer.GameEventSender.SendKillsRemaining(killsRemaining, 0);
+					}
 
-				Room.GetCurrentScore(out killsRemaining, out _, out _);
-				foreach (var peer in Room.Peers) {
-					peer.GameEventSender.SendKillsRemaining(killsRemaining, 0);
+					break;
 				}
-			} else {
-				Room.GetCurrentScore(out _, out short blueTeamScore, out short redTeamScore);
-				foreach (var peer in Room.Peers) {
-					peer.GameEventSender.SendUpdateRoundScore(Room.RoundNumber, blueTeamScore, redTeamScore);
-				}
+
+				case GameModeType.TeamDeathMatch:
+					Room.GetCurrentScore(out _, out short blueTeamScore, out short redTeamScore);
+					foreach (var peer in Room.Peers) {
+						peer.GameEventSender.SendUpdateRoundScore(Room.RoundNumber, blueTeamScore, redTeamScore);
+					}
+					break;
+
+				case GameModeType.EliminationMode:
+					if (TryEndMatch()) return;
+
+					break;
+
+				default: break;
 			}
 		}
 
@@ -190,6 +170,30 @@ namespace Paradise.Realtime.Server.Game {
 
 			args.Player.State.ResetState();
 			args.Player.State.SetState(PlayerStateId.Playing);
+		}
+
+		private bool TryEndMatch(bool excludeKilledPlayers = true) {
+			var remainingPlayers = Room.Players
+				.Where(p => !p.Actor.ActorInfo.IsSpectator && (!excludeKilledPlayers || p.State.CurrentStateId != PlayerStateId.Killed))
+				.ToList();
+
+			if (remainingPlayers.Count == 1) {
+				var winner = remainingPlayers[0];
+
+				Room.WinningCmid = winner.Actor.Cmid;
+				Room.WinningTeam = winner.Actor.Team;
+				Room.HasRoundEnded = true;
+
+				return true;
+			} else if (remainingPlayers.Count == 0) {
+				Room.WinningCmid = 0;
+				Room.WinningTeam = TeamID.NONE;
+				Room.HasRoundEnded = true;
+
+				return true;
+			}
+
+			return false;
 		}
 	}
 }
