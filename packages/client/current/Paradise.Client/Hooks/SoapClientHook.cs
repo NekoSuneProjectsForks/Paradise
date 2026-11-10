@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Xml;
 using UberStrike.WebService.Unity;
 using UnityEngine;
@@ -76,11 +77,40 @@ namespace Paradise.Client {
 
 			byte[] returnData = null;
 
-			using (var request = new WWW(Configuration.WebserviceBaseUrl + serviceName, byteArray, headers)) {
-				yield return request;
+			var url = Configuration.WebserviceBaseUrl + serviceName;
+			byte[] responseBytes;
+			string responseText;
+			string responseError;
+			bool responseDone;
 
+			if (WinHttp.ShouldUse(url)) {
+				// Unity 4.6's WWW / Mono can't do TLS 1.2+; Windows' WinHTTP can (see WinHttp.cs).
+				WinHttp.Response result = null;
+				var worker = new Thread(() => result = WinHttp.Send("POST", url, byteArray, headers));
+				worker.IsBackground = true;
+				worker.Start();
+				while (worker.IsAlive) {
+					yield return null;
+				}
+
+				responseBytes = result?.Body ?? new byte[0];
+				responseText = Encoding.UTF8.GetString(responseBytes).TrimStart('\uFEFF');
+				responseError = result == null ? "WinHTTP: no response" : result.Error;
+				responseDone = true;
+			} else {
+				using (var request = new WWW(url, byteArray, headers)) {
+					yield return request;
+
+					responseBytes = request.bytes ?? new byte[0];
+					responseText = request.text ?? string.Empty;
+					responseError = request.error;
+					responseDone = request.isDone;
+				}
+			}
+
+			{
 				if (WebServiceStatistics.IsEnabled) {
-					WebServiceStatistics.RecordWebServiceEnd(methodName, request.bytes.Length, request.isDone && string.IsNullOrEmpty(request.error));
+					WebServiceStatistics.RecordWebServiceEnd(methodName, responseBytes.Length, responseDone && string.IsNullOrEmpty(responseError));
 				}
 
 				try {
@@ -88,11 +118,11 @@ namespace Paradise.Client {
 						throw new Exception($"Simulated Webservice fail when calling {interfaceName}/{methodName}");
 					}
 
-					if (!request.isDone || !string.IsNullOrEmpty(request.error)) {
-						LogResponse(requestId, Time.realtimeSinceStartup, request.error, Time.time - startTime, 0);
+					if (!responseDone || !string.IsNullOrEmpty(responseError)) {
+						LogResponse(requestId, Time.realtimeSinceStartup, responseError, Time.time - startTime, 0);
 
 						throw new Exception(string.Concat(new string[] {
-							request.error,
+							responseError,
 							"\nWWW Url: ",
 							Configuration.WebserviceBaseUrl,
 							"\nService: ",
@@ -102,31 +132,31 @@ namespace Paradise.Client {
 						}));
 					}
 
-					if (!string.IsNullOrEmpty(request.text)) {
+					if (!string.IsNullOrEmpty(responseText)) {
 						try {
-							doc.LoadXml(request.text);
+							doc.LoadXml(responseText);
 
 							var result = doc.GetElementsByTagName(methodName + "Result");
 
 							if (result.Count <= 0) {
-								LogResponse(requestId, Time.realtimeSinceStartup, request.text, Time.time - startTime, 0);
+								LogResponse(requestId, Time.realtimeSinceStartup, responseText, Time.time - startTime, 0);
 
-								throw new Exception($"WWW Request to {Configuration.WebserviceBaseUrl}{serviceName} failed with content {request.text}");
+								throw new Exception($"WWW Request to {Configuration.WebserviceBaseUrl}{serviceName} failed with content {responseText}");
 							}
 
 							returnData = Convert.FromBase64String(result[0].InnerXml);
 
 							if (returnData.Length == 0) {
-								LogResponse(requestId, Time.realtimeSinceStartup, request.text, Time.time - startTime, 0);
+								LogResponse(requestId, Time.realtimeSinceStartup, responseText, Time.time - startTime, 0);
 
-								throw new Exception($"WWW Request to {Configuration.WebserviceBaseUrl}{serviceName} failed with content {request.text}");
+								throw new Exception($"WWW Request to {Configuration.WebserviceBaseUrl}{serviceName} failed with content {responseText}");
 							}
 
-							LogResponse(requestId, Time.realtimeSinceStartup, "OK", Time.realtimeSinceStartup - startTime, request.bytes.Length);
+							LogResponse(requestId, Time.realtimeSinceStartup, "OK", Time.realtimeSinceStartup - startTime, responseBytes.Length);
 						} catch {
-							LogResponse(requestId, Time.time, request.text, Time.realtimeSinceStartup - startTime, 0);
+							LogResponse(requestId, Time.time, responseText, Time.realtimeSinceStartup - startTime, 0);
 
-							throw new Exception($"Error reading XML return for method call {interfaceName}/{methodName}: {request.text}");
+							throw new Exception($"Error reading XML return for method call {interfaceName}/{methodName}: {responseText}");
 						}
 					}
 

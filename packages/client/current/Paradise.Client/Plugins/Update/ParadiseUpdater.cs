@@ -222,7 +222,7 @@ namespace Paradise.Client {
 		private IEnumerator DownloadUpdateCatalog(string updateUri, Action<UpdateCatalog> successCallback, Action<HttpResponse> errorCallback) {
 			Log.Info($"Attempting to download update catalog from {updateUri}");
 
-			using (WWW loader = new WWW(updateUri)) {
+			using (var loader = WebDownload.Get(updateUri, 15000)) {
 				float elapsedTime = 0f;
 
 				while (!loader.isDone) {
@@ -545,7 +545,7 @@ namespace Paradise.Client {
 				progressPopup.Text = $"{file.FileName} ({ParadiseUtils.FormatSize(file.FileSize)})";
 
 				var fileUri = NormalizeUri(string.Join("/", new string[] { file.RemoteURL ?? UpdateCatalogUrl, file.RemotePath, file.FileName }));
-				using (WWW loader = new WWW(fileUri)) {
+				using (var loader = WebDownload.Get(fileUri)) {
 					Log.Info($"Downloading remote file: {fileUri}");
 
 					float elapsedTime = 0f;
