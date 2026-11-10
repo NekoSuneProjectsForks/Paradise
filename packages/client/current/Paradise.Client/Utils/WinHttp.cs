@@ -62,7 +62,7 @@ namespace Paradise.Client {
 				var uri = new Uri(url);
 				var secure = uri.Scheme == Uri.UriSchemeHttps;
 
-				session = WinHttpOpen("UberStrike-Paradise/4.7.1", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, null, null, 0);
+				session = WinHttpOpen($"UberStrike-Paradise/{ApplicationDataManager.Version}", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, null, null, 0);
 				if (session == IntPtr.Zero) return Fail(response, "WinHttpOpen");
 
 				// TLS 1.2 + 1.3; Windows versions without TLS 1.3 reject that flag, then ask for 1.2 only.
